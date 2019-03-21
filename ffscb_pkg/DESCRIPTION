@@ -1,0 +1,16 @@
+Package: fregion
+Type: Package
+Title: Confidence Regions and Bands for Functional Data
+Version: 0.0.2
+Authors@R: c(person("Hyunphil", "Choi",     email = "phil0808@gmail.com",        role = c("aut", "cre")[1]),
+             person("Dominik",  "Liebl",    email = "r.packages.mail@gmail.com", role = c("aut", "cre")   ),
+             person("Matthew",  "Reimherr", email = "mreimherr@psu.edu",         role = c("aut", "cre")[1]))
+Description: This package provides inferential tools for functional parameters when Gaussian estimators are in place.
+License: GPL-3
+Imports:
+     CompQuadForm,
+     fda,
+     splines,
+     pracma
+LazyData: TRUE
+RoxygenNote: 6.1.1
