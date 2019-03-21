@@ -1,4 +1,4 @@
-Package: fregion
+Package: ffscb
 Type: Package
 Title: Fast 'n' Fair Simultaneous Confidence Bands for Functional Parameters
 Version: 0.0.2
