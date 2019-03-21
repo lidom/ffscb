@@ -1,4 +1,4 @@
-#' fregion
+#' ffscb
 #'
 #' This package contains example codes for inferential tools suggested in \url{http://arxiv.org/abs/1607.07771}, titled 'Geometric Approach to Confidence Regions and Bands for Functional Parameters'.
 #' The top level functions below take functional estimate and the covariance of it to perform hypothesis testings, to construct confidence bands, and to construct/visuallize hyper-rectangular regions.
@@ -62,5 +62,5 @@
 #' c.fd <- fregion.rect(hat.mu.fd-mu0.fd,hat.cov.fd,N=N)
 #' plot(c.fd)
 #' @docType package
-#' @name fregion
+#' @name ffscb
 NULL

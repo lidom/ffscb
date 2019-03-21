@@ -90,15 +90,15 @@ fregion.test <- function(x, x0=0, cov, N=1, type=c("Ec"), pc.cut=c(0.99), prec=N
 
     # 6. Run tests ; If 'ALL' is included then run all the tests
     if ( sum(c("all", "All", "ALL") %in% type) > 0 ) type <- c("Enorm","Epc","Ec","Ec1","Rz","Rz1","Rzs","Rz1s")
-    if ("Enorm" %in% type)  pval.Enorm <- fregion::get.pval.Enorm(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Epc" %in% type)    pval.Epc   <- fregion::get.pval.Epc(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Ec" %in% type)     pval.Ec    <- fregion::get.pval.Ec(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Ec1" %in% type)    pval.Ec1   <- fregion::get.pval.Ec1(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Rz" %in% type)     pval.Rz    <- fregion::get.pval.Rz(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Rz1" %in% type)    pval.Rz1   <- fregion::get.pval.Rz1(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Rzs" %in% type)    pval.Rzs   <- fregion::get.pval.Rzs(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
-    if ("Rz1s" %in% type)   pval.Rz1s  <- fregion::get.pval.Rz1s(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
-    if ("LRt" %in% type)   pval.LRt  <- fregion::get.pval.LRt(x=x, N = N, eigen=e.cov,
+    if ("Enorm" %in% type)  pval.Enorm <- ffscb::get.pval.Enorm(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Epc" %in% type)    pval.Epc   <- ffscb::get.pval.Epc(x=x,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Ec" %in% type)     pval.Ec    <- ffscb::get.pval.Ec(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Ec1" %in% type)    pval.Ec1   <- ffscb::get.pval.Ec1(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Rz" %in% type)     pval.Rz    <- ffscb::get.pval.Rz(x=x,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Rz1" %in% type)    pval.Rz1   <- ffscb::get.pval.Rz1(x=x,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Rzs" %in% type)    pval.Rzs   <- ffscb::get.pval.Rzs(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
+    if ("Rz1s" %in% type)   pval.Rz1s  <- ffscb::get.pval.Rz1s(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
+    if ("LRt" %in% type)    pval.LRt   <- ffscb::get.pval.LRt(x=x, N = N, eigen=e.cov,
       band_pen = band_pen, conf.level=conf.level, fd.eval.grid.size=200, df=NULL)
 
     names.pval <- ls(pattern=glob2rx("pval.*"))

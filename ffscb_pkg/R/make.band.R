@@ -4,9 +4,9 @@ make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
   pc.to.use   <- sum(eigen$values > .Machine$double.eps)
   c.square    <- sqrt(eigen$values[1:pc.to.use])
   weights     <- eigen$values[1:pc.to.use]/c.square
-  xi          <- fregion::get.schisq.q.gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
+  xi          <- ffscb::get.schisq.q.gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
-    evalgrid      <- fregion::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
+    evalgrid      <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- eval.fd(evalgrid,eigen$harmonics)
   }
   band.eval <- sqrt(apply(t(eigen$vectors[,1:pc.to.use]^2) * c.square * xi,2,sum))
@@ -22,7 +22,7 @@ make.band.BEPC <- function(eigen, conf.level, J, fd.eval.grid.size=200){ ## Fini
   c.square    <- eigen$values[1:pc.to.use]
   xi          <- qchisq(conf.level,J) ## Quantile of Chi-square
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
-    evalgrid      <- fregion::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
+    evalgrid      <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- eval.fd(evalgrid,eigen$harmonics)
   }
   band.eval <- sqrt(apply(t(eigen$vectors[,1:pc.to.use]^2) * c.square * xi,2,sum))
@@ -34,9 +34,9 @@ make.band.BEPC <- function(eigen, conf.level, J, fd.eval.grid.size=200){ ## Fini
 #' @export
 make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
-    evalgrid <- fregion::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
+    evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
     cov.m <- eval.bifd(evalgrid,evalbrid,cov) } else {cov.m <- cov}
-  crit.Bs <- fregion::get.crit.supnorm.simple(cov.m,n.sim=sim.size,p=conf.level)
+  crit.Bs <- ffscb::get.crit.supnorm.simple(cov.m,n.sim=sim.size,p=conf.level)
   band.eval <- sqrt(diag(cov.m)) * crit.Bs
   if (inherits(cov,"bifd")) {
     return(Data2fd(evalgrid,band.eval,basisobj=cov$sbasis))
@@ -46,9 +46,9 @@ make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200)
 #' @export
 make.band.naive.t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
-    evalgrid <- fregion::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
+    evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
     cov.m    <- eval.bifd(evalgrid,evalbrid,cov) } else {cov.m <- cov}
-  band.eval <- fregion::qt2(conf.level,df) * sqrt(diag(cov.m))
+  band.eval <- ffscb::qt2(conf.level,df) * sqrt(diag(cov.m))
   if (inherits(cov,"bifd")) {
     return(Data2fd(evalgrid,band.eval,basisobj=cov$sbasis))
   } else return(band.eval)
@@ -63,7 +63,7 @@ make.band.BRz <- function(eigen, conf.level, fd.eval.grid.size=200){
   z <- z[1:pc.to.use]
   c.square.xi <- z^2 * eigen$values[1:pc.to.use]
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
-    evalgrid <- fregion::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
+    evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- eval.fd(evalgrid,eigen$harmonics)
   }
   band.eval <- sqrt(apply(t(eigen$vectors[,1:pc.to.use]^2) * c.square.xi, 2 ,sum))
@@ -81,7 +81,7 @@ make.band.BRz0 <- function(eigen, conf.level, fd.eval.grid.size=200){
   z <- z[1:pc.to.use]
   c.square.xi <- z^2 * eigen$values[1:pc.to.use]
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
-    evalgrid <- fregion::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
+    evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- eval.fd(evalgrid,eigen$harmonics)
   }
   band.eval <- sqrt(apply(t(eigen$vectors[,1:pc.to.use]^2) * c.square.xi, 2 ,sum))

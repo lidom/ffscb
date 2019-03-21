@@ -53,8 +53,8 @@ get.pval.Rz1 <- function(x, N = 1, eigen, fpc.cut=NULL){
   if (is.null(fpc.cut) | fpc.cut==Inf) {fpc.cut <- sum(eigen$values > .Machine$double.eps)}
   if (inherits(x,"fd")) {Zs.actual <- abs( sqrt(N) * inprod(x, eigen$harmonics[1:fpc.cut])   / sqrt(eigen$values[1:fpc.cut])) } else
                         {Zs.actual <- abs( sqrt(N) * crossprod(x, eigen$vectors[,1:fpc.cut]) / sqrt(eigen$values[1:fpc.cut])) }
-  M.star <- max(sqrt(2*pi) * eigen$values[1:fpc.cut] * fregion::sf.f1(Zs.actual))
-  Zs.star <- sapply(M.star / (sqrt(2*pi) * eigen$values[1:fpc.cut]), fregion::sf.f1.inv)
+  M.star <- max(sqrt(2*pi) * eigen$values[1:fpc.cut] * ffscb::sf.f1(Zs.actual))
+  Zs.star <- sapply(M.star / (sqrt(2*pi) * eigen$values[1:fpc.cut]), ffscb::sf.f1.inv)
   1 - prod(pnorm2(Zs.star))
 }
 #' @export
@@ -83,10 +83,10 @@ get.pval.Rz1s <- function(x, N = 1, eigen, fpc.cut=NULL, hat.cov=NULL, df=NULL){
                         {Ts.actual <- abs( sqrt(N) * crossprod(x, eigen$vectors[,1:fpc.cut] ) / sqrt(tilde.lambda[1:fpc.cut]))}
   if (is.null(df)) {df=N-1}
   Zs.actual <- qnorm2(pt2(Ts.actual,df=df))
-  # M.star <- max(sqrt(2*pi) * eigen$values[1:fpc.cut] * fregion::sf.f1(Zs.actual))
-  # Zs.star <- sapply(M.star / (sqrt(2*pi) * eigen$values[1:fpc.cut]), fregion::sf.f1.inv)
-  M.star <- max(sqrt(2*pi) * tilde.lambda[1:fpc.cut] * fregion::sf.f1(Zs.actual))
-  Zs.star <- sapply(M.star / (sqrt(2*pi) * tilde.lambda[1:fpc.cut]), fregion::sf.f1.inv)
+  # M.star <- max(sqrt(2*pi) * eigen$values[1:fpc.cut] * ffscb::sf.f1(Zs.actual))
+  # Zs.star <- sapply(M.star / (sqrt(2*pi) * eigen$values[1:fpc.cut]), ffscb::sf.f1.inv)
+  M.star <- max(sqrt(2*pi) * tilde.lambda[1:fpc.cut] * ffscb::sf.f1(Zs.actual))
+  Zs.star <- sapply(M.star / (sqrt(2*pi) * tilde.lambda[1:fpc.cut]), ffscb::sf.f1.inv)
   1 - prod(pnorm2(Zs.star))
 }
 

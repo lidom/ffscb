@@ -67,7 +67,7 @@ fregion.rect <- function(x, cov, N=1, type="Rz", conf.level=0.95, pc.cut=0.999, 
   cut=pc.cut
   if (cut < 0) stop("fpc.cut should be some positive fraction from 0 to 1, or integer greater than or equal to 1, or just 0 (to use all available pcs)")
   if (cut == 0 ) cut <- sum(e.cov$values > .Machine$double.eps) else { # if fpc.cut is 0, use all PCs
-    if (cut < 1) cut <- fregion::get.req.n.pc(cut,e.cov$values) else {
+    if (cut < 1) cut <- ffscb::get.req.n.pc(cut,e.cov$values) else {
       if (cut != round(cut)) {cut=round(cut) ; print("fpc.cut[",i,"] was rounded to the closest integer")}
     }
   }
@@ -87,10 +87,10 @@ fregion.rect <- function(x, cov, N=1, type="Rz", conf.level=0.95, pc.cut=0.999, 
   if (datatype=="fd") {coef <- as.vector(inprod(x, harmonics))} else
                      {coef <- as.vector(crossprod(x, eigenfunctions))}
   score <- coef / sqrt(eigenvalues)
-  if ("Rz" %in% type) {mult <- fregion::get.crit.Rz(eigenvalues,conf.level) ; marginal.coverage <- pnorm2(mult) }
-  if ("Rz1" %in% type) {mult <- fregion::get.crit.Rz1(eigenvalues,conf.level) ; marginal.coverage <- pnorm2(mult) }
-  if ("Rzs" %in% type) {mult <- fregion::get.crit.Rzs(eigenvalues,conf.level,df) ; marginal.coverage <- pt2(mult,df) }
-  if ("Rz1s" %in% type) {mult <- fregion::get.crit.Rz1s(eigenvalues,conf.level,df) ; marginal.coverage <- pt2(mult,df) }
+  if ("Rz" %in% type) {mult <- ffscb::get.crit.Rz(eigenvalues,conf.level) ; marginal.coverage <- pnorm2(mult) }
+  if ("Rz1" %in% type) {mult <- ffscb::get.crit.Rz1(eigenvalues,conf.level) ; marginal.coverage <- pnorm2(mult) }
+  if ("Rzs" %in% type) {mult <- ffscb::get.crit.Rzs(eigenvalues,conf.level,df) ; marginal.coverage <- pt2(mult,df) }
+  if ("Rz1s" %in% type) {mult <- ffscb::get.crit.Rz1s(eigenvalues,conf.level,df) ; marginal.coverage <- pt2(mult,df) }
   ME <- mult * sqrt(eigenvalues)
   cum.var.explained <- cumsum(eigenvalues) / sum(e.cov$values[e.cov$values>0])
   var.explained <- eigenvalues / sum(e.cov$values[e.cov$values>0])
