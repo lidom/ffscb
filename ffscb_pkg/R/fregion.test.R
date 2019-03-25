@@ -59,14 +59,14 @@
 #'
 #' @export
 
-fregion.test <- function(x, x0=0, cov, N=1, type=c("Ec"), pc.cut=c(0.99), prec=NULL, hat.cov=NULL, df=NULL, conf.level=c(0.95),band_pen=1){
+fregion.test <- function(x, x0=0, cov, tau=NULL, N=1, type=c("Ec"), pc.cut=c(0.99), prec=NULL, hat.cov=NULL, df=NULL, conf.level=c(0.95)){
   ### 1. Check the data type ###
   if (inherits(x,"fd") & (inherits(cov,"bifd") | inherits(cov,"pca.fd") | inherits(cov,"eigen.fd"))) datatype="fd" else if
   ((inherits(x,"numeric") | inherits(x,"matrix"))  & (inherits(cov,"matrix") | inherits(cov,"list") | inherits(cov,"eigen") )) datatype="vector" else stop ("The format of data is unknown")
 
   ### 2. If covariance is given as it is (not eigen decomposition), take eigen decomposition.
   e.cov <- cov
-  if (inherits(cov,"bifd")) e.cov <- eigen.fd(cov)
+  if (inherits(cov,"bifd"))   e.cov <- eigen.fd(cov)
   if (inherits(cov,"matrix")) e.cov <- eigen(cov)
 
   # Trim cov to have all non-negative eigenvalues
@@ -90,22 +90,21 @@ fregion.test <- function(x, x0=0, cov, N=1, type=c("Ec"), pc.cut=c(0.99), prec=N
 
     # 6. Run tests ; If 'ALL' is included then run all the tests
     if ( sum(c("all", "All", "ALL") %in% type) > 0 ) type <- c("Enorm","Epc","Ec","Ec1","Rz","Rz1","Rzs","Rz1s")
-    if ("Enorm" %in% type)  pval.Enorm <- ffscb::get.pval.Enorm(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Epc" %in% type)    pval.Epc   <- ffscb::get.pval.Epc(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Ec" %in% type)     pval.Ec    <- ffscb::get.pval.Ec(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Ec1" %in% type)    pval.Ec1   <- ffscb::get.pval.Ec1(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Rz" %in% type)     pval.Rz    <- ffscb::get.pval.Rz(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Rz1" %in% type)    pval.Rz1   <- ffscb::get.pval.Rz1(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Rzs" %in% type)    pval.Rzs   <- ffscb::get.pval.Rzs(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
-    if ("Rz1s" %in% type)   pval.Rz1s  <- ffscb::get.pval.Rz1s(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
-    if ("LRt" %in% type)    pval.LRt   <- ffscb::get.pval.LRt(x=x, N = N, eigen=e.cov,
-      band_pen = band_pen, conf.level=conf.level, fd.eval.grid.size=200, df=NULL)
-
-    names.pval <- ls(pattern=glob2rx("pval.*"))
-    pvalues <- sapply(names.pval,get,inherits=FALSE,envir=environment()) #,envir=1
-    names(pvalues) <- sub("pval.","",names(pvalues))
-    pvalues <- c(pc.cut[i],cut,pvalues)
-    result <- rbind(result,pvalues)
+    if ("Enorm" %in% type)  pval.Enorm   <- ffscb::get.pval.Enorm(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Epc" %in% type)    pval.Epc     <- ffscb::get.pval.Epc(x=x,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Ec" %in% type)     pval.Ec      <- ffscb::get.pval.Ec(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Ec1" %in% type)    pval.Ec1     <- ffscb::get.pval.Ec1(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Rz" %in% type)     pval.Rz      <- ffscb::get.pval.Rz(x=x,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Rz1" %in% type)    pval.Rz1     <- ffscb::get.pval.Rz1(x=x,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Rzs" %in% type)    pval.Rzs     <- ffscb::get.pval.Rzs(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
+    if ("Rz1s" %in% type)   pval.Rz1s    <- ffscb::get.pval.Rz1s(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
+    if ("LRt" %in% type)    pval.FFSCB.t <- ffscb::get.pvalue.FFSCB.t(x=x,x0=x0,tau=tau,t0=t0,diag.cov=diag.cov,N=N,n_int=n_int)
+    ##
+    names.pval          <- ls(pattern=glob2rx("pval.*"))
+    pvalues             <- sapply(names.pval,get,inherits=FALSE,envir=environment()) #,envir=1
+    names(pvalues)      <- sub("pval.","",names(pvalues))
+    pvalues             <- c(pc.cut[i],cut,pvalues)
+    result              <- rbind(result,pvalues)
     rownames(result)[i] <- i
   }
   colnames(result)[c(1,2)] <- c("pc.cut","pc.used")

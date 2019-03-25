@@ -128,7 +128,7 @@ get.pvalue.FFSCB.t <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- make.band.FFSCB.t(tau=tau, t0 = t0, conf.level=(1-p), N=N, n_int=5)
+    b    <- ffscb::make.band.FFSCB.t(tau=tau, t0 = t0, conf.level=(1-p), N=N, n_int=5)
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     s    <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - s * b_f(t) * sqrt(diag.cov_f(t)) / sqrt(N)
