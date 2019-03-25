@@ -94,10 +94,10 @@ make.band.BRz0 <- function(eigen, conf.level, fd.eval.grid.size=200){
 #' @export
 make.band.KR.z <- function(tau, conf.level, fd.eval.grid.size=200){
   alpha.level <- 1-conf.level
-  tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
-  tau_01      <- stats::integrate(f = tau_f, lower = 0, upper = 1)$value
+  tt          <- seq(0,1,len=length(tau))
+  tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
   myfun       <- function(c){pnorm(c,lower.tail = FALSE)+tau_01*exp(-c^2/2)/(2*pi)-alpha.level/2}
-  cstar       <- uniroot(f = myfun,interval = c(1,5))$root
+  cstar       <- uniroot(f = myfun,interval = c(.5,8))$root
   band.eval   <- rep(cstar, times=length(tau))
   return(band.eval)
 }
@@ -106,10 +106,10 @@ make.band.KR.z <- function(tau, conf.level, fd.eval.grid.size=200){
 make.band.KR.t <- function(tau, conf.level=level, fd.eval.grid.size=200){
   alpha.level <- 1-conf.level
   nu          <- N-1
-  tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
-  tau_01      <- stats::integrate(f = tau_f, lower = 0, upper = 1)$value
+  tt          <- seq(0,1,len=length(tau))
+  tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
   myfun       <- function(c){pt(c, lower.tail = FALSE, df=nu)+tau_01*(1+c^2/nu)^(-nu/2)/(2*pi) - alpha.level/2}
-  cstar       <- uniroot(f = myfun,interval = c(1,5))$root
+  cstar       <- uniroot(f = myfun,interval = c(.5,8))$root
   band.eval   <- rep(cstar, times=length(tau))
   return(band.eval)
 }
