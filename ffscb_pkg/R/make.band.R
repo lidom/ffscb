@@ -119,7 +119,7 @@ make.band.KR.t <- function(tau, conf.level=level, fd.eval.grid.size=200){
 make.band.FFSCB.z <- function(tau, t0, conf.level, n_int){
   ##
   alpha.level <- 1-conf.level
-  tt          <- seq(0,1,len=200)
+  tt          <- seq(0,1,len=length(tau))
   tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
   tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
   knots       <- seq(0,1,len=(n_int + 1))
@@ -228,7 +228,7 @@ make.band.FFSCB.z <- function(tau, t0, conf.level, n_int){
 make.band.FFSCB.t <- function(tau, t0, conf.level, N, n_int){
   ##
   alpha.level <- 1-conf.level
-  tt          <- seq(0,1,len=200)
+  tt          <- seq(0,1,len=length(tau))
   tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
   tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
   knots       <- seq(0,1,len=(n_int + 1))
