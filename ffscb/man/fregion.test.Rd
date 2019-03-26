@@ -4,9 +4,9 @@
 \alias{fregion.test}
 \title{Performs hypothesis test(s) based on functional confidence region(s).}
 \usage{
-fregion.test(x, x0 = 0, cov, N = 1, type = c("Ec"),
+fregion.test(x, x0 = 0, cov, tau = NULL, N = 1, type = c("Ec"),
   pc.cut = c(0.99), prec = NULL, hat.cov = NULL, df = NULL,
-  conf.level = c(0.95), band_pen = 1)
+  conf.level = c(0.95))
 }
 \arguments{
 \item{x}{Functional parameter estimate. It can be either a vector or \link{fd} object from \link{fda}.}
@@ -17,11 +17,12 @@ fregion.test(x, x0 = 0, cov, N = 1, type = c("Ec"),
 
 \item{N}{It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.}
 
-\item{type}{This specifies which regions to be used for the tests. It should be a collection of the following: "Enorm", "Epc", "Ec", "Ec1", "Rz", "Rz1", "Rzs", or "Rz1s".
+\item{type}{This specifies which regions to be used for the tests. It should be a collection of the following: "FFSCB.t", "Enorm", "Epc", "Ec", "Ec1", "Rz", "Rz1", "Rzs", or "Rz1s".
 \itemize{
+  \item FFSCB.t : Test based on the fast 'n' fair simultaneous confidence band of Liebl and Reimherr (2019).
   \item Enorm : The Hilbert space norm based test, which uses a `ball' in the function space(H).
   \item Epc : fPCA based test, which is a finite-dimensional chi-square ellipse in H
-  \item Ec : The suggested test based on the ellipsoid region in which radius are proportional to the square-root of corresponding eigenvalues.
+  \item Ec : Test based on the ellipsoid region in which radius are proportional to the square-root of corresponding eigenvalues as suggested in Choi and Reimherr (2018).
   \item Ec1 : The second suggestion for ellipsoie region, in which radius are proportional to the square-root of tails sums of eigenvalues. Doesn't require any smoothness assumption.
   \item Rz : The suggested rectangular region based test.
   \item Rz1 : The second suggested rectangular region based test.
@@ -80,4 +81,8 @@ e.hat.cov.fd <- eigen.fd(hat.cov.fd)   # <- This is optional and can be provide 
 # Compare different methods for Hypothesis testings.
 (a1.fd=fregion.test(hat.mu.fd,mu0.fd,hat.cov.fd,N,type=c("ALL"),pc.cut=c(1,3,4,5,0.99,0.999)))
 
+}
+\references{
+Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239–260.
 }
