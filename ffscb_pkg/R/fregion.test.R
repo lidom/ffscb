@@ -4,11 +4,12 @@
 #' @param x0 Functional parameter under the null hypothesis. Zero function is assumed if it's not given.
 #' @param cov N * Cov(X), in which X is the functional estimator. It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.
 #' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
-#' @param type This specifies which regions to be used for the tests. It should be a collection of the following: "Enorm", "Epc", "Ec", "Ec1", "Rz", "Rz1", "Rzs", or "Rz1s".
+#' @param type This specifies which regions to be used for the tests. It should be a collection of the following: "FFSCB.t", "Enorm", "Epc", "Ec", "Ec1", "Rz", "Rz1", "Rzs", or "Rz1s".
 #' \itemize{
+#'   \item FFSCB.t : Test based on the fast 'n' fair simultaneous confidence band of Liebl and Reimherr (2019).
 #'   \item Enorm : The Hilbert space norm based test, which uses a `ball' in the function space(H).
 #'   \item Epc : fPCA based test, which is a finite-dimensional chi-square ellipse in H
-#'   \item Ec : The suggested test based on the ellipsoid region in which radius are proportional to the square-root of corresponding eigenvalues.
+#'   \item Ec : Test based on the ellipsoid region in which radius are proportional to the square-root of corresponding eigenvalues as suggested in Choi and Reimherr (2018).
 #'   \item Ec1 : The second suggestion for ellipsoie region, in which radius are proportional to the square-root of tails sums of eigenvalues. Doesn't require any smoothness assumption.
 #'   \item Rz : The suggested rectangular region based test.
 #'   \item Rz1 : The second suggested rectangular region based test.
@@ -21,6 +22,9 @@
 #' @param df Degree of freedom to use in small sample versions.
 #' @param conf.level A vector of confidence levels for the bands to achieve.
 #' @param band_pen Controls smoothness of adaptive band.  Note adaptive band still has proper coverage, but a smoother band may be desireable by the user.
+#' @references 
+#' Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#' Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239–260.
 #' @examples
 #' # 1. Vector/matrix version
 #'
@@ -73,7 +77,7 @@ fregion.test <- function(x, x0=0, cov, tau=NULL, N=1, type=c("Ec"), pc.cut=c(0.9
   e.cov$values[e.cov$values < .Machine$double.eps] <- 0
 
   # 4. Center the function x
-  x <- x - x0  # this works both for "fd" and vector.
+  x_adj_null <- x - x0  # this works both for "fd" and vector.
 
   ################ Take loop for fpc.cut ##############
   result <- NULL
@@ -90,15 +94,15 @@ fregion.test <- function(x, x0=0, cov, tau=NULL, N=1, type=c("Ec"), pc.cut=c(0.9
 
     # 6. Run tests ; If 'ALL' is included then run all the tests
     if ( sum(c("all", "All", "ALL") %in% type) > 0 ) type <- c("Enorm","Epc","Ec","Ec1","Rz","Rz1","Rzs","Rz1s")
-    if ("Enorm" %in% type)  pval.Enorm   <- ffscb::get.pval.Enorm(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Epc" %in% type)    pval.Epc     <- ffscb::get.pval.Epc(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Ec" %in% type)     pval.Ec      <- ffscb::get.pval.Ec(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Ec1" %in% type)    pval.Ec1     <- ffscb::get.pval.Ec1(x=x,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
-    if ("Rz" %in% type)     pval.Rz      <- ffscb::get.pval.Rz(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Rz1" %in% type)    pval.Rz1     <- ffscb::get.pval.Rz1(x=x,N=N,eigen=e.cov,fpc.cut=cut)
-    if ("Rzs" %in% type)    pval.Rzs     <- ffscb::get.pval.Rzs(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
-    if ("Rz1s" %in% type)   pval.Rz1s    <- ffscb::get.pval.Rz1s(x=x,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
-    if ("LRt" %in% type)    pval.FFSCB.t <- ffscb::get.pvalue.FFSCB.t(x=x,x0=x0,tau=tau,t0=t0,diag.cov=diag.cov,N=N,n_int=n_int)
+    if ("Enorm" %in% type)  pval.Enorm   <- ffscb::get.pval.Enorm(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Epc" %in% type)    pval.Epc     <- ffscb::get.pval.Epc(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Ec" %in% type)     pval.Ec      <- ffscb::get.pval.Ec(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Ec1" %in% type)    pval.Ec1     <- ffscb::get.pval.Ec1(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+    if ("Rz" %in% type)     pval.Rz      <- ffscb::get.pval.Rz(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Rz1" %in% type)    pval.Rz1     <- ffscb::get.pval.Rz1(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut)
+    if ("Rzs" %in% type)    pval.Rzs     <- ffscb::get.pval.Rzs(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
+    if ("Rz1s" %in% type)   pval.Rz1s    <- ffscb::get.pval.Rz1s(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,hat.cov=hat.cov,df=df)
+    if ("FFSCB.t" %in% type)    pval.FFSCB.t <- ffscb::get.pvalue.FFSCB.t(x=x,x0=x0,tau=tau,t0=t0,diag.cov=diag.cov,N=N,n_int=n_int)
     ##
     names.pval          <- ls(pattern=glob2rx("pval.*"))
     pvalues             <- sapply(names.pval,get,inherits=FALSE,envir=environment()) #,envir=1
