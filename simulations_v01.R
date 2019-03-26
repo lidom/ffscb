@@ -1,13 +1,13 @@
 ## ################################
 ## Make/Check package
-remove.packages("fregion")
-devtools::document("R/fregion_pkg")      # create/update documentation
-# devtools::check("R/fregion_pkg")       # check the p-package
-devtools::install_local("R/fregion_pkg")
+remove.packages("ffscb")
+devtools::document("ffscb")      # create/update documentation
+# devtools::check("ffscb")       # check the p-package
+devtools::install_local("ffscb")
 ## #################################
 
 # Load packages 
-library("fregion")
+library("ffscb")
 
 library("here")
 # here("Manuscript")
