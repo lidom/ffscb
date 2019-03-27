@@ -6,7 +6,6 @@
 #' @param legendy position `y' of the legend.
 #' @param ... Graphical parameters to be passed/overrided. If 'center' is TRUE, the first elements of 'col', 'lwd', 'lty' will be used for the estimate and the next ones will be used for the bands, but using the same values for one pair, i.e., lower and upper bounds.
 #' @export
-
 plot.fregion.band <- function(band,center=TRUE,legendx="topleft",legendy=NULL,...){
   if (is.null(dim(band))) {type <- "fd" ; class(band) <- "fd"} else type <- "vector"
 
@@ -37,7 +36,7 @@ plot.fregion.band <- function(band,center=TRUE,legendx="topleft",legendy=NULL,..
 
   if (type=="vector") {
     gp$x <- rownames(band) ; gp$y <- band[,-1] ; gp$type <- "l" ;
-    do.call(matplot,gp)
+    do.call(graphics::matplot,gp)
   } else {
     gp$x <- band[-1]
     do.call(fda::plot.fd,gp)
@@ -45,13 +44,13 @@ plot.fregion.band <- function(band,center=TRUE,legendx="topleft",legendy=NULL,..
 
   if (center) {
     if (type=="vector") {
-      lines(rownames(band),band[,1],col=col[1],lwd=lwd[1],lty=lty[1])
+      graphics::lines(rownames(band),band[,1],col=col[1],lwd=lwd[1],lty=lty[1])
     } else {
       fda::plot.fd(band[1],col=col[1],lwd=lwd[1],lty=lty[1],add=TRUE)
     }
-    if (!is.null(legendx)) legend(x=legendx,y=legendy,legend=c("Estimate",bandnames[-1]),col=col,lty=lty,lwd=lwd)
+    if (!is.null(legendx)) graphics::legend(x=legendx,y=legendy,legend=c("Estimate",bandnames[-1]),col=col,lty=lty,lwd=lwd)
   } else {
-    if (!is.null(legendx)) legend(x=legendx,y=legendy,legend=bandnames[-1],col=col,lty=lty,lwd=lwd)
+    if (!is.null(legendx)) graphics::legend(x=legendx,y=legendy,legend=bandnames[-1],col=col,lty=lty,lwd=lwd)
   }
 
 }

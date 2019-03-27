@@ -2,7 +2,7 @@
 #' 
 #' @param x Matrix of sample functions (nrow=p, ncol=n, p=number of discretization point, n=sample size).  
 #' @return tau_t Pointwise standard deviation of the standardized and differentiated sample functions.
-#' @example 
+#' @examples  
 #' p         <- 200 
 #' N         <- 50
 #' rangeval  <- c(0,1)
@@ -44,6 +44,6 @@ tau_fun <- function(x){
                       xx <- seq(0,1,len=length(yy))
                       fn <- stats::splinefun(x = xx, y = yy, method = "natural")
                       pracma::fderiv(f = fn, x = xx, n = 1, h = diff(xx)[1], method = "central")}) 
-  tau_t    <- apply(x_p, 1, sd)           # pointwise sd
+  tau_t    <- apply(x_p, 1, stats::sd)           # pointwise sd
   return(tau_t)
 }

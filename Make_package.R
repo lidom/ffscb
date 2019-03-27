@@ -8,11 +8,12 @@
 remove.packages("ffscb")
 
 ## Create/update documentation and (re-)write NAMESPACE
-devtools::document("ffscb_pkg")      
+devtools::document("ffscb")      
 
 ## CRAN-check pkg
-# devtools::check("R/fregion_pkg")       # check the p-package
+devtools::check("ffscb")       # check the p-package
 
 ## Install
-devtools::install_local("ffscb_pkg")
+devtools::install_local("ffscb")
+# library(ffscb)
 ## #################################
