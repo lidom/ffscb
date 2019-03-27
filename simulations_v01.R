@@ -38,6 +38,11 @@ if(DGP=="DGP4"){
   cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1))
   t0        <- grid[which(0.5==grid)]
 }
+if(DGP=="DGP_Fig1"){
+  mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
+  cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
+  t0        <- grid[p]
+}
 names(mu) <- grid
 
 ## check plot:
@@ -47,7 +52,7 @@ matplot(grid, x, type="l", lty=1); lines(grid, mu, lwd=2); confint(lm(x[1,]~1)) 
 
 
 set.seed(1110)
-reps            <- 50000
+reps            <- 10000
 type            <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
 alpha.level     <- 0.10
 n_int           <- 8
@@ -107,7 +112,10 @@ for(i in 1:reps){#
   ##
 } 
 ##
-save(max_loc,
+save(type, 
+     reps,
+     max_loc,
+     count_exceed,
      count_exceed_t0,
      crossings_loc,
      widths,
