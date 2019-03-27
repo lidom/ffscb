@@ -1,8 +1,7 @@
 ## ################################
 ## Make/Check package
 remove.packages("ffscb")
-devtools::document("ffscb")      # create/update documentation
-# devtools::check("ffscb")       # check the p-package
+devtools::document("ffscb")   
 devtools::install_local("ffscb")
 ## #################################
 

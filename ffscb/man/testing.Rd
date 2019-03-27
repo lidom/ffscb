@@ -18,7 +18,7 @@ fregion.test(x, x0 = 0, cov, tau = NULL, t0 = NULL, N = 1,
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
 
-\item{t0}{}
+\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands.}
 
 \item{N}{It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.}
 

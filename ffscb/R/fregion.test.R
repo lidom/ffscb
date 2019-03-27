@@ -4,7 +4,7 @@
 #' @param x0 Functional parameter under the null hypothesis. Zero function is assumed if it's not given.
 #' @param cov N * Cov(X), in which X is the functional estimator. It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param t0 
+#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
 #' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 #' @param type This specifies which regions to be used for the tests. It should be a collection of the following: "FFSCB.t", "Ec".
 #' \itemize{
