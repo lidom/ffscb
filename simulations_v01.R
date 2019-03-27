@@ -48,7 +48,7 @@ matplot(grid, x, type="l", lty=1); lines(grid, mu, lwd=2); confint(lm(x[1,]~1)) 
 
 set.seed(1110)
 reps            <- 50000
-type            <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")#[-2]
+type            <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
 alpha.level     <- 0.10
 n_int           <- 8
 ##
