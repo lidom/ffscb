@@ -17,3 +17,8 @@ devtools::document("ffscb")
 devtools::install_local("ffscb")
 # library(ffscb)
 ## #################################
+
+
+# spnbmd <- read.csv(file = "ffscb/data/spnbmd.csv")
+# View(spnbmd)
+# save(spnbmd, file = "ffscb/data/spnbmd.RData")

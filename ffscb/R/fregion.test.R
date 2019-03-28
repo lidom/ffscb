@@ -37,7 +37,8 @@
 #' hat.tau.v    <- tau_fun(x)
 #'
 #' # Compare different methods for Hypothesis testings.
-#' (a1 <- fregion.test(x=hat.mu,x0=mu0,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Ec"),pc.cut=c(1,3,4,5,0.99,0.999)))
+#' fregion.test(x=hat.mu,x0=mu0,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Ec"),
+#' pc.cut=c(1,3,4,5,0.99,0.999))
 #' @export
 fregion.test <- function(x, 
                          x0          = 0, 
@@ -83,7 +84,7 @@ fregion.test <- function(x,
       # 5. Find number of fpc to use.
       if (cut < 0) stop("fpc.cut should be some positive fraction from 0 to 1, or integer greater than or equal to 1, or just 0 (to use all available pcs)")
       if (cut == 0 ) cut <- sum(e.cov$values > .Machine$double.eps) else { # if fpc.cut is 0, use all PCs
-        if (cut < 1) cut <- ffscb:::get.req.n.pc(cut,e.cov$values) else {
+        if (cut < 1) cut <- get.req.n.pc(cut,e.cov$values) else {
           if (cut != round(cut)) {cut=round(cut) ; print("fpc.cut[",i,"] was rounded to the closest integer")}
         }
       }  # value 'Inf' can survive
@@ -91,7 +92,7 @@ fregion.test <- function(x,
       ##
       pval.Ec             <- ffscb::get.pval.Ec(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
       ##
-      names.pval          <- ls(pattern=glob2rx("pval.*"))
+      names.pval          <- ls(pattern=utils::glob2rx("pval.*"))
       pvalues             <- sapply(names.pval,get,inherits=FALSE,envir=environment()) #,envir=1
       names(pvalues)      <- sub("pval.","",names(pvalues))
       pvalues             <- c(pc.cut[i],cut,pvalues)

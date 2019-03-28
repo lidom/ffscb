@@ -30,7 +30,8 @@ hat.cov.m    <- crossprod(t(x - hat.mu)) / (N-1)
 hat.tau.v    <- tau_fun(x)
 
 # Compare different methods for Hypothesis testings.
-(a1 <- fregion.test(x=hat.mu,x0=mu0,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Ec"),pc.cut=c(1,3,4,5,0.99,0.999)))
+fregion.test(x=hat.mu,x0=mu0,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Ec"),
+pc.cut=c(1,3,4,5,0.99,0.999))
 
 # Make and visualize/compare confidence bands
 b <- fregion.band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,

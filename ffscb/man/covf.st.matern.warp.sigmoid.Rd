@@ -13,6 +13,8 @@ covf.st.matern.warp.sigmoid(x1, x2, params = c(1/2, 1, 1),
 \item{x2}{Second argument of cov(x1,x2).}
 
 \item{params}{Matern covariance function parameters: params=c(nu, l, sigma).}
+
+\item{rangeval}{Range of evaluation points (default: rangeval=c(0,1)).}
 }
 \description{
 Matern Covariance Function with sigmoid warped time-scale

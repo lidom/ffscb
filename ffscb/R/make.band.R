@@ -4,7 +4,7 @@ make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
   pc.to.use   <- sum(eigen$values > .Machine$double.eps)
   c.square    <- sqrt(eigen$values[1:pc.to.use])
   weights     <- eigen$values[1:pc.to.use]/c.square
-  xi          <- ffscb:::get.schisq.q.gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
+  xi          <- get.schisq.q.gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
     evalgrid      <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- fda::eval.fd(evalgrid,eigen$harmonics)
@@ -20,11 +20,11 @@ make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
 make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
     evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
-    cov.m    <- fda::eval.bifd(evalgrid,evalbrid,cov) 
+    cov.m    <- fda::eval.bifd(evalgrid,evalgrid,cov) 
   } else {
     cov.m <- cov
   }
-  crit.Bs    <- ffscb:::get.crit.supnorm.simple(cov.m,n.sim=sim.size,p=conf.level)
+  crit.Bs    <- get.crit.supnorm.simple(cov.m = cov.m, n.sim = sim.size, prob = conf.level)
   band.eval  <- sqrt(diag(cov.m)) * crit.Bs
   if (inherits(cov,"bifd")) {
     return(fda::Data2fd(evalgrid,band.eval,basisobj=cov$sbasis))
@@ -39,7 +39,7 @@ make.band.naive.t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   } else {
     cov.m <- cov
   }
-  band.eval  <- ffscb:::qt2(conf.level,df) * sqrt(diag(cov.m))
+  band.eval  <- qt2(conf.level,df) * sqrt(diag(cov.m))
   if (inherits(cov,"bifd")) {
     return(fda::Data2fd(evalgrid,band.eval,basisobj=cov$sbasis))
   } else return(band.eval)

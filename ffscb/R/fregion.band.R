@@ -68,11 +68,11 @@ fregion.band <- function(x,
     if (!inherits(cov,"bifd")) {
       J    <- min(sum(cov$values > 0),dim(cov$harmonics$coefs)[2])
       coef <- cov$harmonics$coefs[,c(1:J)] %*% diag(cov$values[c(1:J)]) %*% t(cov$harmonics$coefs[,c(1:J)])
-      cov  <- bifd(coef,cov$harmonics$basis,cov$harmonics$basis)
+      cov  <- fda::bifd(coef,cov$harmonics$basis,cov$harmonics$basis)
     }
     evalgrid <- make.grid(p=grid.size, rangevals=x$basis$rangeval)
-    cov.m    <- eval.bifd(evalgrid, evalgrid, cov)
-    x.v      <- eval.fd(evalgrid, x)
+    cov.m    <- fda::eval.bifd(evalgrid, evalgrid, cov)
+    x.v      <- fda::eval.fd(evalgrid, x)
   } else {
     if (inherits(cov,"list")) {
       J     <- sum(cov$values > 0)
@@ -85,7 +85,7 @@ fregion.band <- function(x,
 
   ## Take eigen decomposition if BEc is used.
   if ("BEc" %in% type) {
-    cor.m       <- cov2cor(cov.m)
+    cor.m       <- stats::cov2cor(cov.m)
     eigen.cov.m <- eigen(cov.m) ; eigen.cov.m$values[ eigen.cov.m$values < 0 ] <- 0 # trim negative eigenvalues.
     eigen.cor.m <- eigen(cor.m) ; eigen.cor.m$values[ eigen.cor.m$values < 0 ] <- 0 # trim negative eigenvalues.
   }
@@ -158,7 +158,7 @@ fregion.band <- function(x,
 
   }
   if (datatype=="fd") {
-    result.fd <- Data2fd(evalgrid, result, basisobj=x$basis)
+    result.fd <- fda::Data2fd(evalgrid, result, basisobj=x$basis)
     class(result.fd) <- "fregion.band"
     return(result.fd)
   } else {
