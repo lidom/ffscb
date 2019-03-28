@@ -46,6 +46,7 @@
 #'                   type=c("FFSCB.t", "Bs","BEc","naive.t"),conf.level=c(0.95))
 #' plot(b)
 #' @export 
+confidence.band
 fregion.band <- function(x, 
                          cov, 
                          tau         = NULL, 
