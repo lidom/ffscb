@@ -4,6 +4,8 @@
 ##
 ## ################################
 
+getwd()
+
 ## Remove pkg 
 remove.packages("ffscb")
 

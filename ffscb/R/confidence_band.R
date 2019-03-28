@@ -20,7 +20,7 @@
 #' @param Bs.sim.size This determines bootstrap sample size for Bs
 #' @param n_int Number of intervals for the piecewise linear confidence bounds.
 #' @param tol Controls the tolerance value used by stats::optimize(). The default (tol=NULL) leads to the functions' default values.
-#' @return fregion.band Either a collection of vector valued bands or `fd' object whose objectname is changed to fregion.band.
+#' @return confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.
 #' @name band
 #' @references 
 #' \itemize{
@@ -42,12 +42,11 @@
 #' hat.tau.v    <- tau_fun(x)
 #'
 #' # Make and visualize/compare confidence bands
-#' b <- fregion.band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,
+#' b <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,
 #'                   type=c("FFSCB.t", "Bs","BEc","naive.t"),conf.level=c(0.95))
 #' plot(b)
 #' @export 
-confidence.band
-fregion.band <- function(x, 
+confidence_band <- function(x, 
                          cov, 
                          tau         = NULL, 
                          t0          = NULL, 
@@ -160,10 +159,10 @@ fregion.band <- function(x,
   }
   if (datatype=="fd") {
     result.fd <- fda::Data2fd(evalgrid, result, basisobj=x$basis)
-    class(result.fd) <- "fregion.band"
+    class(result.fd) <- "confidence_band"
     return(result.fd)
   } else {
-    class(result) <- "fregion.band"
+    class(result) <- "confidence_band"
     return(result)
   }
 }

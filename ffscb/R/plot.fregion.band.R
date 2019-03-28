@@ -1,12 +1,12 @@
-#' Visualizes confidence bands constructed from \link{fregion.band}.
+#' Visualizes confidence bands constructed from \link{confidence_band}.
 #'
-#' @param band A 'fregion.band' object, the output from \link{fregion.band} funciton.
+#' @param band A 'confidence_band' object, the output from \link{confidence_band} funciton.
 #' @param center Whether to include the functional estimate or not.
 #' @param legendx position `x' of the legend. If NULL is passed, the legend will not be drawn (However, it may be added manually)
 #' @param legendy position `y' of the legend.
 #' @param ... Graphical parameters to be passed/overrided. If 'center' is TRUE, the first elements of 'col', 'lwd', 'lty' will be used for the estimate and the next ones will be used for the bands, but using the same values for one pair, i.e., lower and upper bounds.
 #' @export
-plot.fregion.band <- function(band,center=TRUE,legendx="topleft",legendy=NULL,...){
+plot.confidence_band <- function(band,center=TRUE,legendx="topleft",legendy=NULL,...){
   if (is.null(dim(band))) {type <- "fd" ; class(band) <- "fd"} else type <- "vector"
 
   if (type=="vector") bandnames <- colnames(band) else bandnames <- colnames(band$coefs)

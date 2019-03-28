@@ -5,7 +5,7 @@
 #' The inputs can be either vector/matrix or \link{fd}/\link{bifd} object from \link{fda} package.
 #' \itemize{
 #'   \item \link{fregion.test}: Perform hypothesis testings based on confidence regions.
-#'   \item \link{fregion.band}: Construct (simultaneous) confidence bands using hyper-ellipsoid confidence regions.
+#'   \item \link{confidence_band}: Construct (simultaneous) confidence bands using hyper-ellipsoid confidence regions.
 #' }
 #' The example below is given in a mean function estimation context but works for other functional estimates as long as the estimators are Gaussian.
 #'
@@ -28,7 +28,7 @@
 #' pc.cut=c(1,3,4,5,0.99,0.999))
 #'
 #' # Make and visualize/compare confidence bands
-#' b <- fregion.band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,
+#' b <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,
 #'                   type=c("FFSCB.t", "Bs","BEc","naive.t"),conf.level=c(0.95))
 #' plot(b)
 #' @docType package

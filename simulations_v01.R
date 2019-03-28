@@ -8,14 +8,14 @@ devtools::install_local("ffscb")
 # Load packages 
 library("ffscb")
 
-library("here")
+# library("here")
 # here("Manuscript")
 
 p         <- 201 
 N         <- c(10,50,100)[1]
 rangeval  <- c(0,1)
 grid      <- make.grid(p, rangevals=rangeval)#, type == "close")
-DGP       <- c("DGP1","DGP2","DGP3","DGP4")[2]
+DGP       <- c("DGP1","DGP2","DGP3","DGP4","DGP5")[5]
 ##
 if(DGP=="DGP1"){
   mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
@@ -37,8 +37,8 @@ if(DGP=="DGP4"){
   cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1))
   t0        <- grid[which(0.5==grid)]
 }
-if(DGP=="DGP_Fig1"){
-  mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
+if(DGP=="DGP5"){
+  mu        <- meanf.rect(grid, params = c(0,0.25,0.1)) # plot(x=grid,y=mu)
   cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
   t0        <- grid[p]
 }
@@ -51,7 +51,7 @@ matplot(grid, x, type="l", lty=1); lines(grid, mu, lwd=2); confint(lm(x[1,]~1)) 
 
 
 set.seed(1110)
-reps            <- 10000
+reps            <- 5000
 type            <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
 alpha.level     <- 0.10
 n_int           <- 8
@@ -71,7 +71,7 @@ for(i in 1:reps){#
   hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
   hat.tau.v   <- tau_fun(dat)# plot(y=hat.tau.v,x=seq(0,1,len=p),type="l")
   ## Confidence bands
-  b           <- fregion.band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, type=type, 
+  b           <- confidence_band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, type=type, 
                               conf.level=(1-alpha.level), n_int=n_int)# 
   # plot(b); abline(h=0)
   ##
@@ -226,7 +226,7 @@ dat         <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 hat_mu      <- rowMeans(dat)
 hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
 hat.tau.v   <- tau_fun(dat)
-b           <- fregion.band(x = hat_mu, cov = hat.cov.m, tau=hat.tau.v, N=N, type=type, conf.level = 0.95, 
+b           <- confidence_band(x = hat_mu, cov = hat.cov.m, tau=hat.tau.v, N=N, type=type, conf.level = 0.95, 
                             n_int = 10, tol=.Machine$double.eps^0.25)
 par(mfrow=c(2,1), mar=c(2.1, 4.1, 2.1, 2.1))
 matplot(grid, dat, type="l", lty=1, ylab="X(t)",xlab = "")

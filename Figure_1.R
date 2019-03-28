@@ -50,7 +50,7 @@ hat.mu      <- rowMeans(dat)
 hat.cov.m   <- crossprod(t(dat - hat.mu)) / (N-1)
 hat.tau.v   <- tau_fun(dat)# plot(hat.tau.v)
 ## Confidence bands
-b           <- fregion.band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,type=type,conf.level=(1-alpha.level),n_int=n_int)# plot(b)
+b           <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,type=type,conf.level=(1-alpha.level),n_int=n_int)# plot(b)
 ##
 
 ## PLOT
@@ -121,8 +121,8 @@ hat.mu      <- rowMeans(dat)
 hat.cov.m   <- crossprod(t(dat - hat.mu)) / (N-1)
 hat.tau.v   <- tau_fun(dat)# plot(hat.tau.v)
 ## Confidence bands
-b.ffscb <- fregion.band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("FFSCB.t","naive.t"),conf.level=(1-alpha.level),n_int=n_int)# plot(b)
-b.Bs    <- fregion.band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Bs","naive.t"),conf.level=(1-alpha.level),n_int=n_int)# plot(b)
+b.ffscb <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("FFSCB.t","naive.t"),conf.level=(1-alpha.level),n_int=n_int)# plot(b)
+b.Bs    <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Bs","naive.t"),conf.level=(1-alpha.level),n_int=n_int)# plot(b)
 ##
 
 ## pdf(file = "Fig1_small.pdf", width = 9, height = 3)
