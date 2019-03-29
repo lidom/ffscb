@@ -21,6 +21,6 @@ devtools::install_local("ffscb")
 ## #################################
 
 
-# spnbmd <- read.csv(file = "ffscb/data/spnbmd.csv")
+# spnbmd <- read.csv(file = "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/R/fregion_pkg/data/spnbmd.csv")
 # View(spnbmd)
 # save(spnbmd, file = "ffscb/data/spnbmd.RData")
