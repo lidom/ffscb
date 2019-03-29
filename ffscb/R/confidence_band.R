@@ -137,7 +137,7 @@ confidence_band <- function(x,
 
     if ("KR.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.t.u.",level), paste0("KR.t.l.",level))
-      KR.t             <- make.band.KR.t(tau=tau, conf.level=level)*sqrt(diag(cov.m)) / sqrt(N)
+      KR.t             <- make.band.KR.t(tau=tau, conf.level=level, N=N)*sqrt(diag(cov.m)) / sqrt(N)
       result           <- cbind(result, x.v + KR.t, x.v - KR.t);
       colnames(result) <- tmp.colnames
     }
