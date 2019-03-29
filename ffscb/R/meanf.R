@@ -61,14 +61,14 @@ meanf_ellipse <- Vectorize(meanf_ellipse, vectorize.args = "x")
 #' @param quarter 1,2,3, or 4 to select domain-quarter.  
 #' @param height height of the bump function
 #' @example 
-#' curve(meanf_bump(x, 0), from=0, to=1,
+#' curve(meanf_bump(x, 1), from=0, to=1,
 #' main="Meanfct Ellipse", ylab="",xlab="")
-#' curve(meanf_bump(x, 1), from=0, to=1, 
+#' curve(meanf_bump(x, 2), from=0, to=1, 
 #' lty=2, add=TRUE)
 #' @export
 meanf_bump <- function(x, quarter=1, height=.1){
   ##
-  x_s     <- (x - quarter * 0.25 - 0.125)/0.125
+  x_s     <- (x - (quarter-1) * 0.25 - 0.125)/0.125
   if(-1 <= x_s & x_s <= 1){
     y <- height* exp(1-1/(1-x_s^2))
   }else{
