@@ -44,7 +44,7 @@ if(DGP=="DGP4"){
 }
 ## DGPs under the alternative-hypothesis
 if(DGP=="DGP5"){
-  mu        <- meanf_rect(grid, params = c(0,0.25,0.1)) # plot(x=grid,y=mu)
+  mu        <- meanf_bump(x=grid, quarter = 4, height = .1) # plot(x=grid,y=mu)
   mu0       <- rep(0,p)
   cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
   t0        <- grid[p]
@@ -67,7 +67,7 @@ n_int           <- 8
 count_exceed    <- numeric(length(type)) 
 count_exceed_t0 <- numeric(length(type)) 
 crossings_loc   <- array(NA, dim = c(reps, p, length(type)))
-max_loc         <- matrix(NA, nrow=reps, ncol=length(type))
+# max_loc         <- matrix(NA, nrow=reps, ncol=length(type))
 widths          <- numeric(length(type))
 widths_sqr      <- numeric(length(type))
 ##
@@ -86,19 +86,20 @@ for(i in 1:reps){#
   upper_Bands     <- b[,  2*(1:length(type))]
   lower_Bands     <- b[,1+2*(1:length(type))]
   ##
-  tmp_up          <- upper_Bands < mu    
-  tmp_lo          <- lower_Bands > mu
-  ## save locations of significant max_t(X(t)) locations:
-  tmp_min_up      <- apply(tmp_up,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.min(hat_mu[x])],NA)})
-  tmp_max_lo      <- apply(tmp_lo,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.max(hat_mu[x])],NA)})
-  max_loc[i,]     <- apply(cbind(tmp_min_up, tmp_max_lo), 1, 
-                           function(x){ifelse(any(!is.na(x)), as.numeric(names(which.max(abs(hat_mu[x])))), NA)})
-  ## counting of significant events:
+  tmp_up          <- upper_Bands < mu0    
+  tmp_lo          <- lower_Bands > mu0
+  # ## save locations of significant max_t(X(t)) locations:
+  # tmp_min_up      <- apply(tmp_up,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.min(hat_mu[x])],NA)})
+  # tmp_max_lo      <- apply(tmp_lo,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.max(hat_mu[x])],NA)})
+  # max_loc[i,]     <- apply(cbind(tmp_min_up, tmp_max_lo), 1, 
+  #                          function(x){ifelse(any(!is.na(x)), as.numeric(names(which.max(abs(hat_mu[x])))), NA)})
+  ##
+  ## counting of events: 'at least one crossing occured'
   tmp             <- tmp_up | tmp_lo
   count_exceed    <- count_exceed + as.numeric(apply(tmp, 2, function(x){any(x==TRUE)}))
   ## counting exceedances at t0:
-  tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu[which(t0==grid)]      
-  tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu[which(t0==grid)]
+  tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
+  tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
   count_exceed_t0 <- count_exceed_t0 + as.numeric(tmp_t0_up | tmp_t0_lo)
   ## saving band-crossing locations:
   for(j in 1:length(type)){
@@ -125,17 +126,21 @@ for(i in 1:reps){#
 ##
 save(type, 
      reps,
-     max_loc,
      count_exceed,
      count_exceed_t0,
      crossings_loc,
      widths,
      widths_sqr, file = paste0(here("R/Simulation_Results/"),DGP,"_N=",N))
 
-count_exceed   /reps
-count_exceed_t0/reps
 
-plot(density(c(na.omit(max_loc[,5]))))
+exceed_frq           <- count_exceed   /reps
+names(exceed_frq)    <- names(widths)
+exceed_t0_frq        <- count_exceed_t0/reps
+names(exceed_t0_frq) <- names(widths)
+
+exceed_frq
+
+
 
 
 library("dplyr")
