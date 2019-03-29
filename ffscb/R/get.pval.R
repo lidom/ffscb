@@ -66,9 +66,9 @@ get.pvalue.FFSCB.t <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.
 
 # set.seed(1110)
 # N             <- 10
-# mu            <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
-# cov.m         <- make.cov.m(cov.f = covf.st.matern.warp.power_inv, grid=grid, cov.f.params=c(1.25, 1, 1, 2))
-# dat           <- make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+# mu            <- meanf_poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
+# cov.m         <- make_cov_m(cov.f = covf.st.matern.warp.power_inv, grid=grid, cov.f.params=c(1.25, 1, 1, 2))
+# dat           <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 # dat           <- dat + 0.5
 # hat.mu        <- rowMeans(dat)
 # hat.sd        <- mean(apply(dat, 1,sd))

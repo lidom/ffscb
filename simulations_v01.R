@@ -12,40 +12,48 @@ library("ffscb")
 # here("Manuscript")
 
 p         <- 201 
-N         <- c(10,50,100)[1]
+N         <- c(10,50,100)[2]
 rangeval  <- c(0,1)
-grid      <- make.grid(p, rangevals=rangeval)#, type == "close")
+grid      <- make_grid(p, rangevals=rangeval)#, type == "close")
 DGP       <- c("DGP1","DGP2","DGP3","DGP4","DGP5")[5]
 ##
+## DGPs under the null-hypothesis
 if(DGP=="DGP1"){
-  mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
-  cov.m     <- make.cov.m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1, 1))
+  mu        <- rep(0,p)
+  mu0       <- mu
+  cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1, 1))
   t0        <- grid[1]
 }
 if(DGP=="DGP2"){
-  mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
-  cov.m     <- make.cov.m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(.75, 1, 1))
+  mu        <- rep(0,p)
+  mu0       <- mu
+  cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(.75, 1, 1))
   t0        <- grid[1]
 }
 if(DGP=="DGP3"){
-  mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
-  cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2))
+  mu        <- rep(0,p)
+  mu0       <- mu
+  cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2))
   t0        <- grid[p]
 }
 if(DGP=="DGP4"){
-  mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
-  cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1))
+  mu        <- rep(0,p)
+  mu0       <- mu
+  cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1))
   t0        <- grid[which(0.5==grid)]
 }
+## DGPs under the alternative-hypothesis
 if(DGP=="DGP5"){
-  mu        <- meanf.rect(grid, params = c(0,0.25,0.1)) # plot(x=grid,y=mu)
-  cov.m     <- make.cov.m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
+  mu        <- meanf_rect(grid, params = c(0,0.25,0.1)) # plot(x=grid,y=mu)
+  mu0       <- rep(0,p)
+  cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
   t0        <- grid[p]
 }
-names(mu) <- grid
+names(mu)  <- grid
+names(mu0) <- grid
 
 ## check plot:
-x  <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+x  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 matplot(grid, x, type="l", lty=1); lines(grid, mu, lwd=2); confint(lm(x[1,]~1)) # naive.t
 ## 
 
@@ -65,7 +73,7 @@ widths_sqr      <- numeric(length(type))
 ##
 for(i in 1:reps){# 
   ## Generate data
-  dat         <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+  dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
   ## Estimate mean, covariance, and tau
   hat_mu      <- rowMeans(dat)
   hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
@@ -75,11 +83,11 @@ for(i in 1:reps){#
                               conf.level=(1-alpha.level), n_int=n_int)# 
   # plot(b); abline(h=0)
   ##
-  upperBands      <- b[,  2*(1:length(type))]
-  lowerBands      <- b[,1+2*(1:length(type))]
+  upper_Bands     <- b[,  2*(1:length(type))]
+  lower_Bands     <- b[,1+2*(1:length(type))]
   ##
-  tmp_up          <- upperBands < mu    
-  tmp_lo          <- lowerBands > mu
+  tmp_up          <- upper_Bands < mu    
+  tmp_lo          <- lower_Bands > mu
   ## save locations of significant max_t(X(t)) locations:
   tmp_min_up      <- apply(tmp_up,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.min(hat_mu[x])],NA)})
   tmp_max_lo      <- apply(tmp_lo,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.max(hat_mu[x])],NA)})
@@ -89,23 +97,27 @@ for(i in 1:reps){#
   tmp             <- tmp_up | tmp_lo
   count_exceed    <- count_exceed + as.numeric(apply(tmp, 2, function(x){any(x==TRUE)}))
   ## counting exceedances at t0:
-  tmp_t0_up       <- upperBands[which(t0==grid),] < mu[which(t0==grid)]      
-  tmp_t0_lo       <- lowerBands[which(t0==grid),] > mu[which(t0==grid)]
+  tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu[which(t0==grid)]      
+  tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu[which(t0==grid)]
   count_exceed_t0 <- count_exceed_t0 + as.numeric(tmp_t0_up | tmp_t0_lo)
   ## saving band-crossing locations:
   for(j in 1:length(type)){
+    ## delta: number of gridpoints before t0:
     if(which(grid==t0) != p){delta <- (which(grid==t0)-1)}else{delta <- 0}
-    tmp_cr_up  <- c(      locate_crossings(mu[1:which(grid==t0)],upperBands[1:which(grid==t0),j],type="down"),
-                    delta+locate_crossings(mu[which(grid==t0):p],upperBands[which(grid==t0):p,j],type="up"  ))
-    tmp_cr_lo  <- c(      locate_crossings(mu[1:which(grid==t0)],lowerBands[1:which(grid==t0),j],type="up"  ),
-                    delta+locate_crossings(mu[which(grid==t0):p],lowerBands[which(grid==t0):p,j],type="down"))
+    ## crossing locations with respect to the upper Bands:
+    tmp_cr_up  <- c(      locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"), # down-crossings (left of t0)
+                    delta+locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
+    ## crossing locations with respect to the lower Bands:
+    tmp_cr_lo  <- c(      locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ), # down-crossings (left of t0)
+                    delta+locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
+    ## all (sorted) crossing locations together:
     tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
-    ##
+    ## save crossing locations (if any):
     if(length(tmp_cr_loc)>0){crossings_loc[i,tmp_cr_loc,j]  <- grid[tmp_cr_loc]}
   }
   ## saving band-widths:
-  widths      <- widths     + colMeans( upperBands - lowerBands)
-  widths_sqr  <- widths_sqr + colMeans((upperBands - lowerBands)^2)
+  widths      <- widths     + colMeans( upper_Bands - lower_Bands)
+  widths_sqr  <- widths_sqr + colMeans((upper_Bands - lower_Bands)^2)
   ##
   if(i %% 500 ==0){cat("i /",reps,"=",i,"/",reps,"\n")}
   ##
@@ -222,7 +234,7 @@ ggplot(plot_data,aes(x=grid,y=coverage,group=variable,color=variable))+
   ylab("Pointwise Coverage") + xlab("") + theme_bw() 
 
 
-dat         <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+dat         <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 hat_mu      <- rowMeans(dat)
 hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
 hat.tau.v   <- tau_fun(dat)

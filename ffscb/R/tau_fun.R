@@ -6,20 +6,20 @@
 #' p         <- 200 
 #' N         <- 50
 #' rangeval  <- c(0,1)
-#' grid      <- make.grid(p, rangevals=rangeval)
-#' mu        <- meanf.poly(grid, params = c(0,0)) 
+#' grid      <- make_grid(p, rangevals=rangeval)
+#' mu        <- meanf_poly(grid, params = c(0,0)) 
 #' 
 #' # Generate random functions using a stationary 
 #' # covariance function (homogeneous roughness (HR))
-#' cov.m = make.cov.m(cov.f = covf.st.matern, grid=grid, 
+#' cov.m = make_cov_m(cov.f = covf.st.matern, grid=grid, 
 #' cov.f.params=c(2,2,2))
-#' X_HR  <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+#' X_HR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 #' 
 #' # Generate random functions using non-stationary 
 #' # covariance function (increasing roughness (IR))
-#' cov.m = make.cov.m(cov.f = covf.st.matern.warp.power, grid=grid, 
+#' cov.m = make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, 
 #' cov.f.params=c(1, 1, 1, 3))
-#' X_IR  <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+#' X_IR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 #' 
 #' # Estimate tau(t):
 #' tau_HR <- tau_fun(X_HR)

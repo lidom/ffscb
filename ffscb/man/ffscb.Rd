@@ -18,11 +18,11 @@ The example below is given in a mean function estimation context but works for o
 \examples{
 # Generate a sample
 p <- 200 ; N <- 80 ; rangeval = c(0,1)
-grid  <- make.grid(p, rangevals=rangeval)
-mu0   <- meanf.poly(grid,c(0,1)) ; names(mu0) = grid
-mu    <- meanf.poly(grid,c(0,1.1)) ; names(mu) = grid
-cov.m <- make.cov.m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-x     <- make.sample(mu,cov.m,N)
+grid  <- make_grid(p, rangevals=rangeval)
+mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
+mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
+cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+x     <- make_sample(mu,cov.m,N)
 
 # Find the estimate and covariance
 hat.mu       <- rowMeans(x)

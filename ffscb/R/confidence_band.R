@@ -30,11 +30,11 @@
 #' @examples
 #' # Generate a sample
 #' p <- 200 ; N <- 80 ; rangeval = c(0,1)
-#' grid  <- make.grid(p, rangevals=rangeval)
-#' mu0   <- meanf.poly(grid,c(0,1)) ; names(mu0) = grid
-#' mu    <- meanf.poly(grid,c(0,1.1)) ; names(mu) = grid
-#' cov.m <- make.cov.m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-#' x     <- make.sample(mu,cov.m,N)
+#' grid  <- make_grid(p, rangevals=rangeval)
+#' mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
+#' mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
+#' cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' x     <- make_sample(mu,cov.m,N)
 #'
 #' # Find the estimate and covariance
 #' hat.mu       <- rowMeans(x)
@@ -70,7 +70,7 @@ confidence_band <- function(x,
       coef <- cov$harmonics$coefs[,c(1:J)] %*% diag(cov$values[c(1:J)]) %*% t(cov$harmonics$coefs[,c(1:J)])
       cov  <- fda::bifd(coef,cov$harmonics$basis,cov$harmonics$basis)
     }
-    evalgrid <- make.grid(p=grid.size, rangevals=x$basis$rangeval)
+    evalgrid <- make_grid(p=grid.size, rangevals=x$basis$rangeval)
     cov.m    <- fda::eval.bifd(evalgrid, evalgrid, cov)
     x.v      <- fda::eval.fd(evalgrid, x)
   } else {

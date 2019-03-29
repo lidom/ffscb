@@ -1,9 +1,9 @@
 #' @export
-make.grid <- function(p=100,rangevals=c(0,1)){seq(rangevals[1],rangevals[2],len=p)}
+make_grid <- function(p=100,rangevals=c(0,1)){seq(rangevals[1],rangevals[2],len=p)}
 
 #' @export
-make.cov.m <- function(cov.f=covf.st.matern, grid=100, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
-  if (length(grid)==1) {grid=make.grid(p=grid)} ## input grid as a single number (as grid size), or as vector (actual grid)
+make_cov_m <- function(cov.f=covf.st.matern, grid=100, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
+  if (length(grid)==1) {grid=make_grid(p=grid)} ## input grid as a single number (as grid size), or as vector (actual grid)
   grid.size <- length(grid)
   cov.m <- matrix(0,nrow=grid.size,ncol=grid.size)
   if (is.null(cov.f.params)) {
@@ -21,7 +21,7 @@ make.cov.m <- function(cov.f=covf.st.matern, grid=100, cov.f.params=NULL){  ### 
 
 
 #' @export
-make.sample <- function(mean.v,cov.m,N,dist="rnorm",...){
+make_sample <- function(mean.v,cov.m,N,dist="rnorm",...){
   p <- length(mean.v)
   if (p != dim(cov.m)[1] | p != dim(cov.m)[2]) stop("Dimensions of mean vector and cov. matrix do not match")
   dist        <- get(dist, mode <- "function", envir <- parent.frame())

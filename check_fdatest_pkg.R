@@ -8,14 +8,14 @@ library("fda")
 p         <- 101 
 N         <- c(10,50,100)[1]
 rangeval  <- c(0,1)
-grid      <- make.grid(p, rangevals=rangeval)#, type == "close")
-mu        <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
-cov.m     <- make.cov.m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1, 1))
+grid      <- make_grid(p, rangevals=rangeval)#, type == "close")
+mu        <- meanf_poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
+cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1, 1))
 t0        <- grid[1]
 
 
 ##
-x         <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+x         <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 matplot(grid, x, type="l", lty=1); lines(grid, mu, lwd=2); confint(lm(x[1,]~1)) # naive.t
 
 

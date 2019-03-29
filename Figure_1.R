@@ -36,15 +36,15 @@ set.seed(1110)
 p           <- 200 
 N           <- 15
 rangeval    <- c(0,1)
-grid        <- make.grid(p, rangevals=rangeval)
-mu          <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
+grid        <- make_grid(p, rangevals=rangeval)
+mu          <- meanf_poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
 names(mu)   <- grid
-cov.m       <- make.cov.m(cov.f = covf.st.matern.warp.power, 
+cov.m       <- make_cov_m(cov.f = covf.st.matern.warp.power, 
                           grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
 n_int       <- 10
 type        <- c("naive.t", "Bs", "FFSCB.t")
 alpha.level <- 0.10
-dat         <-  make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+dat         <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 ## Estimate mean, covariance, and tau
 hat.mu      <- rowMeans(dat)
 hat.cov.m   <- crossprod(t(dat - hat.mu)) / (N-1)
@@ -108,14 +108,14 @@ set.seed(1110)
 p           <- 200 
 N           <- 15
 rangeval    <- c(0,1)
-grid        <- make.grid(p, rangevals=rangeval)
-mu          <- meanf.poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
+grid        <- make_grid(p, rangevals=rangeval)
+mu          <- meanf_poly(grid, params = c(0,0)) # plot(x=grid,y=mu)
 names(mu)   <- grid
-cov.m       <- make.cov.m(cov.f = covf.st.matern.warp.power, 
+cov.m       <- make_cov_m(cov.f = covf.st.matern.warp.power, 
                           grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
 n_int       <- 10
 alpha.level <- 0.10
-dat         <- make.sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 ## Estimate mean, covariance, and tau
 hat.mu      <- rowMeans(dat)
 hat.cov.m   <- crossprod(t(dat - hat.mu)) / (N-1)

@@ -6,7 +6,7 @@ make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
   weights     <- eigen$values[1:pc.to.use]/c.square
   xi          <- get.schisq.q.gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
-    evalgrid      <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
+    evalgrid      <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- fda::eval.fd(evalgrid,eigen$harmonics)
   }
   band.eval <- sqrt(apply(t(eigen$vectors[,1:pc.to.use]^2) * c.square * xi,2,sum))
@@ -19,7 +19,7 @@ make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
 #' @export
 make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
-    evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
+    evalgrid <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
     cov.m    <- fda::eval.bifd(evalgrid,evalgrid,cov) 
   } else {
     cov.m <- cov
@@ -34,7 +34,7 @@ make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200)
 #' @export
 make.band.naive.t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
-    evalgrid <- ffscb::make.grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
+    evalgrid <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
     cov.m    <- fda::eval.bifd(evalgrid,evalgrid,cov) 
   } else {
     cov.m <- cov
