@@ -67,7 +67,6 @@ n_int           <- 8
 count_exceed    <- numeric(length(type)) 
 count_exceed_t0 <- numeric(length(type)) 
 crossings_loc   <- array(NA, dim = c(reps, p, length(type)))
-# max_loc         <- matrix(NA, nrow=reps, ncol=length(type))
 widths          <- numeric(length(type))
 widths_sqr      <- numeric(length(type))
 ##
@@ -88,12 +87,6 @@ for(i in 1:reps){#
   ##
   tmp_up          <- upper_Bands < mu0    
   tmp_lo          <- lower_Bands > mu0
-  # ## save locations of significant max_t(X(t)) locations:
-  # tmp_min_up      <- apply(tmp_up,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.min(hat_mu[x])],NA)})
-  # tmp_max_lo      <- apply(tmp_lo,2,function(x){ifelse(length(hat_mu[x])>0,c(1:p)[x][which.max(hat_mu[x])],NA)})
-  # max_loc[i,]     <- apply(cbind(tmp_min_up, tmp_max_lo), 1, 
-  #                          function(x){ifelse(any(!is.na(x)), as.numeric(names(which.max(abs(hat_mu[x])))), NA)})
-  ##
   ## counting of events: 'at least one crossing occured'
   tmp             <- tmp_up | tmp_lo
   count_exceed    <- count_exceed + as.numeric(apply(tmp, 2, function(x){any(x==TRUE)}))
