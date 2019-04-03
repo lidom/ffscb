@@ -11,7 +11,7 @@ make_band_Ec <- function(eigen, conf.level, fd.eval.grid.size=200){
   band.eval <- sqrt(apply(t(eigen$vectors[,1:pc.to.use]^2) * c.square * xi,2,sum))
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
     return(fda::Data2fd(evalgrid,band.eval,basisobj=eigen$harmonics$basis)) # return as fd object
-  } else return(band.eval)                                             # return as vector
+  } else return(band.eval)                                                  # return as vector
 }
 
 
