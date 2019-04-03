@@ -44,7 +44,7 @@ if(DGP=="DGP4"){
 }
 ## DGPs under the alternative-hypothesis
 if(DGP=="DGP5"){
-  mu        <- meanf_bump(x=grid, quarter = 4, height = .1) # plot(x=grid,y=mu)
+  mu        <- rep(.1,p)#meanf_bump(x=grid, quarter = 4, height = .1) # plot(x=grid,y=mu)
   mu0       <- rep(0,p)
   cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
   t0        <- grid[p]
@@ -67,6 +67,8 @@ n_int           <- 8
 count_exceed    <- numeric(length(type)) 
 count_exceed_t0 <- numeric(length(type)) 
 crossings_loc   <- array(NA, dim = c(reps, p, length(type)))
+exceed_up_loc   <- array(NA, dim = c(reps, p, length(type)))
+exceed_lo_loc   <- array(NA, dim = c(reps, p, length(type)))
 widths          <- numeric(length(type))
 widths_sqr      <- numeric(length(type))
 ##
@@ -79,14 +81,18 @@ for(i in 1:reps){#
   hat.tau.v   <- tau_fun(dat)# plot(y=hat.tau.v,x=seq(0,1,len=p),type="l")
   ## Confidence bands
   b           <- confidence_band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, type=type, 
-                              conf.level=(1-alpha.level), n_int=n_int)# 
+                                 conf.level=(1-alpha.level), n_int=n_int)# 
   # plot(b); abline(h=0)
   ##
-  upper_Bands     <- b[,  2*(1:length(type))]
-  lower_Bands     <- b[,1+2*(1:length(type))]
+  upper_Bands <- b[,  2*(1:length(type))]
+  lower_Bands <- b[,1+2*(1:length(type))]
   ##
-  tmp_up          <- upper_Bands < mu0    
-  tmp_lo          <- lower_Bands > mu0
+  tmp_up      <- upper_Bands < mu0    
+  tmp_lo      <- lower_Bands > mu0
+  ##
+  exceed_up_loc[i,,] <- tmp_up
+  exceed_lo_loc[i,,] <- tmp_lo
+  ##
   ## counting of events: 'at least one crossing occured'
   tmp             <- tmp_up | tmp_lo
   count_exceed    <- count_exceed + as.numeric(apply(tmp, 2, function(x){any(x==TRUE)}))
@@ -133,6 +139,28 @@ names(exceed_t0_frq) <- names(widths)
 
 exceed_frq
 
+
+ffscb_m <- apply(exceed_lo_loc[,,5], 1, function(x){tmp <- rep(NA,p);tmp[x] <- grid[x]; tmp})
+boots_m <- apply(exceed_lo_loc[,,1], 1, function(x){tmp <- rep(NA,p);tmp[x] <- grid[x]; tmp})
+
+
+matplot(x = seq(0,1,len=p), y=ffscb_m, type="l")
+
+par(mfrow=c(1,1))
+matplot(x=t(matrix(rep(seq(0,2,len=reps),each=length(grid)),reps,p)), y=ffscb_m, type="l", 
+        lwd=.25, col=gray(0,1), lty=1, main="FFSCB")
+matplot(y=t(matrix(rep(seq(0,2,len=reps),each=length(grid)),reps,p)), x=boots_m, type="l", 
+        lwd=.25, col=gray(0,1), lty=1, main="Bootstr")
+
+
+wdth_ffscb <- apply(exceed_lo_loc[,,5], 1, function(x){x <- grid[x]; ifelse(length(x)>0, max(x, na.rm=T)-min(x, na.rm=T),NA)})
+wdth_boots <- apply(exceed_lo_loc[,,1], 1, function(x){x <- grid[x]; ifelse(length(x)>0, max(x, na.rm=T)-min(x, na.rm=T),NA)})
+
+wdth_ffscb <- wdth_ffscb[!is.na(wdth_ffscb)]
+wdth_boots <- wdth_boots[!is.na(wdth_boots)]
+
+summary(wdth_ffscb)
+summary(wdth_boots)
 
 
 
