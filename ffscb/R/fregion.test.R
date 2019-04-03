@@ -14,7 +14,7 @@
 #' @param conf.level A vector of confidence levels for the bands to achieve.
 #' @param n_int Number of intervals for the piecewise linear confidence bounds.
 #' @param tol Controls the tolerance value used by stats::optimize(). The default (tol=NULL) leads to the functions' default values.
-#' @param pc.cut It takes a vector of number of fPC to use in each HT. For integer values, fPC up to those values will be used. If it's a value from 0 to 1, this specifies the proportion of (estimated) variance that should be explained by the fPCs. If it is 0, all the available fPCs will be used as long as the size of eigenvalues are greater than .Machine$double.eps.
+#' @param fpc.cut It takes a vector of number of fPC to use in each HT. For integer values, fPC up to those values will be used. If it's a value from 0 to 1, this specifies the proportion of (estimated) variance that should be explained by the fPCs. If it is 0, all the available fPCs will be used as long as the size of eigenvalues are greater than .Machine$double.eps.
 #' @param prec This determines the accuracy of \link{imhof}. One may try to modify this if p-value achieved in Ellipsoid form other than Epc gives negative value. It should the the form of c(epsabs, epsrel, limit).
 #' @name testing
 #' @references 
@@ -38,7 +38,7 @@
 #'
 #' # Compare different methods for Hypothesis testings.
 #' fregion.test(x=hat.mu,x0=mu0,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Ec"),
-#' pc.cut=c(1,3,4,5,0.99,0.999))
+#' fpc.cut=c(1,3,4,5,0.99,0.999))
 #' @export
 fregion.test <- function(x, 
                          x0          = 0, 
@@ -50,7 +50,7 @@ fregion.test <- function(x,
                          conf.level  = c(0.95), 
                          n_int       = 10, 
                          tol         = NULL,
-                         pc.cut      = c(0.99), 
+                         fpc.cut      = c(0.99), 
                          prec        = NULL) {
   ### Check the data type ###
   if (inherits(x,"fd") & (inherits(cov,"bifd") | inherits(cov,"pca.fd") | inherits(cov,"eigen.fd"))) datatype="fd" else if
@@ -79,8 +79,8 @@ fregion.test <- function(x,
   ##
   if ("Ec" %in% type) {
     result <- NULL
-    for (i in c(1:length(pc.cut))){
-      cut <- pc.cut[i]
+    for (i in c(1:length(fpc.cut))){
+      cut <- fpc.cut[i]
       # 5. Find number of fpc to use.
       if (cut < 0) stop("fpc.cut should be some positive fraction from 0 to 1, or integer greater than or equal to 1, or just 0 (to use all available pcs)")
       if (cut == 0 ) cut <- sum(e.cov$values > .Machine$double.eps) else { # if fpc.cut is 0, use all PCs
@@ -95,11 +95,11 @@ fregion.test <- function(x,
       names.pval          <- ls(pattern=utils::glob2rx("pval.*"))
       pvalues             <- sapply(names.pval,get,inherits=FALSE,envir=environment()) #,envir=1
       names(pvalues)      <- sub("pval.","",names(pvalues))
-      pvalues             <- c(pc.cut[i],cut,pvalues)
+      pvalues             <- c(fpc.cut[i],cut,pvalues)
       result              <- rbind(result,pvalues)
       rownames(result)[i] <- i
     }
-    colnames(result)[c(1,2)] <- c("pc.cut","pc.used")
+    colnames(result)[c(1,2)] <- c("fpc.cut","fpc.used")
     result_all[['Ec']] <- result
   }
   if ("FFSCB.t" %in% type) {
