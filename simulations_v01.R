@@ -44,7 +44,9 @@ if(DGP=="DGP4"){
 }
 ## DGPs under the alternative-hypothesis
 if(DGP=="DGP5"){
-  mu        <- rep(.1,p)#meanf_bump(x=grid, quarter = 4, height = .1) # plot(x=grid,y=mu)
+  # mu        <- meanf_bump(x=grid, quarter = 4, height = .1) # plot(x=grid,y=mu)
+  # mu0       <- rep(0,p)
+  mu        <- rep(0.1,p)
   mu0       <- rep(0,p)
   cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
   t0        <- grid[p]
