@@ -49,7 +49,7 @@ get_pval_Ec <- function(x, x0=NULL, N = 1, eigen, fpc.cut=NULL, prec=NULL){
 #' @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
 #' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 #' @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
-#' @param n_int Number of intervals parameter used by the function make.band.FFSCB.z()
+#' @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
 #' @example 
 #' # Generate a sample
@@ -79,7 +79,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, N, n.eval.poi
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- make.band.FFSCB.z(tau=tau, t0=t0, conf.level=(1-p), n_int=n_int)
+    b    <- make_band_FFSCB_z(tau=tau, t0=t0, conf.level=(1-p), n_int=n_int)
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     s    <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - s * b_f(t) * sqrt(diag.cov_f(t)) / sqrt(N)
@@ -105,7 +105,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, N, n.eval.poi
 #' @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
 #' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 #' @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
-#' @param n_int Number of intervals parameter used by the function make.band.FFSCB.z()
+#' @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
 #' @example 
 #' # Generate a sample
@@ -135,7 +135,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, N, n.eval.poi
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- ffscb::make.band.FFSCB.t(tau=tau, t0 = t0, conf.level=(1-p), N=N, n_int=n_int)
+    b    <- ffscb::make_band_FFSCB_t(tau=tau, t0 = t0, conf.level=(1-p), N=N, n_int=n_int)
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     s    <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - s * b_f(t) * sqrt(diag.cov_f(t)) / sqrt(N)

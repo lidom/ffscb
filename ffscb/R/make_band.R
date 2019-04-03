@@ -1,5 +1,5 @@
 #' @export
-make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
+make_band_Ec <- function(eigen, conf.level, fd.eval.grid.size=200){
   alpha.level <- 1-conf.level
   pc.to.use   <- sum(eigen$values > .Machine$double.eps)
   c.square    <- sqrt(eigen$values[1:pc.to.use])
@@ -17,7 +17,7 @@ make.band.BEc <- function(eigen, conf.level, fd.eval.grid.size=200){
 
 
 #' @export
-make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200){
+make_band_Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
     evalgrid <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
     cov.m    <- fda::eval.bifd(evalgrid,evalgrid,cov) 
@@ -32,7 +32,7 @@ make.band.Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200)
 }
 
 #' @export
-make.band.naive.t <- function(cov, conf.level, df, fd.eval.grid.size=200){
+make_band_naive_t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
     evalgrid <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
     cov.m    <- fda::eval.bifd(evalgrid,evalgrid,cov) 
@@ -46,7 +46,7 @@ make.band.naive.t <- function(cov, conf.level, df, fd.eval.grid.size=200){
 }
 
 #' @export
-make.band.KR.z <- function(tau, conf.level){
+make_band_KR_z <- function(tau, conf.level){
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
   tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
@@ -57,7 +57,7 @@ make.band.KR.z <- function(tau, conf.level){
 }
 
 #' @export
-make.band.KR.t <- function(tau, conf.level, N){
+make_band_KR_t <- function(tau, conf.level, N){
   alpha.level <- 1-conf.level
   nu          <- N-1
   tt          <- seq(0,1,len=length(tau))
@@ -70,7 +70,7 @@ make.band.KR.t <- function(tau, conf.level, N){
 
 
 #' @export
-make.band.FFSCB.z <- function(tau, t0, conf.level, n_int){
+make_band_FFSCB_z <- function(tau, t0, conf.level, n_int){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
@@ -179,7 +179,7 @@ make.band.FFSCB.z <- function(tau, t0, conf.level, n_int){
 
 
 #' @export
-make.band.FFSCB.t <- function(tau, t0, conf.level, N, n_int){
+make_band_FFSCB_t <- function(tau, t0, conf.level, N, n_int){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))

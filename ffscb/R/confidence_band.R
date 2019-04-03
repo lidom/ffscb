@@ -109,49 +109,49 @@ confidence_band <- function(x,
 
     if ("Bs" %in% type) {
       tmp.colnames     <- c(colnames(result), paste0("Bs.u.",level), paste0("Bs.l.",level))
-      Bs               <- make.band.Bs(cov=cov.m,conf.level=level,sim.size=Bs.sim.size) / sqrt(N)
+      Bs               <- make_band_Bs(cov=cov.m,conf.level=level,sim.size=Bs.sim.size) / sqrt(N)
       result           <- cbind(result, x.v + Bs, x.v - Bs);
       colnames(result) <- tmp.colnames
     }
 
     if ("BEc" %in% type) {
       tmp.colnames     <- c(colnames(result), paste0("BEc.u.",level), paste0("BEc.l.",level))
-      BEc              <- make.band.BEc(eigen=eigen.cov.m, conf.level=level) / sqrt(N)
+      BEc              <- make_band_Ec(eigen=eigen.cov.m, conf.level=level) / sqrt(N)
       result           <- cbind(result, x.v + BEc, x.v - BEc);
       colnames(result) <- tmp.colnames
     }
 
     if ("naive.t" %in% type) {
       tmp.colnames <- c(colnames(result), paste0("naive.t.u.",level), paste0("naive.t.l.",level))
-      naive.t      <- make.band.naive.t(cov.m, conf.level=level, df=N-1) / sqrt(N)
+      naive.t      <- make_band_naive_t(cov.m, conf.level=level, df=N-1) / sqrt(N)
       result       <- cbind(result, x.v + naive.t, x.v - naive.t);
       colnames(result) <- tmp.colnames
     }
 
     if ("KR.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.z.u.",level), paste0("KR.z.l.",level))
-      KR.z             <- make.band.KR.z(tau=tau, conf.level=level) * sqrt(diag(cov.m)) / sqrt(N)
+      KR.z             <- make_band_KR_z(tau=tau, conf.level=level) * sqrt(diag(cov.m)) / sqrt(N)
       result           <- cbind(result, x.v + KR.z, x.v - KR.z);
       colnames(result) <- tmp.colnames
     }
 
     if ("KR.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.t.u.",level), paste0("KR.t.l.",level))
-      KR.t             <- make.band.KR.t(tau=tau, conf.level=level, N=N)*sqrt(diag(cov.m)) / sqrt(N)
+      KR.t             <- make_band_KR_t(tau=tau, conf.level=level, N=N)*sqrt(diag(cov.m)) / sqrt(N)
       result           <- cbind(result, x.v + KR.t, x.v - KR.t);
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.z.u.",level), paste0("FFSCB.z.l.",level))
-      FFSCB.z          <- make.band.FFSCB.z(tau=tau, t0=t0, conf.level=level, n_int=n_int)*sqrt(diag(cov.m)) / sqrt(N)
+      FFSCB.z          <- make_band_FFSCB_z(tau=tau, t0=t0, conf.level=level, n_int=n_int)*sqrt(diag(cov.m)) / sqrt(N)
       result           <- cbind(result, x.v + FFSCB.z, x.v - FFSCB.z);
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
-      FFSCB.t          <- make.band.FFSCB.t(tau=tau, t0=t0, conf.level=level, N = N, n_int=n_int)*sqrt(diag(cov.m)) / sqrt(N)
+      FFSCB.t          <- make_band_FFSCB_t(tau=tau, t0=t0, conf.level=level, N = N, n_int=n_int)*sqrt(diag(cov.m)) / sqrt(N)
       result           <- cbind(result, x.v + FFSCB.t, x.v - FFSCB.t);
       colnames(result) <- tmp.colnames
     }
