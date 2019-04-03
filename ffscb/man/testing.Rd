@@ -7,7 +7,7 @@
 \usage{
 fregion.test(x, x0 = 0, cov, tau = NULL, t0 = NULL, N = 1,
   type = c("FFSCB.t", "Ec"), conf.level = c(0.95), n_int = 10,
-  tol = NULL, pc.cut = c(0.99), prec = NULL)
+  tol = NULL, fpc.cut = c(0.99), prec = NULL)
 }
 \arguments{
 \item{x}{Functional parameter estimate. It can be either a vector or \link{fd} object from \link{fda}.}
@@ -34,7 +34,7 @@ fregion.test(x, x0 = 0, cov, tau = NULL, t0 = NULL, N = 1,
 
 \item{tol}{Controls the tolerance value used by stats::optimize(). The default (tol=NULL) leads to the functions' default values.}
 
-\item{pc.cut}{It takes a vector of number of fPC to use in each HT. For integer values, fPC up to those values will be used. If it's a value from 0 to 1, this specifies the proportion of (estimated) variance that should be explained by the fPCs. If it is 0, all the available fPCs will be used as long as the size of eigenvalues are greater than .Machine$double.eps.}
+\item{fpc.cut}{It takes a vector of number of fPC to use in each HT. For integer values, fPC up to those values will be used. If it's a value from 0 to 1, this specifies the proportion of (estimated) variance that should be explained by the fPCs. If it is 0, all the available fPCs will be used as long as the size of eigenvalues are greater than .Machine$double.eps.}
 
 \item{prec}{This determines the accuracy of \link{imhof}. One may try to modify this if p-value achieved in Ellipsoid form other than Epc gives negative value. It should the the form of c(epsabs, epsrel, limit).}
 }
@@ -57,7 +57,7 @@ hat.tau.v    <- tau_fun(x)
 
 # Compare different methods for Hypothesis testings.
 fregion.test(x=hat.mu,x0=mu0,cov=hat.cov.m,tau=hat.tau.v,N=N,type=c("Ec"),
-pc.cut=c(1,3,4,5,0.99,0.999))
+fpc.cut=c(1,3,4,5,0.99,0.999))
 }
 \references{
 \itemize{

@@ -66,7 +66,7 @@ get_pval_Ec <- function(x, x0=NULL, N = 1, eigen, fpc.cut=NULL, prec=NULL){
 #' hat.tau.v    <- tau_fun(dat)
 #' 
 #' # pvalue
-#' pval <- get_pvalue_FFSCB_z(x=hat.mu, x0=mu0, tau=hat.tau.v, diag.com=diag(hat.cov.m), N=N, 
+#' pval <- get_pvalue_FFSCB_z(x=hat.mu, x0=mu0, tau=hat.tau.v, diag.cov=diag(hat.cov.m), N=N, 
 #' n.eval.points=6)
 #' plot(y=pval, x=grid, type="l", main="pvalue FFSCB (Gaussian)")
 #' @export

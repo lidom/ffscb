@@ -130,29 +130,29 @@ confidence_band <- function(x,
 
     if ("KR.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.z.u.",level), paste0("KR.z.l.",level))
-      KR.z             <- make_band_KR_z(tau=tau, conf.level=level) * sqrt(diag(cov.m)) / sqrt(N)
-      result           <- cbind(result, x.v + KR.z, x.v - KR.z);
+      band             <- make_band_KR_z(x=x_v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
+      result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 
     if ("KR.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.t.u.",level), paste0("KR.t.l.",level))
-      KR.t             <- make_band_KR_t(tau=tau, conf.level=level, N=N)*sqrt(diag(cov.m)) / sqrt(N)
-      result           <- cbind(result, x.v + KR.t, x.v - KR.t);
+      band             <- make_band_KR_t(x=x_v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
+      result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.z.u.",level), paste0("FFSCB.z.l.",level))
-      FFSCB.z          <- make_band_FFSCB_z(tau=tau, t0=t0, conf.level=level, n_int=n_int)*sqrt(diag(cov.m)) / sqrt(N)
-      result           <- cbind(result, x.v + FFSCB.z, x.v - FFSCB.z);
+      band             <- make_band_FFSCB_z(x=x_v, tau=tau, t0=t0, diag.cov=diag(cov.m), N=N, conf.level=level, n_int=n_int)
+      result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
-      FFSCB.t          <- make_band_FFSCB_t(tau=tau, t0=t0, conf.level=level, N = N, n_int=n_int)*sqrt(diag(cov.m)) / sqrt(N)
-      result           <- cbind(result, x.v + FFSCB.t, x.v - FFSCB.t);
+      band             <- make_band_FFSCB_t(x=x_v, tau=tau, t0=t0, diag.cov=diag(cov.m), N=N, conf.level=level, n_int=n_int)
+      result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 

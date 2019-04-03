@@ -1,4 +1,3 @@
-#' @export
 make_band_Ec <- function(eigen, conf.level, fd.eval.grid.size=200){
   alpha.level <- 1-conf.level
   pc.to.use   <- sum(eigen$values > .Machine$double.eps)
@@ -16,7 +15,6 @@ make_band_Ec <- function(eigen, conf.level, fd.eval.grid.size=200){
 }
 
 
-#' @export
 make_band_Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
     evalgrid <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
@@ -45,32 +43,118 @@ make_band_naive_t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   } else return(band.eval)
 }
 
+#' Kac-Rice simultaneous confidence band (Gaussian)
+#'
+#' @param x Functional parameter estimate. 
+#' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
+#' @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
+#' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
+#' @param conf.level confidence level (default: 0.95)
+#' @example 
+#' # Generate a sample
+#' p <- 200 ; N <- 80 ; rangeval = c(0,1)
+#' grid  <- make_grid(p, rangevals=rangeval)
+#' mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
+#' mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
+#' cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' dat   <- make_sample(mu,cov.m,N)
+#'
+#' # Find the estimate and covariance
+#' hat.mu       <- rowMeans(dat)
+#' hat.cov.m    <- crossprod(t(dat - hat.mu)) / (N-1)
+#' hat.tau.v    <- tau_fun(dat)
+#' 
+#' # Result
+#' band <- make_band_KR_z(x=hat.mu, tau=hat.tau.v, diag.cov=diag(hat.cov.m),N=N)
+#' matplot(y=band, x=grid, type="l", lty=c(2,1,2), col=1, main="KR-band (Gaussian)")
 #' @export
-make_band_KR_z <- function(tau, conf.level){
+make_band_KR_z <- function(x, tau, diag.cov, N, conf.level=0.95){
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
   tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
   myfun       <- function(c){stats::pnorm(c,lower.tail = FALSE)+tau_01*exp(-c^2/2)/(2*pi)-alpha.level/2}
   cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
-  band.eval   <- rep(cstar, times=length(tau))
-  return(band.eval)
+  band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov) / sqrt(N)
+  band_upper  <- x + band
+  band_lower  <- x - band
+  ##
+  result           <- cbind(band_lower,x,band_upper)
+  colnames(result) <- c("KR_z_band_lower","x","KR_z_band_upper")
+  ##
+  return(result)
 }
 
+#' Kac-Rice simultaneous confidence band (t-distr)
+#'
+#' @param x Functional parameter estimate. 
+#' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
+#' @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
+#' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
+#' @param conf.level confidence level (default: 0.95)
+#' @example 
+#' # Generate a sample
+#' p <- 200 ; N <- 80 ; rangeval = c(0,1)
+#' grid  <- make_grid(p, rangevals=rangeval)
+#' mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
+#' mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
+#' cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' dat   <- make_sample(mu,cov.m,N)
+#'
+#' # Find the estimate and covariance
+#' hat.mu       <- rowMeans(dat)
+#' hat.cov.m    <- crossprod(t(dat - hat.mu)) / (N-1)
+#' hat.tau.v    <- tau_fun(dat)
+#' 
+#' # Result
+#' band <- make_band_KR_t(x=hat.mu, tau=hat.tau.v, diag.cov=diag(hat.cov.m),N=N)
+#' matplot(y=band, x=grid, type="l", lty=c(2,1,2), col=1, main="KR-band (t-distr)")
 #' @export
-make_band_KR_t <- function(tau, conf.level, N){
+make_band_KR_t <- function(x, tau, diag.cov, N, conf.level=0.95){
   alpha.level <- 1-conf.level
   nu          <- N-1
   tt          <- seq(0,1,len=length(tau))
   tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
   myfun       <- function(c){stats::pt(c, lower.tail = FALSE, df=nu)+tau_01*(1+c^2/nu)^(-nu/2)/(2*pi) - alpha.level/2}
   cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
-  band.eval   <- rep(cstar, times=length(tau))
-  return(band.eval)
+  band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov) / sqrt(N)
+  band_upper  <- x + band
+  band_lower  <- x - band
+  ##
+  result           <- cbind(band_lower,x,band_upper)
+  colnames(result) <- c("KR_z_band_lower","x","KR_z_band_upper")
+  ##
+  return(result)
 }
 
-
+#' Fast 'n' fair simultaneous confidence band (Gaussian)
+#'
+#' @param x Functional parameter estimate. 
+#' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
+#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.
+#' @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
+#' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
+#' @param conf.level confidence level (default: 0.95)
+#' @param n_int Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.
+#' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#' @example 
+#' # Generate a sample
+#' p <- 200 ; N <- 80 ; rangeval = c(0,1)
+#' grid  <- make_grid(p, rangevals=rangeval)
+#' mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
+#' mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
+#' cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' dat   <- make_sample(mu,cov.m,N)
+#'
+#' # Find the estimate and covariance
+#' hat.mu       <- rowMeans(dat)
+#' hat.cov.m    <- crossprod(t(dat - hat.mu)) / (N-1)
+#' hat.tau.v    <- tau_fun(dat)
+#' 
+#' # Result
+#' band <- make_band_FFSCB_z(x=hat.mu, tau=hat.tau.v, diag.cov=diag(hat.cov.m),N=N)
+#' matplot(y=band, x=grid, type="l", lty=c(2,1,2), col=1, main="FFSCB-band (Gaussian)")
 #' @export
-make_band_FFSCB_z <- function(tau, t0, conf.level, n_int){
+make_band_FFSCB_z <- function(x, tau, t0=NULL, diag.cov, N, conf.level=0.95, n_int=10){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
@@ -174,12 +258,45 @@ make_band_FFSCB_z <- function(tau, t0, conf.level, n_int){
   ##
   opt_res <- stats::optimize(f = function(x){find_u(alpha.aux = x)$optim_target}, interval = c(0,alpha.level), tol=tol)$minimum
   ##
-  return(find_u(opt_res)$band.eval)
+  band        <- find_u(opt_res)$band.eval * sqrt(diag.cov) / sqrt(N)
+  band_upper  <- x + band
+  band_lower  <- x - band
+  ##
+  result           <- cbind(band_lower,x,band_upper)
+  colnames(result) <- c("FFSCB_z_band_lower","x","FFSCB_z_band_upper")
+  return(result)
 }
 
 
+#' Fast 'n' fair simultaneous confidence band (t-distr)
+#'
+#' @param x Functional parameter estimate. 
+#' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
+#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.
+#' @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
+#' @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
+#' @param conf.level confidence level (default: 0.95)
+#' @param n_int Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.
+#' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#' @example 
+#' # Generate a sample
+#' p <- 200 ; N <- 80 ; rangeval = c(0,1)
+#' grid  <- make_grid(p, rangevals=rangeval)
+#' mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
+#' mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
+#' cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' dat   <- make_sample(mu,cov.m,N)
+#'
+#' # Find the estimate and covariance
+#' hat.mu       <- rowMeans(dat)
+#' hat.cov.m    <- crossprod(t(dat - hat.mu)) / (N-1)
+#' hat.tau.v    <- tau_fun(dat)
+#' 
+#' # Result
+#' band <- make_band_FFSCB_t(x=hat.mu, tau=hat.tau.v, diag.cov=diag(hat.cov.m),N=N)
+#' matplot(y=band, x=grid, type="l", lty=c(2,1,2), col=1, main="FFSCB-band (t-distr)")
 #' @export
-make_band_FFSCB_t <- function(tau, t0, conf.level, N, n_int){
+make_band_FFSCB_t <- function(x, tau, t0=NULL, diag.cov, N, conf.level=0.95, n_int=10){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
@@ -301,6 +418,12 @@ make_band_FFSCB_t <- function(tau, t0, conf.level, N, n_int){
   ##
   opt_res <- stats::optimize(f = function(x){find_u(alpha.aux = x)$optim_target}, interval = c(0,alpha.level), tol=tol)$minimum
   ##
-  return(find_u(opt_res)$band.eval)
+  band        <- find_u(opt_res)$band.eval * sqrt(diag.cov) / sqrt(N)
+  band_upper  <- x + band
+  band_lower  <- x - band
+  ##
+  result           <- cbind(band_lower,x,band_upper)
+  colnames(result) <- c("FFSCB_t_band_lower","x","FFSCB_t_band_upper")
+  return(result)
 }
 
