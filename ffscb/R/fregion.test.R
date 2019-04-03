@@ -90,7 +90,7 @@ fregion.test <- function(x,
       }  # value 'Inf' can survive
       #####################################################
       ##
-      pval.Ec             <- ffscb::get.pval.Ec(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
+      pval.Ec             <- ffscb::get_pval_Ec(x=x_adj_null,N=N,eigen=e.cov,fpc.cut=cut,prec=prec)
       ##
       names.pval          <- ls(pattern=utils::glob2rx("pval.*"))
       pvalues             <- sapply(names.pval,get,inherits=FALSE,envir=environment()) #,envir=1
@@ -105,7 +105,7 @@ fregion.test <- function(x,
   if ("FFSCB.t" %in% type) {
     if(length(x0)==1){ rep(x0, length(tau)) }
     diag.cov <- diag(cov)
-    result_all[['FFSCB.t']] <- ffscb::get.pvalue.FFSCB.t(x=x,x0=x0,tau=tau,t0=t0,diag.cov=diag.cov,N=N,n_int=n_int)
+    result_all[['FFSCB.t']] <- ffscb::get_pvalue_FFSCB_t(x=x,x0=x0,tau=tau,t0=t0,diag.cov=diag.cov,N=N,n_int=n_int)
   }
   return(result_all)
 }

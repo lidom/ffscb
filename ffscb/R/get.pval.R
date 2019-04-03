@@ -1,17 +1,17 @@
 #' @export
-get.pval.Ec <- function(x, N = 1, eigen, fpc.cut=NULL, prec=NULL){
+get_pval_Ec <- function(x, N = 1, eigen, fpc.cut=NULL, prec=NULL){
   if (is.null(prec)) {prec <- c(10^(-6),10^(-6),10000)}
   if (is.null(fpc.cut) | fpc.cut==Inf) {fpc.cut <- sum(eigen$values > .Machine$double.eps)}
   c.square <- sqrt(eigen$values[1:fpc.cut])
   if (inherits(x,"fd")) {coef.square <- fda::inprod(x, eigen$harmonics[1:fpc.cut])^2} else
                         {coef.square <- as.vector(crossprod(x, eigen$vectors[,1:fpc.cut])^2)}
   weights <- eigen$values[1:fpc.cut]/c.square/N
-  stat <- sum(coef.square / c.square)
+  stat    <- sum(coef.square / c.square)
   CompQuadForm::imhof(stat, weights,epsabs=prec[1],epsrel=prec[2],limit=prec[3])[[1]]
 }
 
 #' @export
-get.pvalue.FFSCB.z <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.cov, N, n_int=10){
+get_pvalue_FFSCB_z <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.cov, N, n_int=10){
   n.eval.points <- n_int + 1
   t_grid        <- seq(0,1,len=n.eval.points)
   p_grid        <- numeric(n.eval.points)
@@ -38,7 +38,7 @@ get.pvalue.FFSCB.z <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.
 
 
 #' @export
-get.pvalue.FFSCB.t <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.cov, N, n_int=10){
+get_pvalue_FFSCB_t <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.cov, N, n_int=10){
   n.eval.points <- n_int + 1
   t_grid        <- seq(0,1,len=n.eval.points)
   p_grid        <- numeric(n.eval.points)
@@ -74,8 +74,8 @@ get.pvalue.FFSCB.t <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.
 # hat.sd        <- mean(apply(dat, 1,sd))
 # hat.cov.m     <- crossprod(t(dat - hat.mu)) / (N-1)
 # hat.tau.v     <- tau_fun(dat)
-# pvalue.FFSCB.z <- get.pvalue.FFSCB.z(x=hat.mu,tau=hat.tau.v, diag.cov=diag(hat.cov.m), N=N)
-# pvalue.FFSCB.t <- get.pvalue.FFSCB.t(x=hat.mu,tau=hat.tau.v, diag.cov=diag(hat.cov.m), N=N)
+# pvalue.FFSCB.z <- get_pvalue_FFSCB_z(x=hat.mu,tau=hat.tau.v, diag.cov=diag(hat.cov.m), N=N)
+# pvalue.FFSCB.t <- get_pvalue_FFSCB_t(x=hat.mu,tau=hat.tau.v, diag.cov=diag(hat.cov.m), N=N)
 # pvalue.t.test <- unname(apply(dat, 1, function(x)t.test(x)$p.value))
 # 
 # par(mfrow=c(2,1))
