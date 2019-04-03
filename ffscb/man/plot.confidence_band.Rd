@@ -4,11 +4,11 @@
 \alias{plot.confidence_band}
 \title{Visualizes confidence bands constructed from \link{confidence_band}.}
 \usage{
-\method{plot}{confidence_band}(band, center = TRUE,
-  legendx = "topleft", legendy = NULL, ...)
+\method{plot}{confidence_band}(x, center = TRUE, legendx = "topleft",
+  legendy = NULL, ...)
 }
 \arguments{
-\item{band}{A 'confidence_band' object, the output from \link{confidence_band} funciton.}
+\item{x}{A 'confidence_band' object, the output from \link{confidence_band} funciton.}
 
 \item{center}{Whether to include the functional estimate or not.}
 

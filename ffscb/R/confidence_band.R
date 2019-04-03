@@ -130,28 +130,28 @@ confidence_band <- function(x,
 
     if ("KR.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.z.u.",level), paste0("KR.z.l.",level))
-      band             <- make_band_KR_z(x=x_v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
+      band             <- make_band_KR_z(x=x.v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
       result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 
     if ("KR.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("KR.t.u.",level), paste0("KR.t.l.",level))
-      band             <- make_band_KR_t(x=x_v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
+      band             <- make_band_KR_t(x=x.v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
       result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.z.u.",level), paste0("FFSCB.z.l.",level))
-      band             <- make_band_FFSCB_z(x=x_v, tau=tau, t0=t0, diag.cov=diag(cov.m), N=N, conf.level=level, n_int=n_int)
+      band             <- make_band_FFSCB_z(x=x.v, tau=tau, t0=t0, diag.cov=diag(cov.m), N=N, conf.level=level, n_int=n_int)
       result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
-      band             <- make_band_FFSCB_t(x=x_v, tau=tau, t0=t0, diag.cov=diag(cov.m), N=N, conf.level=level, n_int=n_int)
+      band             <- make_band_FFSCB_t(x=x.v, tau=tau, t0=t0, diag.cov=diag(cov.m), N=N, conf.level=level, n_int=n_int)
       result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }

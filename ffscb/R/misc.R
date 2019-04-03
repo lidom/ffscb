@@ -1,9 +1,18 @@
+#' Make grid
+#'
+#' @param p Length of the grid 
+#' @param rangevals Endpoints of the grid 
 #' @export
 make_grid <- function(p=100,rangevals=c(0,1)){seq(rangevals[1],rangevals[2],len=p)}
 
+
+#' Make discretized covariance function
+#'
+#' @param cov.f Covariance function
+#' @param grid Evaluation-grid 
+#' @param cov.f.params Parameters of the covariance function
 #' @export
-make_cov_m <- function(cov.f=covf.st.matern, grid=100, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
-  if (length(grid)==1) {grid=make_grid(p=grid)} ## input grid as a single number (as grid size), or as vector (actual grid)
+make_cov_m <- function(cov.f=covf.st.matern, grid, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
   grid.size <- length(grid)
   cov.m <- matrix(0,nrow=grid.size,ncol=grid.size)
   if (is.null(cov.f.params)) {
@@ -19,7 +28,13 @@ make_cov_m <- function(cov.f=covf.st.matern, grid=100, cov.f.params=NULL){  ### 
   return(cov.m)
 }
 
-
+#' Make sample (for simulation)
+#'
+#' @param mean.v Mean-Vector (discretized mean function)
+#' @param cov.m Covariance-Matrix (discretized covariance function)
+#' @param N Number of functions
+#' @param dist Distribution
+#' @param ... further parameters for dist
 #' @export
 make_sample <- function(mean.v,cov.m,N,dist="rnorm",...){
   p <- length(mean.v)
@@ -35,6 +50,11 @@ make_sample <- function(mean.v,cov.m,N,dist="rnorm",...){
 }
 
 
+#' Locate crossings
+#'
+#' @param x_vec Vector which might cross the given threshold
+#' @param threshold Threshold-vector
+#' @param type locate 'up' or 'down' crossings?
 #' @export
 locate_crossings <- function(x_vec, threshold, type=c("up", "down")){
   ##

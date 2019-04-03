@@ -29,7 +29,6 @@ make_band_Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200)
   } else return(band.eval)
 }
 
-#' @export
 make_band_naive_t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   if (inherits(cov,"bifd")) {
     evalgrid <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=cov$sbasis$rangeval)
