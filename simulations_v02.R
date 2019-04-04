@@ -170,86 +170,21 @@ sim_df <- dplyr::tibble("DGP"              = DGP,
                         "rfrq_3"           = rfrq_interv_df %>% dplyr::filter(intervals==3),
                         "rfrq_4"           = rfrq_interv_df %>% dplyr::filter(intervals==4))
 
+save(sim_df, file = paste0(here("R/Simulation_Results/"), DGP,"_N=", N))
 
 
 
-save(sim_df, file = paste0(here("R/Simulation_Results/"),DGP,"_N=",N))
+# ffscb_m <- apply(exceed_lo_loc[,,5], 1, function(x){tmp <- rep(NA,p);tmp[x] <- grid[x]; tmp})
+# boots_m <- apply(exceed_lo_loc[,,1], 1, function(x){tmp <- rep(NA,p);tmp[x] <- grid[x]; tmp})
+# 
+# ffscb_v <- apply(ffscb_m, 2, function(x){ifelse(any(!is.na(x)), max(x,na.rm=T)-min(x,na.rm=T),NA)})
+# boot_v  <- apply(boots_m, 2, function(x){ifelse(any(!is.na(x)), max(x,na.rm=T)-min(x,na.rm=T),NA)})
+# 
+# ffscb_v <- c(na.omit(ffscb_v))
+# boot_v  <- c(na.omit(boot_v))
+# 
+# summary(ffscb_v)
+# summary(boot_v)
 
-
-
-
-
-ffscb_m <- apply(exceed_lo_loc[,,5], 1, function(x){tmp <- rep(NA,p);tmp[x] <- grid[x]; tmp})
-boots_m <- apply(exceed_lo_loc[,,1], 1, function(x){tmp <- rep(NA,p);tmp[x] <- grid[x]; tmp})
-
-ffscb_v <- apply(ffscb_m, 2, function(x){ifelse(any(!is.na(x)), max(x,na.rm=T)-min(x,na.rm=T),NA)})
-boot_v  <- apply(boots_m, 2, function(x){ifelse(any(!is.na(x)), max(x,na.rm=T)-min(x,na.rm=T),NA)})
-
-ffscb_v <- c(na.omit(ffscb_v))
-boot_v  <- c(na.omit(boot_v))
-
-summary(ffscb_v)
-summary(boot_v)
-
-
-
-
-
-
-## -------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##
-widths
-##
-plot(b)
-##
-points(grid,mu,typ="l",lty=2)
-##
-# data.frame(type          = type, 
-#            coverage      = coverage, 
-#            me            = round(2*sqrt(coverage*(1-coverage)/reps),4), 
-#            ave_width     = widths/reps,  
-#            ave_sqr_width = widths_sqr/reps)
-##
-plot_data <- data.frame(grid=grid, counts_grid/reps)
-names(plot_data)[-1] <- type
-plot_data <- melt(plot_data, id.var="grid", value.name="coverage")
-##
-ggplot(plot_data,aes(x=grid,y=coverage,group=variable,color=variable))+
-  geom_line(aes(lty=variable)) +
-  ylab("Pointwise Coverage") + xlab("") + theme_bw() 
-
-
-dat         <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
-hat_mu      <- rowMeans(dat)
-hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
-hat.tau.v   <- tau_fun(dat)
-b           <- confidence_band(x = hat_mu, cov = hat.cov.m, tau=hat.tau.v, N=N, type=type, conf.level = 0.95, 
-                            n_int = 10, tol=.Machine$double.eps^0.25)
-par(mfrow=c(2,1), mar=c(2.1, 4.1, 2.1, 2.1))
-matplot(grid, dat, type="l", lty=1, ylab="X(t)",xlab = "")
-plot(b, xlab="", ylab="Bands")
-par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 2.1))
-
-# matplot(x=grid,y=cbind(hat_mu, b[,6:7]),type="l",lty=c(1,2,2), col=1)
-# matlines(x=grid,y=b[,4:5], lty=3, col=2)
 
 
