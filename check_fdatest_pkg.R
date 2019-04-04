@@ -1,7 +1,6 @@
 # Load packages 
 library("devtools")
-library("fregion")
-#devtools::install_github("alessiapini/fdatest")
+# devtools::install_github("alessiapini/fdatest")
 library("fdatest")
 library("fda")
 
@@ -21,6 +20,9 @@ matplot(grid, x, type="l", lty=1); lines(grid, mu, lwd=2); confint(lm(x[1,]~1)) 
 
 
 IWT_res  <- fdatest::IWT1(data = t(x), mu = 0)
+
+any(IWT_res$adjusted_pval < alpha.level)
+
 plot(IWT_res)
 par(mfrow=c(2,1))
 plot(rowMeans(x),type="l");abline(h=0,lty=3)

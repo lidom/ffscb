@@ -25,6 +25,7 @@ confidence_band(x, cov, tau = NULL, t0 = NULL, N = 1,
 \itemize{
   \item FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.
   \item FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.
+  \item minW.z : 
   \item KR.z : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for Gaussian random functions.
   \item KR.t : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for t-distributed random functions.
   \item BEc : The suggested modified Scheffe style band from hyper-ellipsoie Ec, which uses up to the very last dimension.

@@ -9,6 +9,7 @@
 #' \itemize{
 #'   \item FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.
 #'   \item FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.
+#'   \item minW.z : 
 #'   \item KR.z : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for Gaussian random functions.
 #'   \item KR.t : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for t-distributed random functions.
 #'   \item BEc : The suggested modified Scheffe style band from hyper-ellipsoie Ec, which uses up to the very last dimension.
@@ -90,8 +91,8 @@ confidence_band <- function(x,
     eigen.cor.m <- eigen(cor.m) ; eigen.cor.m$values[ eigen.cor.m$values < 0 ] <- 0 # trim negative eigenvalues.
   }
   
-  if( sum(c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t") %in% type) > 0 & is.null(tau)) {
-    stop("The procedures FFSCB.z, FFSCB.t, KR.z, KR.t need tau.")
+  if( sum(c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "minW.z") %in% type) > 0 & is.null(tau)) {
+    stop("The procedures FFSCB.z, FFSCB.t, KR.z, KR.t, minW.z need tau.")
   }
   
   ## Parameter estimate in first column
@@ -155,6 +156,13 @@ confidence_band <- function(x,
       result           <- cbind(result, band[,3], band[,1]);
       colnames(result) <- tmp.colnames
     }
+    
+    # if ("minW.z" %in% type){
+    #   tmp.colnames     <- c(colnames(result), paste0("minW.z.u.",level), paste0("minW.z.l.",level))
+    #   band             <- make_band_minW_z(x=x.v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
+    #   result           <- cbind(result, band[,3], band[,1]);
+    #   colnames(result) <- tmp.colnames
+    # }
 
   }
   if (datatype=="fd") {
