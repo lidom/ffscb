@@ -8,6 +8,7 @@
 # Load packages 
 # devtools::install_github("alessiapini/fdatest")
 library("tidyverse")
+library("fda")
 library("fdatest")
 library("ffscb")
 help("ffscb")
@@ -20,7 +21,8 @@ type         <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
 alpha.level  <- 0.05
 n_int        <- 8
 ##
-reps         <- 500
+n_reps_H0    <- 50000
+n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
@@ -68,17 +70,20 @@ for(DGP in DGP_seq) {
       # matplot(grid, sim.dat, type="l", lty=1); lines(grid, mu, lwd=2)
       ## 
       
+      
+      n_reps            <- ifelse(delta==0, n_reps_H0, n_reps_H1)
+      ##
       count_exceed      <- numeric(length(type)) 
       count_exceed_IWT  <- 0
       count_exceed_t0   <- numeric(length(type)) 
-      crossings_loc     <- array(NA, dim = c(reps, p, length(type)))
-      crossings_loc_IWT <- matrix(NA, nrow = reps, ncol = p)
-      exceed_loc        <- array(NA, dim = c(reps, p, length(type)))
-      exceed_loc_IWT    <- matrix(NA, nrow = reps, ncol = p)
+      crossings_loc     <- array(NA, dim = c(n_reps, p, length(type)))
+      crossings_loc_IWT <- matrix(NA, nrow = n_reps, ncol = p)
+      exceed_loc        <- array(NA, dim = c(n_reps, p, length(type)))
+      exceed_loc_IWT    <- matrix(NA, nrow = n_reps, ncol = p)
       intgr_widths      <- numeric(length(type))
       intgr_widths_sqr  <- numeric(length(type))
       ##
-      for(i in 1:reps){# 
+      for(i in 1:n_reps){# 
         ## Generate data
         dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
         ## Estimate mean, covariance, and tau
@@ -111,14 +116,14 @@ for(DGP in DGP_seq) {
         count_exceed_t0 <- count_exceed_t0 + as.numeric(tmp_t0_up | tmp_t0_lo)
         ## saving band-crossing locations:
         for(j in 1:length(type)){
-          ## delta: number of gridpoints before t0:
-          if(which(grid==t0) != p){delta <- (which(grid==t0)-1)}else{delta <- 0}
+          ## ngbt0: number of gridpoints before t0:
+          if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
           ## crossing locations with respect to the upper Bands:
-          tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"), # down-crossings (left of t0)
-                          delta+locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
+          tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"),         # down-crossings (left of t0)
+                          ngbt0 + locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
           ## crossing locations with respect to the lower Bands:
-          tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ), # down-crossings (left of t0)
-                          delta+locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
+          tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ),         # down-crossings (left of t0)
+                          ngbt0 + locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
           ## all (sorted) crossing locations together:
           tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
           ## save crossing locations (if any):
@@ -128,11 +133,12 @@ for(DGP in DGP_seq) {
         intgr_widths      <- intgr_widths     + colSums( upper_Bands - lower_Bands   )*diff(grid)[1]
         intgr_widths_sqr  <- intgr_widths_sqr + colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
         ##
-        if(i %% 500 ==0){cat("i /",reps,"=",i,"/",reps,"\n")}
+        if(i %% 500 ==0){cat("i /",n_reps,"=",i,"/",n_reps,"\n")}
         ##
       } 
       ## 
-      Band_type      <- c(stringr::str_replace(names(intgr_widths), paste0(".u.",(1-alpha.level)),""), "IWT")
+      Band_type      <- c(stringr::str_replace(string  = names(intgr_widths), 
+                                               pattern = paste0(".u.", (1-alpha.level)),""), "IWT")
       ##
       ## New-Variable: Interval-parts [0,1/4], [1/4,2/4], [2/4,3/4], [3/4,4/4] for each crossing-location
       crossings_df <- dplyr::tibble(
@@ -168,36 +174,27 @@ for(DGP in DGP_seq) {
                         apply(exceed_loc_IWT, 1, function(x){any(x==TRUE)}))
       
       
-      ## For all DGPs under the alternative: Compute the lengths of the exceedances
-      if( grepl("H1", DGP) ) {
-        perc_correct_median <- NULL
-        ##
-        target_loc <- mu!=mu0
-        ##
-        for( i in 1:(length(Band_type)-1) ) {
-          perc_correct_median <- c(perc_correct_median,
-                                   apply(exceed_loc[slct_comms,,i], 1, function(x){
-                                     if(any(x==TRUE)) {
-                                       tmp <- x == target_loc
-                                       length(tmp[tmp==TRUE])/p
-                                     } else { NA }}) %>% median(.,na.rm = T))
-        }
+      ## Compute the median of the percentages of correct point-wise decisions within the domain [0,1]
+      perc_correct_median <- NULL
+      target_loc          <- mu!=mu0
+      ##
+      for( i in 1:(length(Band_type)-1) ) {
         perc_correct_median <- c(perc_correct_median,
-                                 apply(exceed_loc_IWT[slct_comms,], 1, function(x){
-                                   if(any(x==TRUE)) {
-                                     tmp <- x == target_loc
-                                     length(tmp[tmp==TRUE])/p
+                                 apply(exceed_loc[slct_comms,,i], 1, function(x){
+                                   if(any(x==TRUE)) { tmp <- x == target_loc; length(tmp[tmp==TRUE])/p
                                    } else { NA }}) %>% median(.,na.rm = T))
-      } else {
-        perc_correct_median <- rep(NA,length(Band_type))
       }
+      perc_correct_median <- c(perc_correct_median,
+                               apply(exceed_loc_IWT[slct_comms,], 1, function(x){
+                                 if(any(x==TRUE)) { tmp <- x == target_loc; length(tmp[tmp==TRUE])/p
+                                 } else { NA }}) %>% median(.,na.rm = T))
       
       sim_df_tmp <- dplyr::tibble("DGP"              = DGP,
                                   "N"                = N,
                                   "delta"            = delta,
                                   "Band"             = Band_type,
                                   "alpha.level"      = alpha.level,
-                                  "exceed_frq"       = c(count_exceed, count_exceed_IWT) /reps,
+                                  "exceed_frq"       = c(count_exceed, count_exceed_IWT) /n_reps,
                                   "KL"               = KL_df$KL_rfrq_interv, 
                                   "rfrq_I1"          = rfrq_interv_df %>% dplyr::filter(intervals==1) %>% pull(rfrq),
                                   "rfrq_I2"          = rfrq_interv_df %>% dplyr::filter(intervals==2) %>% pull(rfrq),
@@ -206,7 +203,7 @@ for(DGP in DGP_seq) {
                                   ##
                                   "perc_correct_median"  = perc_correct_median,
                                   ##
-                                  "exceed_t0_frq"    = c(count_exceed_t0,NA)/reps, 
+                                  "exceed_t0_frq"    = c(count_exceed_t0,NA)/n_reps, 
                                   "intgr_widths"     = c(intgr_widths,NA),
                                   "intgr_widths_sqr" = c(intgr_widths_sqr,NA))
       
