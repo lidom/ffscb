@@ -120,8 +120,8 @@ meanf_scale <- function(x, delta=0){ meanf_poly(x,c(0,1+delta)) }
 #' @param x function argument
 #' @param delta shifting parameter 
 #' @example 
-#' curve(meanf_shift(x, 0), from=0, to=1)
-#' curve(meanf_shift(x,.1), from=0, to=1, lty=2, add=TRUE)
+#' curve(meanf_shift(x, 0), from=0, to=1, lty=2)
+#' curve(meanf_shift(x,.1), from=0, to=1, lty=1, add=TRUE)
 #' @export
 meanf_shift <- function(x, delta=0){ meanf_poly(x,c(delta,1)) }
 
@@ -131,7 +131,7 @@ meanf_shift <- function(x, delta=0){ meanf_poly(x,c(delta,1)) }
 #' @param x function argument
 #' @param delta shifting parameter 
 #' @example 
-#' curve(meanf_localshift(x, 0), from=0, to=1)
-#' curve(meanf_localshift(x,.1), from=0, to=1, lty=2, add=TRUE)
+#' curve(meanf_localshift(x, 0), from=0, to=1, lty=2)
+#' curve(meanf_localshift(x,.1), from=0, to=1, lty=1, add=TRUE)
 #' @export
 meanf_localshift <- function(x, delta=0){meanf_peak(x, c(0,1,1+delta,10,1)) }
