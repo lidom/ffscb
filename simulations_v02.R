@@ -1,8 +1,8 @@
 ## ################################
 ## Make/Check package
-remove.packages("ffscb")
-devtools::document("ffscb")   
-devtools::install_local("ffscb")
+# remove.packages("ffscb")
+# devtools::document("ffscb")   
+# devtools::install_local("ffscb")
 ## #################################
 
 # Load packages 
@@ -37,7 +37,7 @@ for(DGP in DGP_seq) {
   sim_df <- NULL
   ##
   for(N in N_seq) {
-    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- delta_seq[1]
+    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- delta_seq[10]
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);      mu <- meanf_scale(grid, delta) }
