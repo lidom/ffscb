@@ -10,9 +10,13 @@
 library("tidyverse")
 library("fda")
 library("fdatest")
+library("parallel")
 library("ffscb")
-help("ffscb")
 
+##
+detectCores()
+nworkers <- 6
+##
 
 ## Setup ####################################################
 p            <- 101
@@ -73,15 +77,14 @@ for(DGP in DGP_seq) {
       
       n_reps            <- ifelse(delta==0, n_reps_H0, n_reps_H1)
       ##
-      count_exceed      <- numeric(length(type)) 
-      count_exceed_IWT  <- 0
-      count_exceed_t0   <- numeric(length(type)) 
+      exceedances       <- matrix(0, nrow = n_reps, ncol = length(type)) 
+      exceedances_IWT   <- numeric(n_reps)
+      exceedances_t0    <- matrix(0, nrow = n_reps, ncol = length(type))
       crossings_loc     <- array(NA, dim = c(n_reps, p, length(type)))
       crossings_loc_IWT <- matrix(NA, nrow = n_reps, ncol = p)
       exceed_loc        <- array(NA, dim = c(n_reps, p, length(type)))
       exceed_loc_IWT    <- matrix(NA, nrow = n_reps, ncol = p)
-      intgr_widths      <- numeric(length(type))
-      intgr_widths_sqr  <- numeric(length(type))
+      intgr_widths_sqr  <- matrix(0, nrow = n_reps, ncol = length(type)) 
       ##
       for(i in 1:n_reps){# 
         ## Generate data
@@ -96,7 +99,7 @@ for(DGP in DGP_seq) {
         ## ==============================================================================================
         ## IWT1 function from the fdatest package
         IWT_messages       <- capture.output(IWT_res <- fdatest::IWT1(data = t(dat), mu = mu0))
-        count_exceed_IWT   <- count_exceed_IWT + as.numeric(any(IWT_res$adjusted_pval < alpha.level))
+        exceedances_IWT[i] <- as.numeric(any(IWT_res$adjusted_pval < alpha.level))
         exceed_loc_IWT[i,] <- IWT_res$adjusted_pval < alpha.level
         tmp_cr_loc_IWT     <- locate_crossings(IWT_res$adjusted_pval, rep(alpha.level, p), type="down")# down-crossing of pval means upcrossing of empirical mean
         crossings_loc_IWT[i,tmp_cr_loc_IWT]  <-  grid[tmp_cr_loc_IWT]
@@ -107,13 +110,13 @@ for(DGP in DGP_seq) {
         ##
         exceed_loc[i,,] <- upper_Bands < matrix(mu0, nrow=p, ncol=length(type)) | lower_Bands > matrix(mu0, nrow=p, ncol=length(type))
         ##
-        ## counting of events: 'at least one crossing occured'
+        ## save exceedances events ('at least one crossing occured?')
         tmp             <- exceed_loc[i,,]
-        count_exceed    <- count_exceed + as.numeric(apply(tmp, 2, function(x){any(x==TRUE)}))
+        exceedances[i,] <- as.numeric(apply(tmp, 2, function(x){any(x==TRUE)}))
         ## counting exceedances at t0:
-        tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
-        tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
-        count_exceed_t0 <- count_exceed_t0 + as.numeric(tmp_t0_up | tmp_t0_lo)
+        tmp_t0_up          <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
+        tmp_t0_lo          <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
+        exceedances_t0[i,] <- as.numeric(tmp_t0_up | tmp_t0_lo)
         ## saving band-crossing locations:
         for(j in 1:length(type)){
           ## ngbt0: number of gridpoints before t0:
@@ -130,15 +133,17 @@ for(DGP in DGP_seq) {
           if(length(tmp_cr_loc)>0){crossings_loc[i,tmp_cr_loc,j]  <- grid[tmp_cr_loc]}
         }
         ## saving band-widths:
-        intgr_widths      <- intgr_widths     + colSums( upper_Bands - lower_Bands   )*diff(grid)[1]
-        intgr_widths_sqr  <- intgr_widths_sqr + colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
+        intgr_widths_sqr[i,]  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
         ##
-        if(i %% 500 ==0){cat("i /",n_reps,"=",i,"/",n_reps,"\n")}
+        
+        dplyr::tibble(excd = cbind(exceedances, exceedances_IWT))
         ##
       } 
+      
+      #if(i %% 500 ==0){cat("i /",n_reps,"=",i,"/",n_reps,"\n")}
+      ##
       ## 
-      Band_type      <- c(stringr::str_replace(string  = names(intgr_widths), 
-                                               pattern = paste0(".u.", (1-alpha.level)),""), "IWT")
+      Band_type      <- c(stringr::str_replace(string = names(intgr_widths), pattern = paste0(".u.", (1-alpha.level)),""), "IWT")
       ##
       ## New-Variable: Interval-parts [0,1/4], [1/4,2/4], [2/4,3/4], [3/4,4/4] for each crossing-location
       crossings_df <- dplyr::tibble(

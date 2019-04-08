@@ -22,7 +22,6 @@
 #' @param n_int Number of intervals for the piecewise linear confidence bounds.
 #' @param tol Controls the tolerance value used by stats::optimize(). The default (tol=NULL) leads to the functions' default values.
 #' @return confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.
-#' @name band
 #' @references 
 #' \itemize{
 #'    \item Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
