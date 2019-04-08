@@ -16,8 +16,8 @@ type         <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
 alpha.level  <- 0.05
 n_int        <- 8
 ##
-n_reps_H0    <- 1000
-n_reps_H1    <- 1000
+n_reps_H0    <- 5000
+n_reps_H1    <- 5000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
