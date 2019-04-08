@@ -83,16 +83,21 @@ for(DGP in DGP_seq) {
         hat.tau.v   <- tau_fun(dat)# plot(y=hat.tau.v,x=seq(0,1,len=p),type="l")
         ##
         ## Confidence bands
-        b                    <- confidence_band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, 
+        b               <- confidence_band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, 
                                                 type=type, conf.level=(1-alpha.level), n_int=n_int)# plot(b); lines(x=grid, y=mu, col="blue")
         ##
-        upper_Bands          <- b[,  2*(1:length(type))]
-        lower_Bands          <- b[,1+2*(1:length(type))]
+        upper_Bands     <- b[,  2*(1:length(type))]
+        lower_Bands     <- b[,1+2*(1:length(type))]
         ##
-        exceed_loc           <- upper_Bands < matrix(mu0, nrow=p, ncol=length(type)) | lower_Bands > matrix(mu0, nrow=p, ncol=length(type))
+        exceed_loc      <- upper_Bands < matrix(mu0, nrow=p, ncol=length(type)) | lower_Bands > matrix(mu0, nrow=p, ncol=length(type))
         ##
-        ## save exceedances events ('at least one crossing occured?')
-        exceedances          <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
+        ## saveing exceedances events ('at least one crossing occured?')
+        exceedances     <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
+        ##
+        ## saveing exceedances at t0:
+        tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
+        tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
+        exceedances_t0  <- as.numeric(tmp_t0_up | tmp_t0_lo)
         ##
         ## saving band-mu0-crossing locations:
         crossings_loc <- matrix(NA, nrow=p, ncol=length(type))
@@ -118,6 +123,7 @@ for(DGP in DGP_seq) {
         ## simulation data
         sim_df <- dplyr::tibble(band     = as_factor(rep(Band_type, each = p)),
                                 excd     = rep(exceedances,         each = p),
+                                excd_t0  = rep(exceedances_t0,      each = p),
                                 excd_loc = c(exceed_loc),
                                 cros_loc = c(crossings_loc),
                                 wdth     = rep(intgr_widths_sqr,    each = p))# glimpse(sim_df)

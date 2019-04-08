@@ -88,9 +88,10 @@ for(DGP in DGP_seq) {
         ## simulation data
         sim_df <- dplyr::tibble(band     = as_factor(rep("IWT", p)),
                                 excd     = rep(exceedances_IWT, p),
+                                excd_t0  = rep(NA,              p),
                                 excd_loc = exceed_loc_IWT,
                                 cros_loc = crossings_loc_IWT,
-                                wdth     = rep(NA, p))# glimpse(sim_df)
+                                wdth     = rep(NA,              p))# glimpse(sim_df)
         ##
         return(sim_df)
       }, mc.cores = nworkers)
