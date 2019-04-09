@@ -129,7 +129,7 @@ for(DGP in DGP_seq) {
                                 wdth     = rep(intgr_widths_sqr,    each = p))# glimpse(sim_df)
         ##
         return(sim_df)
-      }, mc.cores = nworkers)#
+      }, mc.cores = nworkers)
       ##
       end_time <- Sys.time()
       run_time <- end_time - start_time
@@ -145,7 +145,7 @@ for(DGP in DGP_seq) {
           DGP       = rep(DGP,    times=length(type)*p*n_reps))# Name of DGP
       ##
       ## Feedback
-      cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (",attr(run_time, "units"),")\n", sep="")
+      cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
       ##
       save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta))
     }# delta-loop

@@ -103,7 +103,7 @@ for(DGP in DGP_seq) {
       sim_df <- dplyr::bind_rows(res_mclapply) %>% 
         dplyr::mutate(
           intervals = cut(x=cros_loc, breaks=seq(0,1,len=5), labels = c(1,2,3,4)),# Assign crossing-locations to one of four equidistant intervals in [0,1]
-          run       = rep(c(1:n_reps), each=p),  # Numbering the single simulation runs
+          run       = rep(c(1:n_reps),    each=p),# Numbering the single simulation runs
           n_rep     = rep(n_reps, times=p*n_reps),# Total number of simulation runs  
           delta     = rep(delta,  times=p*n_reps),# Delta (from H0 to H1)  
           N         = rep(N,      times=p*n_reps),# Sample size
