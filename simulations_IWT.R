@@ -34,13 +34,12 @@ N_seq         <- c(10,100)
 for(DGP in DGP_seq) {
   ##
   set.seed(1110)
-  sim_df <- NULL
   ##
   for(N in N_seq) {
     ## Take the correct delta_seq corresponding to N
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
     ##
-    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_seq)
+    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_Nsmall)
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);      mu <- meanf_scale(grid, delta) }
