@@ -146,7 +146,7 @@ for(DGP in DGP_seq) {
       ## Feedback
       cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta))
+      save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
     }# delta-loop
   }# N-loop
 }# DGP-loop
@@ -159,7 +159,7 @@ for(DGP in DGP_seq){
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
     for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_Nsmall)
       
-      load(file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta))
+      load(file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
       
       ## Relative frequency of crossings per interval 
       rfrq_interv_df <- sim_df %>% 

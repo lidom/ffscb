@@ -111,7 +111,7 @@ for(DGP in DGP_seq) {
       ## Feedback
       cat("IWT_",DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (",attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0("Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta))
+      save(sim_df, file = paste0("Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta,".RData"))
     }# delta-loop
   }# N-loop
 }# DGP-loop
