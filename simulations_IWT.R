@@ -4,6 +4,7 @@ library("tidyverse")
 library("fda")
 library("fdatest")
 library("parallel")
+library("ffscb")
 
 ##
 detectCores()
