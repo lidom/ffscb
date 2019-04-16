@@ -152,66 +152,113 @@ for(DGP in DGP_seq) {
 }# DGP-loop
 
 
+SimResults_df <- NULL
 
-
-## Relative frequency of crossings per interval 
-rfrq_interv_df <- sim_df %>% 
-  tidyr::drop_na() %>% 
-  dplyr::group_by(band) %>% 
-  dplyr::mutate(n_cr = n()) %>% 
-  dplyr::group_by(band, intervals) %>% 
-  dplyr::summarise(rfrq = n()/n_cr[1]) %>% 
-  complete(intervals, fill = list(rfrq = 0)) # if not obs in one interval, set rfrq to 0
-
-## Kullback-Leibler (KL) distance from uniform distribution over the four intervals
-KL_df <- rfrq_interv_df %>% 
-  dplyr::group_by(band) %>% 
-  dplyr::summarise(KL_rfrq_interv=sum(rfrq*log(rfrq/rep(.25,4)))) %>% 
-  dplyr::ungroup() 
-
-## Selecting common rejection cases (for having a comparable basis):
-slct_comms <- c(apply(exceed_loc[,,1], 1, function(x){any(x==TRUE)})&
-                  apply(exceed_loc[,,2], 1, function(x){any(x==TRUE)})&
-                  apply(exceed_loc[,,3], 1, function(x){any(x==TRUE)})&
-                  apply(exceed_loc[,,4], 1, function(x){any(x==TRUE)})&
-                  apply(exceed_loc[,,5], 1, function(x){any(x==TRUE)})&
-                  apply(exceed_loc_IWT, 1, function(x){any(x==TRUE)}))
-
-
-## Compute the median of the percentages of correct point-wise decisions within the domain [0,1]
-perc_correct_median <- NULL
-target_loc          <- mu!=mu0
-##
-for( i in 1:(length(Band_type)-1) ) {
-  perc_correct_median <- c(perc_correct_median,
-                           apply(exceed_loc[slct_comms,,i], 1, function(x){
-                             if(any(x==TRUE)) { tmp <- x == target_loc; length(tmp[tmp==TRUE])/p
-                             } else { NA }}) %>% median(.,na.rm = T))
+for(DGP in DGP_seq){
+  for(N in N_seq) {
+    if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_Nsmall)
+      
+      load(file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta))
+      
+      ## Relative frequency of crossings per interval 
+      rfrq_interv_df <- sim_df %>% 
+        tidyr::drop_na() %>% 
+        dplyr::group_by(band) %>% 
+        dplyr::mutate(n_cr = n()) %>% # n_cr: total number of crossings for each band
+        dplyr::group_by(band, intervals) %>% 
+        dplyr::summarise(rfrq = n()/n_cr[1]) %>% # rel number for crossings per interval and per band
+        complete(intervals, fill = list(rfrq = 0)) # if not obs in one interval, set rfrq to 0
+      
+      ## Kullback-Leibler (KL) distance from uniform distribution over the four intervals
+      KL_df <- rfrq_interv_df %>% 
+        dplyr::group_by(band) %>% 
+        dplyr::summarise(KL_rfrq_interv=sum(rfrq*log(rfrq/rep(.25,4)))) %>% 
+        dplyr::ungroup() 
+      
+      ## Join rfrq_interv_df and KL_df
+      ExLoc_df <- tidyr::spread(rfrq_interv_df, intervals, rfrq) %>% 
+        dplyr::full_join(., KL_df, by="band") %>% 
+        rename(rfrq_I1 = `1`, 
+               rfrq_I2 = `2`, 
+               rfrq_I3 = `3`, 
+               rfrq_I4 = `4`,
+               KL      = KL_rfrq_interv) 
+      
+      ## Compute rejection rate and add further variables (DGP, N, ...)
+      Rejec_Rate_df <- sim_df %>% 
+        dplyr::group_by(band) %>% 
+        summarise(reject_rate = mean(excd)) %>% 
+        mutate(delta = delta,
+               N     = N,
+               DGP   = DGP,
+               n_rep = unique(sim_df$n_rep),
+               alpha = alpha.level)
+      
+      ## Join Rejec_Rate_df and ExLoc_df
+      SimResults_df <- dplyr::full_join(Rejec_Rate_df, ExLoc_df, by="band") %>% 
+        dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
+                      rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL) %>% 
+        dplyr::bind_rows(SimResults_df, .)
+    }
+  }
 }
-perc_correct_median <- c(perc_correct_median,
-                         apply(exceed_loc_IWT[slct_comms,], 1, function(x){
-                           if(any(x==TRUE)) { tmp <- x == target_loc; length(tmp[tmp==TRUE])/p
-                           } else { NA }}) %>% median(.,na.rm = T))
 
-sim_df_tmp <- dplyr::tibble("DGP"              = DGP,
-                            "N"                = N,
-                            "delta"            = delta,
-                            "Band"             = Band_type,
-                            "alpha.level"      = alpha.level,
-                            "exceed_frq"       = c(count_exceed, count_exceed_IWT) /n_reps,
-                            "KL"               = KL_df$KL_rfrq_interv, 
-                            "rfrq_I1"          = rfrq_interv_df %>% dplyr::filter(intervals==1) %>% pull(rfrq),
-                            "rfrq_I2"          = rfrq_interv_df %>% dplyr::filter(intervals==2) %>% pull(rfrq),
-                            "rfrq_I3"          = rfrq_interv_df %>% dplyr::filter(intervals==3) %>% pull(rfrq),
-                            "rfrq_I4"          = rfrq_interv_df %>% dplyr::filter(intervals==4) %>% pull(rfrq),
-                            ##
-                            "perc_correct_median"  = perc_correct_median,
-                            ##
-                            "exceed_t0_frq"    = c(count_exceed_t0,NA)/n_reps, 
-                            "intgr_widths"     = c(intgr_widths,NA),
-                            "intgr_widths_sqr" = c(intgr_widths_sqr,NA))
+## save(SimResults_df, file = "Simulation_Results/Aggregated_SimResults.RData")
 
-sim_df <- dplyr::bind_rows(sim_df, sim_df_tmp)
+load(file = "Simulation_Results/Aggregated_SimResults.RData")
+
+SimResults_df %>% print(n=50)
+
+SimResults_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 
+  pull(KL) %>% round(.,digits=2)
+
+  
+
+
+# ## Selecting common rejection cases (for having a comparable basis):
+# slct_comms <- c(apply(exceed_loc[,,1], 1, function(x){any(x==TRUE)})&
+#                   apply(exceed_loc[,,2], 1, function(x){any(x==TRUE)})&
+#                   apply(exceed_loc[,,3], 1, function(x){any(x==TRUE)})&
+#                   apply(exceed_loc[,,4], 1, function(x){any(x==TRUE)})&
+#                   apply(exceed_loc[,,5], 1, function(x){any(x==TRUE)})&
+#                   apply(exceed_loc_IWT, 1, function(x){any(x==TRUE)}))
+# 
+# 
+# ## Compute the median of the percentages of correct point-wise decisions within the domain [0,1]
+# perc_correct_median <- NULL
+# target_loc          <- mu!=mu0
+# ##
+# for( i in 1:(length(Band_type)-1) ) {
+#   perc_correct_median <- c(perc_correct_median,
+#                            apply(exceed_loc[slct_comms,,i], 1, function(x){
+#                              if(any(x==TRUE)) { tmp <- x == target_loc; length(tmp[tmp==TRUE])/p
+#                              } else { NA }}) %>% median(.,na.rm = T))
+# }
+# perc_correct_median <- c(perc_correct_median,
+#                          apply(exceed_loc_IWT[slct_comms,], 1, function(x){
+#                            if(any(x==TRUE)) { tmp <- x == target_loc; length(tmp[tmp==TRUE])/p
+#                            } else { NA }}) %>% median(.,na.rm = T))
+# 
+# sim_df_tmp <- dplyr::tibble("DGP"              = DGP,
+#                             "N"                = N,
+#                             "delta"            = delta,
+#                             "Band"             = Band_type,
+#                             "alpha.level"      = alpha.level,
+#                             "exceed_frq"       = c(count_exceed, count_exceed_IWT) /n_reps,
+#                             "KL"               = KL_df$KL_rfrq_interv, 
+#                             "rfrq_I1"          = rfrq_interv_df %>% dplyr::filter(intervals==1) %>% pull(rfrq),
+#                             "rfrq_I2"          = rfrq_interv_df %>% dplyr::filter(intervals==2) %>% pull(rfrq),
+#                             "rfrq_I3"          = rfrq_interv_df %>% dplyr::filter(intervals==3) %>% pull(rfrq),
+#                             "rfrq_I4"          = rfrq_interv_df %>% dplyr::filter(intervals==4) %>% pull(rfrq),
+#                             ##
+#                             "perc_correct_median"  = perc_correct_median,
+#                             ##
+#                             "exceed_t0_frq"    = c(count_exceed_t0,NA)/n_reps, 
+#                             "intgr_widths"     = c(intgr_widths,NA),
+#                             "intgr_widths_sqr" = c(intgr_widths_sqr,NA))
+# 
+# sim_df <- dplyr::bind_rows(sim_df, sim_df_tmp)
 
 
 
