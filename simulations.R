@@ -40,7 +40,7 @@ for(DGP in DGP_seq) {
     ## Take the correct delta_seq corresponding to N
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
     ##
-    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_Nsmall)
+    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 100; delta <- 0.1
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);      mu <- meanf_scale(grid, delta) }
@@ -49,19 +49,19 @@ for(DGP in DGP_seq) {
       names(mu0) <- grid
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1, 1))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1, 1/4))
         t0        <- grid[1]
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1, 1))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1, 1/4))
         t0        <- grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1, 2.5))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1/4, 2.5))
         t0        <- grid[p]
       }
       if(grepl("DGP4", DGP)) {# non-stationary: from smooth to rough to smooth
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1/4))
         t0        <- grid[which(0.5==grid)]
       }
       ## check plot:
@@ -79,21 +79,22 @@ for(DGP in DGP_seq) {
         ## Estimate mean, covariance, and tau
         hat_mu      <- rowMeans(dat)
         hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
-        hat.tau.v   <- tau_fun(dat)# plot(y=hat.tau.v,x=seq(0,1,len=p),type="l")
+        hat.tau.v   <- tau_fun(dat) # plot(y=hat.tau.v,x=seq(0,1,len=p),type="l")
         ##
         ## Confidence bands
         b               <- confidence_band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, 
-                                                type=type, conf.level=(1-alpha.level), n_int=n_int)# plot(b); lines(x=grid, y=mu, col="blue")
+                                           type=type, conf.level=(1-alpha.level), n_int=n_int)# 
+        # plot(b); lines(x=grid, y=mu, col="blue"); lines(x=grid, y=mu0, lty=2, col="blue")
         ##
         upper_Bands     <- b[,  2*(1:length(type))]
         lower_Bands     <- b[,1+2*(1:length(type))]
         ##
         exceed_loc      <- upper_Bands < matrix(mu0, nrow=p, ncol=length(type)) | lower_Bands > matrix(mu0, nrow=p, ncol=length(type))
         ##
-        ## saveing exceedances events ('at least one crossing occured?')
+        ## saving exceedances events ('at least one crossing occured?')
         exceedances     <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
         ##
-        ## saveing exceedances at t0:
+        ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
         tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
         exceedances_t0  <- as.numeric(tmp_t0_up | tmp_t0_lo)
@@ -152,16 +153,40 @@ for(DGP in DGP_seq) {
 }# DGP-loop
 
 
+## #######################################################
+##
+## Data Wrangling (single sim_df's to one SimResults_df)
+##
+## #######################################################
+
+
+my_share_fun <- function(x1, x2){
+  tmp <- x1 == x2  
+  return(length(tmp[tmp==TRUE])/length(tmp))
+}
+
 SimResults_df <- NULL
 
 for(DGP in DGP_seq){
   for(N in N_seq) {
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
-    for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_Nsmall)
+    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 10; delta <- 0.12
       
+      ## Load sim_df
       load(file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
       
-      ## Relative frequency of crossings per interval 
+      ## Compute which share of the difference between mu and mu0 was correctly found
+      if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
+      if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);      mu <- meanf_scale(grid, delta) }
+      if(grepl("local", DGP)) { mu0 <- meanf_localshift(grid, 0); mu <- meanf_localshift(grid, delta) }
+      ##
+      H1share_mean_df <- sim_df %>% 
+        group_by(band, run) %>% 
+        summarise(H1share_perRun = my_share_fun(excd_loc, mu != mu0 )) %>% 
+        group_by(band) %>% 
+        summarise(H1share = mean(H1share_perRun))
+      
+      ## Compute the relative frequency of crossings per interval 
       rfrq_interv_df <- sim_df %>% 
         tidyr::drop_na() %>% 
         dplyr::group_by(band) %>% 
@@ -170,22 +195,29 @@ for(DGP in DGP_seq){
         dplyr::summarise(rfrq = n()/n_cr[1]) %>% # rel number for crossings per interval and per band
         complete(intervals, fill = list(rfrq = 0)) # if not obs in one interval, set rfrq to 0
       
-      ## Kullback-Leibler (KL) distance from uniform distribution over the four intervals
+      ## Compute the Kullback-Leibler (KL) distance from uniform distribution over the four intervals
       KL_df <- rfrq_interv_df %>% 
         dplyr::group_by(band) %>% 
         dplyr::summarise(KL_rfrq_interv=sum(rfrq*log(rfrq/rep(.25,4)))) %>% 
-        dplyr::ungroup() 
+        dplyr::ungroup() %>% 
+        dplyr::rename(KL = KL_rfrq_interv)
       
-      ## Join rfrq_interv_df and KL_df
-      ExLoc_df <- tidyr::spread(rfrq_interv_df, intervals, rfrq) %>% 
-        dplyr::full_join(., KL_df, by="band") %>% 
-        rename(rfrq_I1 = `1`, 
+      ## Spread out rfrq_interv_df and rename columns
+      rfrq_interv_df <- tidyr::spread(rfrq_interv_df, intervals, rfrq) %>% 
+        dplyr::rename(rfrq_I1 = `1`, 
                rfrq_I2 = `2`, 
                rfrq_I3 = `3`, 
-               rfrq_I4 = `4`,
-               KL      = KL_rfrq_interv) 
+               rfrq_I4 = `4`) 
       
       ## Compute rejection rate and add further variables (DGP, N, ...)
+      
+      # sim_df %>% 
+      #   dplyr::group_by(band,run) %>% 
+      #   dplyr::slice(1) %>% 
+      #   dplyr::group_by(band) %>% 
+      #   summarise(reject_rate = mean(excd))
+      
+      
       Rejec_Rate_df <- sim_df %>% 
         dplyr::group_by(band) %>% 
         summarise(reject_rate = mean(excd)) %>% 
@@ -195,10 +227,16 @@ for(DGP in DGP_seq){
                n_rep = unique(sim_df$n_rep),
                alpha = alpha.level)
       
-      ## Join Rejec_Rate_df and ExLoc_df
-      SimResults_df <- dplyr::full_join(Rejec_Rate_df, ExLoc_df, by="band") %>% 
+      ## Joining the dfs:
+      SimResults_tmp <- dplyr::full_join(Rejec_Rate_df, rfrq_interv_df, by="band") %>% 
+        dplyr::full_join(., KL_df,           by="band") %>% 
+        dplyr::full_join(., H1share_mean_df, by="band") 
+      
+      
+      ## Row-Binding all 'SimResults_tmp' data frames:
+      SimResults_df <- SimResults_tmp %>% 
         dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
-                      rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL) %>% 
+                      rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL, H1share) %>% 
         dplyr::bind_rows(SimResults_df, .)
     }
   }
@@ -210,10 +248,13 @@ load(file = "Simulation_Results/Aggregated_SimResults.RData")
 
 SimResults_df %>% print(n=50)
 
+SimResults_df %>% dplyr::filter(DGP=="DGP2_shift") %>% print(n=50)
+
+
 SimResults_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 
   pull(KL) %>% round(.,digits=2)
 
-  
+
 
 
 # ## Selecting common rejection cases (for having a comparable basis):
