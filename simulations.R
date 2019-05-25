@@ -37,8 +37,13 @@ for(DGP in DGP_seq) {
   set.seed(1110)
   ##
   for(N in N_seq) {
-    ## Take the correct delta_seq corresponding to N
-    if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+    ##
+    if(DGP=="DGP1_shift"){
+      ## H0 (i.e., delta_seq == 0 <=> mu0==mu) only one time, since equal for all other DGPs. 
+      if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
+    }else{
+      if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
+    }
     ##
     for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 100; delta <- 0.1
       ## 
@@ -102,8 +107,8 @@ for(DGP in DGP_seq) {
         ## saving band x mu0 crossing locations:
         crossings_loc <- matrix(NaN, nrow=p, ncol=length(type))
         for(j in 1:length(type)){
-          if(all(exceed_loc[,j]==TRUE )){ crossings_loc[,j] <- rep( 100,p) }# no crossing since mu0 is completely outside of the band
-          if(all(exceed_loc[,j]==FALSE)){ crossings_loc[,j] <- rep(-100,p) }# no crossing since mu0 is completely inside  of the band
+          if(all(exceed_loc[,j]==TRUE )){ crossings_loc[,j] <- rep( 100,p) }# '100': no crossing since mu0 is completely outside of the band
+          if(all(exceed_loc[,j]==FALSE)){ crossings_loc[,j] <- rep(-100,p) }#'-100': no crossing since mu0 is completely inside  of the band
           if(any(exceed_loc[,j]==TRUE) & any(exceed_loc[,j]==FALSE)){   
             ## 'ngbt0': number of gridpoints before t0:
             if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }

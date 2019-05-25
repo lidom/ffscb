@@ -37,8 +37,13 @@ for(DGP in DGP_seq) {
   set.seed(1110)
   ##
   for(N in N_seq) {
-    ## Take the correct delta_seq corresponding to N
-    if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+    ##
+    if(DGP=="DGP1_shift"){
+      ## H0 (i.e., delta_seq == 0 <=> mu0==mu) only one time, since equal for all other DGPs. 
+      if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
+    }else{
+      if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
+    }
     ##
     for(delta in delta_seq) {# DGP <- DGP_seq[2]; N <- N_seq[1]; delta <- max(delta_Nsmall)
       ## 
