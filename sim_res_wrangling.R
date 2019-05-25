@@ -4,26 +4,51 @@
 ##
 ## #######################################################
 
+library("ffscb")
+library("tidyverse")
+## 
+# source("simulations.R")
+# source("simulations_IWT.R")
+##
 
-source("simulations.R")
-source("simulations_IWT.R")
-
-
-
+## Looping-Variables
+DGP_seq       <- c("DGP1_shift","DGP1_scale","DGP1_local",
+                   "DGP2_shift","DGP2_scale","DGP2_local", 
+                   "DGP3_shift","DGP3_scale","DGP3_local",
+                   "DGP4_shift","DGP4_scale","DGP4_local")
+delta_Nsmall  <- c(0, seq(from = 0.04, to = 0.2, len = 5))
+delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1, len = 5))
+alpha.level   <- 0.05
+N_seq         <- c(10,100)
+p             <- 101
+grid          <- make_grid(p, rangevals=c(0,1))
+## 
+## Helper function
 my_share_fun <- function(x1, x2){
   tmp <- x1 == x2  
   return(length(tmp[tmp==TRUE])/length(tmp))
 }
 
-SimResults_df <- NULL
+## Wrangle IWT-simulation results or all other simulation results?
+IWT <- c(FALSE, TRUE)
+if(IWT){
+  IWT_SimResults_df <- NULL
+}else{
+  SimResults_df     <- NULL
+}
 
+## Wrangling
 for(DGP in DGP_seq){
   for(N in N_seq) {
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
     for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 10; delta <- 0.12
       
       ## Load sim_df
-      load(file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
+      if(IWT){
+        load(file = paste0("IWT_Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
+      }else{
+        load(file = paste0("Simulation_Results/",     DGP, "_N=", N, "_Delta=", delta,".RData"))
+      }
       
       ## Compute which share of the difference between mu and mu0 was correctly found
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
@@ -36,7 +61,7 @@ for(DGP in DGP_seq){
         group_by(band) %>% 
         summarise(H1share = mean(H1share_perRun))
       
-      ## Compute the relative frequency of crossings per interval 
+      ## Compute the relative frequency of crossings per interval [0,1/4],[1/4,2/4],[2/4,3/4],[3/4,1]
       rfrq_interv_df <- sim_df %>% 
         tidyr::drop_na() %>% 
         dplyr::group_by(band) %>% 
@@ -84,25 +109,38 @@ for(DGP in DGP_seq){
       
       
       ## Row-Binding all 'SimResults_tmp' data frames:
-      SimResults_df <- SimResults_tmp %>% 
-        dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
-                      rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL, H1share) %>% 
-        dplyr::bind_rows(SimResults_df, .)
+      if(IWT){
+        IWT_SimResults_df <- SimResults_tmp %>% 
+          dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
+                        rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL, H1share) %>% 
+          dplyr::bind_rows(SimResults_df, .)
+      }else{
+        SimResults_df <- SimResults_tmp %>% 
+          dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
+                        rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL, H1share) %>% 
+          dplyr::bind_rows(SimResults_df, .)
+      }
     }
   }
 }
 
-## save(SimResults_df, file = "Simulation_Results/Aggregated_SimResults.RData")
+## save(SimResults_df,     file = "Simulation_Results/Aggregated_SimResults.RData")
+## save(IWT_SimResults_df, file = "Simulation_Results/IWT_Aggregated_SimResults.RData")
 
 load(file = "Simulation_Results/Aggregated_SimResults.RData")
 
 SimResults_df %>% print(n=50)
 
-SimResults_df %>% dplyr::filter(DGP=="DGP2_shift") %>% print(n=50)
+SimResults_df %>% dplyr::filter(DGP=="DGP3_shift") %>% print(n=Inf)
 
 
 SimResults_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 
   pull(KL) %>% round(.,digits=2)
+
+
+
+
+
 
 
 
