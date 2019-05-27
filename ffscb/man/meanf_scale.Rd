@@ -2,7 +2,7 @@
 % Please edit documentation in R/meanf.R
 \name{meanf_scale}
 \alias{meanf_scale}
-\title{Meanfunction (polynomial simple scaling)}
+\title{Meanfunction (polynomial with simple scaling)}
 \usage{
 meanf_scale(x, delta = 0)
 }
@@ -12,5 +12,5 @@ meanf_scale(x, delta = 0)
 \item{delta}{scaling parameter}
 }
 \description{
-Meanfunction (polynomial simple scaling)
+Meanfunction (polynomial with simple scaling)
 }

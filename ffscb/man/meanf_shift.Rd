@@ -2,7 +2,7 @@
 % Please edit documentation in R/meanf.R
 \name{meanf_shift}
 \alias{meanf_shift}
-\title{Meanfunction (polynomial simple shifting)}
+\title{Meanfunction (polynomial with simple shifting)}
 \usage{
 meanf_shift(x, delta = 0)
 }
@@ -12,5 +12,5 @@ meanf_shift(x, delta = 0)
 \item{delta}{shifting parameter}
 }
 \description{
-Meanfunction (polynomial simple shifting)
+Meanfunction (polynomial with simple shifting)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/meanf.R
 \name{meanf_localshift}
 \alias{meanf_localshift}
-\title{Meanfunction with local peak (imple shifting)}
+\title{Meanfunction with local peak (polynomial with simple local peak)}
 \usage{
 meanf_localshift(x, delta = 0)
 }
@@ -12,5 +12,5 @@ meanf_localshift(x, delta = 0)
 \item{delta}{shifting parameter}
 }
 \description{
-Meanfunction with local peak (imple shifting)
+Meanfunction with local peak (polynomial with simple local peak)
 }

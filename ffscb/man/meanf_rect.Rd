@@ -2,15 +2,19 @@
 % Please edit documentation in R/meanf.R
 \name{meanf_rect}
 \alias{meanf_rect}
-\title{Meanfunction with local rectangle}
+\title{Meanfunction with local rectangles (polynomial with simple local rectangles)}
 \usage{
-meanf_rect(x, params = c(0, 1/4, 1/5))
+meanf_rect(x, height = 1/5, rect1 = c(0, 0.2), rect2 = c(0.8, 1))
 }
 \arguments{
 \item{x}{function argument}
 
-\item{params}{parameters params=c(start, end, height)}
+\item{height}{hight of rectangles}
+
+\item{rect1}{location of first rectangle}
+
+\item{rect2}{location of second rectangle}
 }
 \description{
-Meanfunction with local rectangle
+Meanfunction with local rectangles (polynomial with simple local rectangles)
 }

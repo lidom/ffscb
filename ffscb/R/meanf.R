@@ -8,25 +8,65 @@
 #' curve(meanf_poly(x, c(0,1)), from=0, to=1, 
 #' lty=2, add=TRUE)
 #' @export
-meanf_poly <- function(x,params=c(0,1)){ f <- params[1] + params[2]*(10*x^3 - 15*x^4 + 6*x^5) ; names(f) <- x ; return(f)} #params=c(shift,scale)
+meanf_poly <- function(x,params=c(0,1)){ 
+  f <- params[1] + params[2]*(10*x^3 - 15*x^4 + 6*x^5)
+  names(f) <- x
+  return(f)
+}
 
 
-
-#' Meanfunction with local rectangle
+#' Meanfunction (polynomial with simple shifting)
 #'
 #' @param x function argument
-#' @param params parameters params=c(start, end, height) 
+#' @param delta shifting parameter 
 #' @example 
-#' curve(meanf_rect(x, c(0, 1/4, 1/5)), from=0, to=1,
+#' curve(meanf_shift(x, 0), from=0, to=1, lty=2)
+#' curve(meanf_shift(x,.1), from=0, to=1, lty=1, add=TRUE)
+#' @export
+meanf_shift <- function(x, delta=0){ meanf_poly(x,c(delta,1)) }
+
+
+#' Meanfunction (polynomial with simple scaling)
+#'
+#' @param x function argument
+#' @param delta scaling parameter 
+#' @example 
+#' curve(meanf_scale(x, 1), from=0, to=1)
+#' curve(meanf_scale(x, 0), from=0, to=1, lty=2, add=TRUE)
+#' @export
+meanf_scale <- function(x, delta=0){ meanf_poly(x,c(0,1+delta)) }
+
+
+#' Meanfunction with local peak (polynomial with simple local peak)
+#'
+#' @param x function argument
+#' @param delta shifting parameter 
+#' @example 
+#' curve(meanf_localshift(x, 0), from=0, to=1, lty=2)
+#' curve(meanf_localshift(x,.1), from=0, to=1, lty=1, add=TRUE)
+#' @export
+meanf_localshift <- function(x, delta=0){meanf_peak(x, c(0,1,1+delta,10,1)) }
+
+
+#' Meanfunction with local rectangles (polynomial with simple local rectangles)
+#'
+#' @param x function argument
+#' @param height hight of rectangles
+#' @param rect1 location of first rectangle
+#' @param rect2 location of second rectangle
+#' @example 
+#' curve(meanf_rect(x, height=1/5), from=0, to=1,
 #' main="Meanfct Rect", ylab="",xlab="")
-#' curve(meanf_rect(x, c(2/4, 3/4, 1/5)), from=0, to=1, 
+#' curve(meanf_rect(x, height=1/10), from=0, to=1, 
 #' lty=2, add=TRUE)
 #' @export
-meanf_rect <- function(x, params=c(0, 1/4, 1/5)){
+meanf_rect <- function(x, height=1/5, rect1=c(0,0.2), rect2=c(0.8,1)){
   tmp <- numeric(length(x))
-  tmp[params[1]<=x&x<=params[2]] <- params[3] 
-  return(tmp)
-  }
+  tmp[rect1[1] < x & x < rect1[2]] <- height
+  tmp[rect2[1] < x & x < rect2[2]] <- height
+  return(c(tmp + meanf_poly(x)))
+  #return(c(tmp))
+}
 
 
 #' Meanfunction with local ellipse
@@ -103,35 +143,3 @@ meanf_peak <- function(x,params=c(0,1,2,16,1)){
   return(f)
 }
 
-
-#' Meanfunction (polynomial simple scaling)
-#'
-#' @param x function argument
-#' @param delta scaling parameter 
-#' @example 
-#' curve(meanf_scale(x, 1), from=0, to=1)
-#' curve(meanf_scale(x, 0), from=0, to=1, lty=2, add=TRUE)
-#' @export
-meanf_scale <- function(x, delta=0){ meanf_poly(x,c(0,1+delta)) }
-
-
-#' Meanfunction (polynomial simple shifting)
-#'
-#' @param x function argument
-#' @param delta shifting parameter 
-#' @example 
-#' curve(meanf_shift(x, 0), from=0, to=1, lty=2)
-#' curve(meanf_shift(x,.1), from=0, to=1, lty=1, add=TRUE)
-#' @export
-meanf_shift <- function(x, delta=0){ meanf_poly(x,c(delta,1)) }
-
-
-#' Meanfunction with local peak (imple shifting)
-#'
-#' @param x function argument
-#' @param delta shifting parameter 
-#' @example 
-#' curve(meanf_localshift(x, 0), from=0, to=1, lty=2)
-#' curve(meanf_localshift(x,.1), from=0, to=1, lty=1, add=TRUE)
-#' @export
-meanf_localshift <- function(x, delta=0){meanf_peak(x, c(0,1,1+delta,10,1)) }

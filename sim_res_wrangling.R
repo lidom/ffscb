@@ -16,26 +16,34 @@ DGP_seq       <- c("DGP1_shift","DGP1_scale","DGP1_local",
                    "DGP2_shift","DGP2_scale","DGP2_local", 
                    "DGP3_shift","DGP3_scale","DGP3_local",
                    "DGP4_shift","DGP4_scale","DGP4_local")
-delta_Nsmall  <- c(0, seq(from = 0.04, to = 0.2, len = 5))
-delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1, len = 5))
+delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
+delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 alpha.level   <- 0.05
 N_seq         <- c(10,100)
 p             <- 101
 grid          <- make_grid(p, rangevals=c(0,1))
 ## 
-## Helper function
-my_share_fun <- function(x1, x2){
-  tmp <- x1 == x2  
-  return(length(tmp[tmp==TRUE])/length(tmp))
-}
-
 ## Wrangle IWT-simulation results or all other simulation results?
 IWT <- c(FALSE, TRUE)
+
+
 if(IWT){
   IWT_SimResults_df <- NULL
 }else{
   SimResults_df     <- NULL
 }
+
+
+# ---------------------------------------------------------------------------
+# Kann wohl weg:
+# ## Helper function
+# my_share_fun <- function(x1, x2){
+#   tmp <- x1 == x2  
+#   return(length(tmp[tmp==TRUE])/length(tmp))
+# }
+# ---------------------------------------------------------------------------
+
+
 
 ## Wrangling
 for(DGP in DGP_seq){
@@ -51,15 +59,18 @@ for(DGP in DGP_seq){
       }
       
       ## Compute which share of the difference between mu and mu0 was correctly found
-      if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
-      if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);      mu <- meanf_scale(grid, delta) }
-      if(grepl("local", DGP)) { mu0 <- meanf_localshift(grid, 0); mu <- meanf_localshift(grid, delta) }
+      if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
+      if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
+      if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
       ##
-      H1share_mean_df <- sim_df %>% 
-        group_by(band, run) %>% 
-        summarise(H1share_perRun = my_share_fun(excd_loc, mu != mu0 )) %>% 
-        group_by(band) %>% 
-        summarise(H1share = mean(H1share_perRun))
+      # ---------------------------------------------------------------------------
+      # Kann wohl weg: 
+      # H1share_mean_df <- sim_df %>% 
+      #   group_by(band, run) %>% 
+      #   summarise(H1share_perRun = my_share_fun(excd_loc, mu != mu0 )) %>% 
+      #   group_by(band) %>% 
+      #   summarise(H1share = mean(H1share_perRun))
+      # ---------------------------------------------------------------------------
       
       ## Compute the relative frequency of crossings per interval [0,1/4],[1/4,2/4],[2/4,3/4],[3/4,1]
       rfrq_interv_df <- sim_df %>% 
@@ -131,7 +142,7 @@ load(file = "Simulation_Results/Aggregated_SimResults.RData")
 
 SimResults_df %>% print(n=50)
 
-SimResults_df %>% dplyr::filter(DGP=="DGP3_shift") %>% print(n=Inf)
+SimResults_df %>% dplyr::filter(DGP=="DGP1_shift") %>% print(n=Inf)
 
 
 SimResults_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 

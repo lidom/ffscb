@@ -25,7 +25,7 @@ DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP3_shift","DGP3_scale","DGP3_local",
                   "DGP4_shift","DGP4_scale","DGP4_local")
 ##
-delta_Nsmall  <- c(0, seq(from = 0.04, to = 0.2, len = 5))
+delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1, len = 5))
 ##
 N_seq         <- c(10,100)
@@ -38,8 +38,8 @@ for(DGP in DGP_seq) {
   ##
   for(N in N_seq) {
     ##
-    if(DGP=="DGP1_shift"){
-      ## H0 (i.e., delta_seq == 0 <=> mu0==mu) only one time, since equal for all other DGPs. 
+    if(DGP==DGP_seq[1]){
+      ## H0 (i.e., delta_seq == 0 <=> mu0==mu ) is needed only once since it's equal for all DGPs. 
       if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
     }else{
       if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
@@ -47,9 +47,9 @@ for(DGP in DGP_seq) {
     ##
     for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 100; delta <- 0.1
       ## 
-      if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);      mu <- meanf_shift(grid, delta) }
-      if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);      mu <- meanf_scale(grid, delta) }
-      if(grepl("local", DGP)) { mu0 <- meanf_localshift(grid, 0); mu <- meanf_localshift(grid, delta) }
+      if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
+      if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
+      if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
       names(mu)  <- grid
       names(mu0) <- grid
       ##
@@ -128,15 +128,14 @@ for(DGP in DGP_seq) {
         ## saving widths of the bands:
         intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
         ## Names of methods in correct order:
-        Band_type         <- stringr::str_replace(string  = names(intgr_widths_sqr), 
-                                                  pattern = paste0(".u.", (1-alpha.level)),"")
+        Band_type         <- stringr::str_replace(string  = names(intgr_widths_sqr), pattern = paste0(".u.", (1-alpha.level)),"")
         ## simulation data
-        sim_df <- dplyr::tibble(band     = as_factor(rep(Band_type, each = p)),
-                                excd     = rep(exceedances,         each = p),
-                                excd_t0  = rep(exceedances_t0,      each = p),
-                                excd_loc = c(exceed_loc),
-                                cros_loc = c(crossings_loc),
-                                wdth     = rep(intgr_widths_sqr,    each = p))# glimpse(sim_df)
+        sim_df <- dplyr::tibble(band     = as_factor(rep(Band_type, each = p)),# band types
+                                excd     = rep(exceedances,         each = p), # was there any exceedance event?
+                                excd_t0  = rep(exceedances_t0,      each = p), # was there an exceedance at t0
+                                excd_loc = c(exceed_loc),                      # exceedance locations
+                                cros_loc = c(crossings_loc),                   # band-crossing location(s)
+                                wdth     = rep(intgr_widths_sqr,    each = p)) # width of the bands # glimpse(sim_df)
         ##
         return(sim_df)
       }, mc.cores = nworkers)
@@ -162,4 +161,17 @@ for(DGP in DGP_seq) {
     }# delta-loop
   }# N-loop
 }# DGP-loop
+
+
+## Under H0 (mu0 == mu) are all DGPs equivalent, therefore, we use only one MC-Simulation.
+for(DGP in DGP_seq[-1]) {
+  for(N in N_seq) {
+    ##
+    load(file = paste0("Simulation_Results/", DGP_seq[1], "_N=", N, "_Delta=0.RData"))
+    sim_df %>% mutate(DGP = rep(DGP,    times=length(type)*p*n_reps)) # Replace name of DGP
+    save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=0.RData"))
+    rm(sim_df)
+  }
+}
+
 
