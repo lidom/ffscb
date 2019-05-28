@@ -1,8 +1,5 @@
 # Load packages 
-# devtools::install_github("alessiapini/fdatest")
 library("tidyverse")
-library("fda")
-library("fdatest")
 library("parallel")
 library("ffscb")
 
@@ -97,7 +94,21 @@ for(DGP in DGP_seq) {
         exceed_loc      <- upper_Bands < matrix(mu0, nrow=p, ncol=length(type)) | lower_Bands > matrix(mu0, nrow=p, ncol=length(type))
         ##
         ## saving exceedances events ('at least one crossing occured?')
-        exceedances     <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
+        exceedances      <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
+        ##
+        exceedances_int1 <- numeric(length(type))
+        exceedances_int2 <- numeric(length(type))
+        exceedances_int3 <- numeric(length(type))
+        exceedances_int4 <- numeric(length(type))
+        ##
+        for(j in 1:length(type)){
+          exceed_intervals    <- cut(x=grid[exceed_loc[,j]], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
+          exceedances_int1[j] <- as.numeric(any(exceed_intervals == '1'))
+          exceedances_int2[j] <- as.numeric(any(exceed_intervals == '2'))
+          exceedances_int3[j] <- as.numeric(any(exceed_intervals == '3'))
+          exceedances_int4[j] <- as.numeric(any(exceed_intervals == '4'))
+        }      
+        
         ##
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
@@ -105,11 +116,14 @@ for(DGP in DGP_seq) {
         exceedances_t0  <- as.numeric(tmp_t0_up | tmp_t0_lo)
         ##
         ## saving band x mu0 crossing locations:
+        ## (If mu0 is completely in or out of the band, there is no crossing location.)
         crossings_loc <- matrix(NaN, nrow=p, ncol=length(type))
         for(j in 1:length(type)){
-          if(all(exceed_loc[,j]==TRUE )){ crossings_loc[,j] <- rep( 100,p) }# '100': no crossing since mu0 is completely outside of the band
-          if(all(exceed_loc[,j]==FALSE)){ crossings_loc[,j] <- rep(-100,p) }#'-100': no crossing since mu0 is completely inside  of the band
-          if(any(exceed_loc[,j]==TRUE) & any(exceed_loc[,j]==FALSE)){   
+          #-----
+          #if(all(exceed_loc[,j]==TRUE )){ crossings_loc[,j] <- rep( 100,p) }# '100': no crossing since mu0 is completely outside of the band
+          #if(all(exceed_loc[,j]==FALSE)){ crossings_loc[,j] <- rep(-100,p) }#'-100': no crossing since mu0 is completely inside  of the band
+          #if(any(exceed_loc[,j]==TRUE) & any(exceed_loc[,j]==FALSE)){   
+          #-----
             ## 'ngbt0': number of gridpoints before t0:
             if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
             ## crossing locations with respect to the upper Bands:
@@ -122,9 +136,10 @@ for(DGP in DGP_seq) {
             tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
             ## save crossing locations (if any):
             if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc,j]  <- grid[tmp_cr_loc] }
-          }
+            #-----
+          #}
+            #-----
         }
-        #apply(crossings_loc,2,function(x)any(!is.na(x)))
         ## saving widths of the bands:
         intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
         ## Names of methods in correct order:
@@ -148,7 +163,9 @@ for(DGP in DGP_seq) {
         dplyr::mutate(
           intervals = cut(x=cros_loc, breaks=c(-101,seq(0,1,len=5),101), labels = c('compl_in',1,2,3,4,'compl_out')),# Assign crossing-locations to one of four equidistant intervals in [0,1]
           cros_loc  = replace(cros_loc, cros_loc == -100 | cros_loc == 100, NA),# Setting the 'compl_in/out'  indicators to NA
+          ##
           run       = rep(c(1:n_reps), each=length(type)*p),   # Numbering the single simulation runs
+          ##
           n_rep     = rep(n_reps, times=length(type)*p*n_reps),# Total number of simulation runs  
           delta     = rep(delta,  times=length(type)*p*n_reps),# Delta (from H0 to H1)  
           N         = rep(N,      times=length(type)*p*n_reps),# Sample size
