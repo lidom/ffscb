@@ -1,4 +1,4 @@
-# Load packages 
+## Load packages 
 library("tidyverse")
 library("parallel")
 library("ffscb")
@@ -95,7 +95,7 @@ for(DGP in DGP_seq) {
         ##
         ## saving exceedances events ('at least one crossing occured?')
         exceedances      <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
-        ##
+        ## saving exceedances events per interval [0,1/4], [1/4,1/2], [1/2,3/4], [3/4,1]
         exceedances_int1 <- numeric(length(type))
         exceedances_int2 <- numeric(length(type))
         exceedances_int3 <- numeric(length(type))
@@ -108,68 +108,69 @@ for(DGP in DGP_seq) {
           exceedances_int3[j] <- as.numeric(any(exceed_intervals == '3'))
           exceedances_int4[j] <- as.numeric(any(exceed_intervals == '4'))
         }      
-        
-        ##
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
         tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
         exceedances_t0  <- as.numeric(tmp_t0_up | tmp_t0_lo)
         ##
-        ## saving band x mu0 crossing locations:
+        ## saving crossing (band vs. mu0) locations:
         ## (If mu0 is completely in or out of the band, there is no crossing location.)
-        crossings_loc <- matrix(NaN, nrow=p, ncol=length(type))
+        crossing_int1 <- numeric(length(type))
+        crossing_int2 <- numeric(length(type))
+        crossing_int3 <- numeric(length(type))
+        crossing_int4 <- numeric(length(type))
         for(j in 1:length(type)){
-          #-----
-          #if(all(exceed_loc[,j]==TRUE )){ crossings_loc[,j] <- rep( 100,p) }# '100': no crossing since mu0 is completely outside of the band
-          #if(all(exceed_loc[,j]==FALSE)){ crossings_loc[,j] <- rep(-100,p) }#'-100': no crossing since mu0 is completely inside  of the band
-          #if(any(exceed_loc[,j]==TRUE) & any(exceed_loc[,j]==FALSE)){   
-          #-----
-            ## 'ngbt0': number of gridpoints before t0:
-            if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
-            ## crossing locations with respect to the upper Bands:
-            tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"),         # down-crossings (left of t0)
-                            ngbt0 + locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
-            ## crossing locations with respect to the lower Bands:
-            tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ),         # down-crossings (left of t0)
-                            ngbt0 + locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
-            ## all (sorted) crossing locations together:
-            tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
-            ## save crossing locations (if any):
-            if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc,j]  <- grid[tmp_cr_loc] }
-            #-----
-          #}
-            #-----
+          crossings_loc <- rep(FALSE, p)
+          ## 'ngbt0': number of gridpoints before t0:
+          if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
+          ## crossing locations with respect to the upper Bands:
+          tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"),         # down-crossings (left of t0)
+                          ngbt0 + locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
+          ## crossing locations with respect to the lower Bands:
+          tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ),         # down-crossings (left of t0)
+                          ngbt0 + locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
+          ## all (sorted) crossing locations together:
+          tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
+          ## save crossing locations (if any):
+          if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc]  <- TRUE }
+          ##
+          crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
+          crossing_int1[j]   <- as.numeric(any(crossing_intervals == '1'))
+          crossing_int2[j]   <- as.numeric(any(crossing_intervals == '2'))
+          crossing_int3[j]   <- as.numeric(any(crossing_intervals == '3'))
+          crossing_int4[j]   <- as.numeric(any(crossing_intervals == '4'))
         }
-        ## saving widths of the bands:
+        ## widths of the bands:
         intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
         ## Names of methods in correct order:
         Band_type         <- stringr::str_replace(string  = names(intgr_widths_sqr), pattern = paste0(".u.", (1-alpha.level)),"")
         ## simulation data
-        sim_df <- dplyr::tibble(band     = as_factor(rep(Band_type, each = p)),# band types
-                                excd     = rep(exceedances,         each = p), # was there any exceedance event?
-                                excd_t0  = rep(exceedances_t0,      each = p), # was there an exceedance at t0
-                                excd_loc = c(exceed_loc),                      # exceedance locations
-                                cros_loc = c(crossings_loc),                   # band-crossing location(s)
-                                wdth     = rep(intgr_widths_sqr,    each = p)) # width of the bands # glimpse(sim_df)
-        ##
+        sim_df <- dplyr::tibble(band     = as_factor(Band_type),# band types
+                                excd     = exceedances,         # was there an exceedance event at all?
+                                excd_i1  = exceedances_int1,    # was there an exceedance event in interval 1?
+                                excd_i2  = exceedances_int2,    # was there an exceedance event in interval 2?
+                                excd_i3  = exceedances_int3,    # was there an exceedance event in interval 3?
+                                excd_i4  = exceedances_int4,    # was there an exceedance event in interval 4?
+                                excd_t0  = exceedances_t0,      # was there an exceedance event at t0
+                                cros_i1  = crossing_int1,       # was there a band-crossing in interval 1?
+                                cros_i2  = crossing_int2,       # was there a band-crossing in interval 2?
+                                cros_i3  = crossing_int3,       # was there a band-crossing in interval 3?
+                                cros_i4  = crossing_int4,       # was there a band-crossing in interval 4?
+                                wdth     = intgr_widths_sqr)    # width of the bands 
+        ## glimpse(sim_df)
         return(sim_df)
       }, mc.cores = nworkers)
       ##
       end_time <- Sys.time()
       run_time <- end_time - start_time
       ##
-      ## Combine all simulation results (rowbinding the n_reps many tibbles in 'res_mclapply')
-      sim_df <- dplyr::bind_rows(res_mclapply) %>% 
-        dplyr::mutate(
-          intervals = cut(x=cros_loc, breaks=c(-101,seq(0,1,len=5),101), labels = c('compl_in',1,2,3,4,'compl_out')),# Assign crossing-locations to one of four equidistant intervals in [0,1]
-          cros_loc  = replace(cros_loc, cros_loc == -100 | cros_loc == 100, NA),# Setting the 'compl_in/out'  indicators to NA
-          ##
-          run       = rep(c(1:n_reps), each=length(type)*p),   # Numbering the single simulation runs
-          ##
-          n_rep     = rep(n_reps, times=length(type)*p*n_reps),# Total number of simulation runs  
-          delta     = rep(delta,  times=length(type)*p*n_reps),# Delta (from H0 to H1)  
-          N         = rep(N,      times=length(type)*p*n_reps),# Sample size
-          DGP       = rep(DGP,    times=length(type)*p*n_reps))# Name of DGP
+      sim_df <- dplyr::bind_rows(res_mclapply) %>%           # row-binding the n_reps-many tibbles contained in 'res_mclapply'
+        dplyr::mutate(                                       # Adding variables:
+          run       = rep(c(1:n_reps), each=length(type)),   # Numbering the single simulation runs
+          n_rep     = rep(n_reps, times=length(type)*n_reps),# Number of Monte-Carlo simulation
+          delta     = rep(delta,  times=length(type)*n_reps),# Delta   
+          N         = rep(N,      times=length(type)*n_reps),# Sample size
+          DGP       = rep(DGP,    times=length(type)*n_reps))# Name of DGP
       ##
       ## Feedback
       cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
@@ -185,7 +186,7 @@ for(DGP in DGP_seq[-1]) {
   for(N in N_seq) {
     ##
     load(file = paste0("Simulation_Results/", DGP_seq[1], "_N=", N, "_Delta=0.RData"))
-    sim_df %>% mutate(DGP = rep(DGP,    times=length(type)*p*n_reps)) # Replace name of DGP
+    sim_df %>% mutate(DGP = DGP) # Replace name of DGP
     save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=0.RData"))
     rm(sim_df)
   }

@@ -24,7 +24,7 @@ p             <- 101
 grid          <- make_grid(p, rangevals=c(0,1))
 ## 
 ## Wrangle IWT-simulation results or all other simulation results?
-IWT <- c(FALSE, TRUE)
+IWT <- c(FALSE, TRUE)[1]
 
 
 if(IWT){
@@ -34,22 +34,11 @@ if(IWT){
 }
 
 
-# ---------------------------------------------------------------------------
-# Kann wohl weg:
-# ## Helper function
-# my_share_fun <- function(x1, x2){
-#   tmp <- x1 == x2  
-#   return(length(tmp[tmp==TRUE])/length(tmp))
-# }
-# ---------------------------------------------------------------------------
-
-
-
 ## Wrangling
 for(DGP in DGP_seq){
   for(N in N_seq) {
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
-    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 10; delta <- 0.12
+    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 10; delta <- 0
       
       ## Load sim_df
       if(IWT){
@@ -63,72 +52,45 @@ for(DGP in DGP_seq){
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
       if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
       ##
-      # ---------------------------------------------------------------------------
-      # Kann wohl weg: 
-      # H1share_mean_df <- sim_df %>% 
-      #   group_by(band, run) %>% 
-      #   summarise(H1share_perRun = my_share_fun(excd_loc, mu != mu0 )) %>% 
-      #   group_by(band) %>% 
-      #   summarise(H1share = mean(H1share_perRun))
-      # ---------------------------------------------------------------------------
-      
       ## Compute the relative frequency of crossings per interval [0,1/4],[1/4,2/4],[2/4,3/4],[3/4,1]
-      rfrq_interv_df <- sim_df %>% 
-        tidyr::drop_na() %>% 
+      SimResults_tmp <- sim_df %>% 
         dplyr::group_by(band) %>% 
-        dplyr::mutate(n_cr = n()) %>% # n_cr: total number of crossings for each band
-        dplyr::group_by(band, intervals) %>% 
-        dplyr::summarise(rfrq = n()/n_cr[1]) %>% # rel number for crossings per interval and per band
-        complete(intervals, fill = list(rfrq = 0)) # if not obs in one interval, set rfrq to 0
-      
-      ## Compute the Kullback-Leibler (KL) distance from uniform distribution over the four intervals
-      KL_df <- rfrq_interv_df %>% 
-        dplyr::group_by(band) %>% 
-        dplyr::summarise(KL_rfrq_interv=sum(rfrq*log(rfrq/rep(.25,4)))) %>% 
-        dplyr::ungroup() %>% 
-        dplyr::rename(KL = KL_rfrq_interv)
-      
-      ## Spread out rfrq_interv_df and rename columns
-      rfrq_interv_df <- tidyr::spread(rfrq_interv_df, intervals, rfrq) %>% 
-        dplyr::rename(rfrq_I1 = `1`, 
-                      rfrq_I2 = `2`, 
-                      rfrq_I3 = `3`, 
-                      rfrq_I4 = `4`) 
-      
-      ## Compute rejection rate and add further variables (DGP, N, ...)
-      
-      # sim_df %>% 
-      #   dplyr::group_by(band,run) %>% 
-      #   dplyr::slice(1) %>% 
-      #   dplyr::group_by(band) %>% 
-      #   summarise(reject_rate = mean(excd))
-      
-      
-      Rejec_Rate_df <- sim_df %>% 
-        dplyr::group_by(band) %>% 
-        summarise(reject_rate = mean(excd)) %>% 
-        mutate(delta = delta,
-               N     = N,
-               DGP   = DGP,
-               n_rep = unique(sim_df$n_rep),
-               alpha = alpha.level)
-      
-      ## Joining the dfs:
-      SimResults_tmp <- dplyr::full_join(Rejec_Rate_df, rfrq_interv_df, by="band") %>% 
-        dplyr::full_join(., KL_df,           by="band") %>% 
-        dplyr::full_join(., H1share_mean_df, by="band") 
-      
-      
+        dplyr::summarise(rfrq_excd    = mean(excd),
+                         rfrq_excd_t0 = mean(excd_t0),
+                         rfrq_excd_i1 = mean(excd_i1),
+                         rfrq_excd_i2 = mean(excd_i2),
+                         rfrq_excd_i3 = mean(excd_i3),
+                         rfrq_excd_i4 = mean(excd_i4),
+                         rfrq_cros_i1 = mean(cros_i1),
+                         rfrq_cros_i2 = mean(cros_i2),
+                         rfrq_cros_i3 = mean(cros_i3),
+                         rfrq_cros_i4 = mean(cros_i4),
+                         avg_width    = mean(wdth),
+                         n_rep        = unique(sim_df$n_rep),
+                         DGP          = unique(sim_df$DGP),
+                         delta        = unique(sim_df$delta),
+                         N            = unique(sim_df$N)) %>% 
+        # Note: relative frequencies of zero result in: 0*log(0/.25) => 0*-Inf*0 => NaN
+        dplyr::mutate(KL = rfrq_excd_i1*log(rfrq_excd_i1/.25) + 
+                        rfrq_excd_i2*log(rfrq_excd_i2/.25) + 
+                        rfrq_excd_i3*log(rfrq_excd_i3/.25) + 
+                        rfrq_excd_i4*log(rfrq_excd_i4/.25),
+                      alpha = alpha.level)  
+      ##
       ## Row-Binding all 'SimResults_tmp' data frames:
       if(IWT){
         IWT_SimResults_df <- SimResults_tmp %>% 
-          dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
-                        rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL, H1share) %>% 
+          dplyr::select(band, DGP, N, delta, n_rep, alpha, rfrq_excd, rfrq_excd_t0, 
+                        rfrq_excd_i1, rfrq_excd_i2, rfrq_excd_i3, rfrq_excd_i4, 
+                        rfrq_cros_i1, rfrq_cros_i2, rfrq_cros_i3, rfrq_cros_i4,
+                        KL) %>% 
           dplyr::bind_rows(SimResults_df, .)
       }else{
         SimResults_df <- SimResults_tmp %>% 
-          dplyr::select(band, DGP, N, delta, n_rep, alpha, reject_rate, 
-                        rfrq_I1, rfrq_I2, rfrq_I3, rfrq_I4, KL, H1share) %>% 
+          dplyr::select(band, DGP, N, delta, n_rep, alpha, rfrq_excd, rfrq_excd_t0, 
+                        rfrq_excd_i1, rfrq_excd_i2, rfrq_excd_i3, rfrq_excd_i4, 
+                        rfrq_cros_i1, rfrq_cros_i2, rfrq_cros_i3, rfrq_cros_i4,
+                        KL) %>% 
           dplyr::bind_rows(SimResults_df, .)
       }
     }

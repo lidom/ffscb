@@ -82,27 +82,41 @@ for(DGP in DGP_seq) {
         ##
         ## ==============================================================================================
         ## IWT1 function from the fdatest package
-        IWT_messages                       <- capture.output(IWT_res <- fdatest::IWT1(data = t(dat), mu = mu0))
-        exceedances_IWT                    <- as.numeric(any(IWT_res$adjusted_pval < alpha.level))
-        exceed_loc_IWT                     <- IWT_res$adjusted_pval < alpha.level
+        IWT_messages      <- capture.output(IWT_res <- fdatest::IWT1(data = t(dat), mu = mu0))
+        exceedances       <- as.numeric(any(IWT_res$adjusted_pval < alpha.level))
+        exceed_loc        <- IWT_res$adjusted_pval < alpha.level
+        ## saving exceedances events per interval [0,1/4], [1/4,1/2], [1/2,3/4], [3/4,1]
+        exceed_intervals  <- cut(x=grid[exceed_loc], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
+        exceedances_int1  <- as.numeric(any(exceed_intervals == '1'))
+        exceedances_int2  <- as.numeric(any(exceed_intervals == '2'))
+        exceedances_int3  <- as.numeric(any(exceed_intervals == '3'))
+        exceedances_int4  <- as.numeric(any(exceed_intervals == '4'))
         ##
-        if(all(exceed_loc_IWT==TRUE )){ crossings_loc_IWT <- rep( 100,p) }# '100': no crossing since mu0 is completely outside of the band
-        if(all(exceed_loc_IWT==FALSE)){ crossings_loc_IWT <- rep(-100,p) }#'-100': no crossing since mu0 is completely inside  of the band
-        if(any(exceed_loc_IWT==TRUE) & any(exceed_loc_IWT==FALSE)){   
-          tmp_cr_loc_IWT                     <- locate_crossings(IWT_res$adjusted_pval, rep(alpha.level, p), type="down")# down-crossing of pval means upcrossing of empirical mean
-          crossings_loc_IWT                  <- rep(NA, times=p)
-          crossings_loc_IWT[tmp_cr_loc_IWT]  <- grid[tmp_cr_loc_IWT]
-        }
+        tmp_cr_loc                 <- locate_crossings(IWT_res$adjusted_pval, rep(alpha.level, p), type="down")# down-crossing of pval means upcrossing of empirical mean
+        crossings_loc              <- rep(NaN, times=p)
+        crossings_loc[tmp_cr_loc]  <- grid[tmp_cr_loc]
+        crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
+        crossing_int1      <- as.numeric(any(crossing_intervals == '1'))
+        crossing_int2      <- as.numeric(any(crossing_intervals == '2'))
+        crossing_int3      <- as.numeric(any(crossing_intervals == '3'))
+        crossing_int4      <- as.numeric(any(crossing_intervals == '4'))
+        
         ##
         ## ==============================================================================================
         ## simulation data
-        sim_df <- dplyr::tibble(band     = as_factor(rep("IWT", p)),
-                                excd     = rep(exceedances_IWT, p),
-                                excd_t0  = rep(NA,              p),
-                                excd_loc = exceed_loc_IWT,
-                                cros_loc = crossings_loc_IWT,
-                                wdth     = rep(NA,              p))# glimpse(sim_df)
-        ##
+        sim_df <- dplyr::tibble(band     = as_factor("IWT"),# band types
+                                excd     = exceedances,         # was there an exceedance event at all?
+                                excd_i1  = exceedances_int1,    # was there an exceedance event in interval 1?
+                                excd_i2  = exceedances_int2,    # was there an exceedance event in interval 2?
+                                excd_i3  = exceedances_int3,    # was there an exceedance event in interval 3?
+                                excd_i4  = exceedances_int4,    # was there an exceedance event in interval 4?
+                                excd_t0  = NA,                  # was there an exceedance event at t0
+                                cros_i1  = crossing_int1,       # was there a band-crossing in interval 1?
+                                cros_i2  = crossing_int2,       # was there a band-crossing in interval 2?
+                                cros_i3  = crossing_int3,       # was there a band-crossing in interval 3?
+                                cros_i4  = crossing_int4,       # was there a band-crossing in interval 4?
+                                wdth     = NA)    # width of the bands 
+        ## glimpse(sim_df)
         return(sim_df)
       }, mc.cores = nworkers)
       ##
@@ -110,15 +124,13 @@ for(DGP in DGP_seq) {
       run_time <- end_time - start_time 
       ##
       ## Combine all simulation results
-      sim_df <- dplyr::bind_rows(res_mclapply) %>% 
-        dplyr::mutate(
-          intervals = cut(x=cros_loc, breaks=c(-101,seq(0,1,len=5),101), labels = c('compl_in',1,2,3,4,'compl_out')),# Assign crossing-locations to one of four equidistant intervals in [0,1]
-          cros_loc  = replace(cros_loc, cros_loc == -100 | cros_loc == 100, NA),# Setting the 'compl_in/out'  indicators to NA
-          run       = rep(c(1:n_reps),    each=p),# Numbering the single simulation runs
-          n_rep     = rep(n_reps, times=p*n_reps),# Total number of simulation runs  
-          delta     = rep(delta,  times=p*n_reps),# delta values   
-          N         = rep(N,      times=p*n_reps),# Sample size
-          DGP       = rep(DGP,    times=p*n_reps))# Name of DGP
+      sim_df <- dplyr::bind_rows(res_mclapply) %>%           # row-binding the n_reps-many tibbles contained in 'res_mclapply'
+        dplyr::mutate(                                       # Adding variables:
+          run       = rep(c(1:n_reps), each=length(type)),   # Numbering the single simulation runs
+          n_rep     = rep(n_reps, times=length(type)*n_reps),# Number of Monte-Carlo simulation
+          delta     = rep(delta,  times=length(type)*n_reps),# Delta   
+          N         = rep(N,      times=length(type)*n_reps),# Sample size
+          DGP       = rep(DGP,    times=length(type)*n_reps))# Name of DGP
       ##
       ## Feedback
       cat("IWT_",DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (",attr(run_time, "units"),")\n", sep="")
@@ -134,7 +146,7 @@ for(DGP in DGP_seq[-1]) {
   for(N in N_seq) {
     ##
     load(file = paste0("Simulation_Results/IWT_", DGP_seq[1], "_N=", N, "_Delta=0.RData"))
-    sim_df %>% mutate(DGP = rep(DGP, times=length(type)*p*n_reps)) # Replace name of DGP
+    sim_df %>% mutate(DGP = DGP) # Replace name of DGP
     save(sim_df, file = paste0("Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=0.RData"))
     rm(sim_df)
   }
