@@ -4,15 +4,12 @@
 \alias{get_pval_Ec}
 \title{p-value (ellipsoid region)}
 \usage{
-get_pval_Ec(x, x0 = NULL, N = 1, eigen, fpc.cut = NULL,
-  prec = NULL)
+get_pval_Ec(x, x0 = NULL, eigen, fpc.cut = NULL, prec = NULL)
 }
 \arguments{
 \item{x}{function argument}
 
 \item{x0}{Functional parameter under the null hypothesis. Zero function is assumed if it's not given.}
-
-\item{N}{It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.}
 
 \item{eigen}{eigen decomposition of covariance function}
 
@@ -22,6 +19,28 @@ get_pval_Ec(x, x0 = NULL, N = 1, eigen, fpc.cut = NULL,
 }
 \description{
 p-value (ellipsoid region)
+}
+\examples{
+# Generate a sample
+p <- 200 
+N <- 80 
+grid   <- make_grid(p, rangevals=c(0,1))
+mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
+mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
+cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+sample <- make_sample(mu,cov.m,N)
+
+# Compute the estimate and its covariance
+hat.mu     <- rowMeans(sample)
+hat.cov    <- crossprod(t(sample - hat.mu)) / N
+hat.cov.mu <- hat.cov / N
+
+# Eigen decomposition
+e.cov.mu <- eigen(hat.cov.mu)
+
+# pvalue
+pval <- get_pval_Ec(x=hat.mu, x0=mu0, eigen=e.cov.mu)
+pval
 }
 \references{
 Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239-260.

@@ -14,3 +14,13 @@ meanf_peak(x, params = c(0, 1, 2, 16, 1))
 \description{
 Meanfunction with local peak
 }
+\examples{
+curve(meanf_peak(x, c(0,1,2,16,1)), from=0, to=1, 
+main="Meanfct Peak", ylab="",xlab="")
+curve(meanf_peak(x, c(-1,1,2,16,1)), from=0, to=1, 
+lty=2, add=TRUE)
+curve(meanf_peak(x, c(0,2,2,16,1)), from=0, to=1, 
+lty=2, add=TRUE)
+curve(meanf_peak(x, c(0,1,1+1,10,1)), from=0, to=1, 
+lty=2, add=TRUE)
+}

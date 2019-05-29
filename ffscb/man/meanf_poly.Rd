@@ -14,3 +14,9 @@ meanf_poly(x, params = c(0, 1))
 \description{
 Meanfunction (polynomial)
 }
+\examples{
+curve(meanf_poly(x, c(0,2)), from=0, to=1, 
+main="Meanfct Poly", ylab="",xlab="")
+curve(meanf_poly(x, c(0,1)), from=0, to=1, 
+lty=2, add=TRUE)
+}

@@ -4,21 +4,19 @@
 \alias{get_pvalue_FFSCB_z}
 \title{FFSCB p-value (Gaussian)}
 \usage{
-get_pvalue_FFSCB_z(x, x0 = NULL, tau, t0 = NULL, diag.cov, N,
+get_pvalue_FFSCB_z(x, x0 = NULL, tau, t0 = NULL, diag.cov,
   n.eval.points = 11, n_int = 5)
 }
 \arguments{
-\item{x}{function argument}
+\item{x}{Functional parameter estimate (for instance, the empirical mean function).}
 
-\item{x0}{Functional parameter under the null hypothesis. Zero function is assumed if it's not given.}
+\item{x0}{Functional parameter under the null hypothesis. Default: zero.}
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
 
 \item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands.}
 
-\item{diag.cov}{The diagonal of N * Cov(X), in which X is the functional estimator.}
-
-\item{N}{It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.}
+\item{diag.cov}{The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.}
 
 \item{n.eval.points}{Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.}
 
@@ -26,6 +24,28 @@ get_pvalue_FFSCB_z(x, x0 = NULL, tau, t0 = NULL, diag.cov, N,
 }
 \description{
 FFSCB p-value (Gaussian)
+}
+\examples{
+# Generate a sample
+p <- 200 
+N <- 80 
+grid   <- make_grid(p, rangevals=c(0,1))
+mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
+mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
+cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+sample <- make_sample(mu,cov.m,N)
+
+# Compute the estimate and its covariance
+hat.mu     <- rowMeans(sample)
+hat.cov    <- crossprod(t(sample - hat.mu)) / N
+hat.cov.mu <- hat.cov / N
+hat.tau    <- tau_fun(sample)
+
+# pvalue
+pval <- get_pvalue_FFSCB_z(x=hat.mu, x0=mu0, tau=hat.tau, 
+                           diag.cov=diag(hat.cov.mu), 
+                           n.eval.points=6)
+plot(y=pval, x=grid, type="l", main="pvalue FFSCB (Gaussian)")
 }
 \references{
 Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.

@@ -14,3 +14,7 @@ meanf_localshift(x, delta = 0)
 \description{
 Meanfunction with local peak (polynomial with simple local peak)
 }
+\examples{
+curve(meanf_localshift(x, 0), from=0, to=1, lty=2)
+curve(meanf_localshift(x,.1), from=0, to=1, lty=1, add=TRUE)
+}

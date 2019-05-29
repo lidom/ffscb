@@ -4,21 +4,21 @@
 \alias{confidence_band}
 \title{Makes confidence bands}
 \usage{
-confidence_band(x, cov, tau = NULL, t0 = NULL, N = 1,
+confidence_band(x, cov.x, tau = NULL, t0 = NULL, df = NULL,
   type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"),
-  conf.level = c(0.95), grid.size = 200, Bs.sim.size = 10000,
+  conf.level = 0.95, grid.size = 200, Bs.sim.size = 10000,
   n_int = 10, tol = NULL)
 }
 \arguments{
-\item{x}{Functional parameter estimate. It can be either a vector or \link{fd} object from \link{fda}.}
+\item{x}{Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.}
 
-\item{cov}{N * Cov(X), in which X is the functional estimator. It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.}
+\item{cov.x}{Cov(x), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.}
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
 
 \item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands.}
 
-\item{N}{It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.}
+\item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
 
 \item{type}{The band(s) to be constructed.
 \itemize{
@@ -34,7 +34,7 @@ confidence_band(x, cov, tau = NULL, t0 = NULL, N = 1,
 
 \item{conf.level}{A vector of confidence levels for the bands to achieve.}
 
-\item{grid.size}{This determines on how fine grid the bands will be constructed before converted as an `fd' object. This parameter is used only when 'x' is fd object and 'cov' is bifd object.}
+\item{grid.size}{This determines on how fine grid the bands will be constructed before converted as an `fd' object. This parameter is used only when 'x' is fd object and 'cov.x' is bifd object.}
 
 \item{Bs.sim.size}{This determines bootstrap sample size for Bs}
 
@@ -50,22 +50,30 @@ Makes confidence bands
 }
 \examples{
 # Generate a sample
-p <- 200 ; N <- 80 ; rangeval = c(0,1)
-grid  <- make_grid(p, rangevals=rangeval)
-mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
-mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
-cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-x     <- make_sample(mu,cov.m,N)
+p          <- 200 
+N          <- 80 
+grid       <- make_grid(p, rangevals=c(0,1))
+mu0        <- meanf_poly(grid,c(0,1))   
+names(mu0) <- grid
+mu         <- meanf_poly(grid,c(0,1.1)) 
+names(mu)  <- grid
+cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+sample     <- make_sample(mu,cov.m,N)
 
-# Find the estimate and covariance
-hat.mu       <- rowMeans(x)
-hat.cov.m    <- crossprod(t(x - hat.mu)) / (N-1)
-hat.tau.v    <- tau_fun(x)
+# Compute the estimate and its covariance
+hat.mu     <- rowMeans(sample)
+hat.cov    <- crossprod(t(sample - hat.mu)) / N
+hat.cov.mu <- hat.cov / N
 
-# Make and visualize/compare confidence bands
-b <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,
-                  type=c("FFSCB.t", "Bs","BEc","naive.t"),conf.level=c(0.95))
+# Compute the tau-parameter (for the KR- and FFSCB-bands)
+hat.tau    <- tau_fun(sample)
+
+# Make and plot confidence bands
+b <- confidence_band(x=hat.mu, cov.x=hat.cov.mu, tau=hat.tau, df=N-1,
+                     type=c("FFSCB.t", "Bs","BEc","naive.t"),
+                     conf.level  = 0.95)
 plot(b)
+lines(x=grid, y=mu0, lty=2)
 }
 \references{
 \itemize{

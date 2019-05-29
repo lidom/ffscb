@@ -14,3 +14,9 @@ meanf_ellipse(x, params = c(0, 1/4, 1/5))
 \description{
 Meanfunction with local ellipse
 }
+\examples{
+curve(meanf_ellipse(x, c(0, 0.25, 0.1)), from=0, to=1,
+main="Meanfct Ellipse", ylab="",xlab="")
+curve(meanf_ellipse(x, c(0.50, 0.75, 0.1)), from=0, to=1, 
+lty=2, add=TRUE)
+}

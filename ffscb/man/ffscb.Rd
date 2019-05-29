@@ -12,22 +12,30 @@ The inputs can be either vector/matrix or \link{fd}/\link{bifd} object from \lin
 }
 \examples{
 # Generate a sample
-p <- 200 ; N <- 80 ; rangeval = c(0,1)
-grid  <- make_grid(p, rangevals=rangeval)
-mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
-mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
-cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-x     <- make_sample(mu,cov.m,N)
+p          <- 200 
+N          <- 80 
+grid       <- make_grid(p, rangevals=c(0,1))
+mu0        <- meanf_poly(grid,c(0,1))   
+names(mu0) <- grid
+mu         <- meanf_poly(grid,c(0,1.1)) 
+names(mu)  <- grid
+cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+sample     <- make_sample(mu,cov.m,N)
 
-# Find the estimate and covariance
-hat.mu       <- rowMeans(x)
-hat.cov.m    <- crossprod(t(x - hat.mu)) / (N-1)
-hat.tau.v    <- tau_fun(x)
+# Compute the estimate and its covariance
+hat.mu     <- rowMeans(sample)
+hat.cov    <- crossprod(t(sample - hat.mu)) / N
+hat.cov.mu <- hat.cov / N
 
-# Make and visualize/compare confidence bands
-b <- confidence_band(x=hat.mu,cov=hat.cov.m,tau=hat.tau.v,N=N,
-                  type=c("FFSCB.t", "Bs","BEc","naive.t"),conf.level=c(0.95))
+# Compute the tau-parameter (for the KR- and FFSCB-bands)
+hat.tau    <- tau_fun(sample)
+
+# Make and plot confidence bands
+b <- confidence_band(x=hat.mu, cov.x=hat.cov.mu, tau=hat.tau, df=N-1,
+                     type=c("FFSCB.t", "Bs","BEc","naive.t"),
+                     conf.level  = 0.95)
 plot(b)
+lines(x=grid, y=mu0, lty=2)
 }
 \references{
 Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.

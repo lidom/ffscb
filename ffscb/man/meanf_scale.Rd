@@ -14,3 +14,7 @@ meanf_scale(x, delta = 0)
 \description{
 Meanfunction (polynomial with simple scaling)
 }
+\examples{
+curve(meanf_scale(x, 1), from=0, to=1)
+curve(meanf_scale(x, 0), from=0, to=1, lty=2, add=TRUE)
+}

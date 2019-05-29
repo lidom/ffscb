@@ -14,3 +14,7 @@ meanf_shift(x, delta = 0)
 \description{
 Meanfunction (polynomial with simple shifting)
 }
+\examples{
+curve(meanf_shift(x, 0), from=0, to=1, lty=2)
+curve(meanf_shift(x,.1), from=0, to=1, lty=1, add=TRUE)
+}
