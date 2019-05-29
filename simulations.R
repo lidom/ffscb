@@ -80,11 +80,12 @@ for(DGP in DGP_seq) {
         dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
         ## Estimate mean, covariance, and tau
         hat_mu      <- rowMeans(dat)
-        hat.cov.m   <- crossprod(t(dat - hat_mu)) / (N-1)
-        hat.tau.v   <- tau_fun(dat) # plot(y=hat.tau.v,x=seq(0,1,len=p),type="l")
+        hat.cov     <- crossprod(t(dat - hat_mu)) / (N-1)
+        hat.cov.mu  <- hat.cov / N
+        hat.tau   <- tau_fun(dat) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
         ##
         ## Confidence bands
-        b               <- confidence_band(x=hat_mu, cov=hat.cov.m, tau=hat.tau.v, t0=t0, N=N, 
+        b               <- confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 
                                            type=type, conf.level=(1-alpha.level), n_int=n_int)# 
         # plot(b); lines(x=grid, y=mu, col="blue"); lines(x=grid, y=mu0, lty=2, col="blue")
         ##
