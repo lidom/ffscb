@@ -125,11 +125,11 @@ for(DGP in DGP_seq) {
       ## Combine all simulation results
       sim_df <- dplyr::bind_rows(res_mclapply) %>%           # row-binding the n_reps-many tibbles contained in 'res_mclapply'
         dplyr::mutate(                                       # Adding variables:
-          run       = rep(c(1:n_reps), each=length(type)),   # Numbering the single simulation runs
-          n_rep     = rep(n_reps, times=length(type)*n_reps),# Number of Monte-Carlo simulation
-          delta     = rep(delta,  times=length(type)*n_reps),# Delta   
-          N         = rep(N,      times=length(type)*n_reps),# Sample size
-          DGP       = rep(DGP,    times=length(type)*n_reps))# Name of DGP
+          run       = 1:n_reps,                 # Numbering the single simulation runs
+          n_rep     = rep(n_reps, times=n_reps),# Number of Monte-Carlo simulation
+          delta     = rep(delta,  times=n_reps),# Delta   
+          N         = rep(N,      times=n_reps),# Sample size
+          DGP       = rep(DGP,    times=n_reps))# Name of DGP
       ##
       ## Feedback
       cat("IWT_",DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (",attr(run_time, "units"),")\n", sep="")
