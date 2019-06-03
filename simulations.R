@@ -182,7 +182,8 @@ for(DGP in DGP_seq) {
 }# DGP-loop
 
 
-## Under H0 (mu0 == mu) are all DGPs equivalent, therefore, we use only one MC-Simulation.
+## Under H0 (mu0 == mu <=> delta == 0) are all DGPs equivalent, therefore, we use only one MC-Simulation (DGP1_shift).
+## The following code addes the results of DGP1_shift (delta==0) to all other DGPs.
 for(dgp in DGP_seq[-1]) {
   for(N in N_seq) {
     ##
