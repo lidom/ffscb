@@ -183,12 +183,12 @@ for(DGP in DGP_seq) {
 
 
 ## Under H0 (mu0 == mu) are all DGPs equivalent, therefore, we use only one MC-Simulation.
-for(DGP in DGP_seq[-1]) {
+for(dgp in DGP_seq[-1]) {
   for(N in N_seq) {
     ##
     load(file = paste0("Simulation_Results/", DGP_seq[1], "_N=", N, "_Delta=0.RData"))
-    sim_df %>% mutate(DGP = DGP) # Replace name of DGP
-    save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=0.RData"))
+    sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
+    save(sim_df, file = paste0("Simulation_Results/", dgp, "_N=", N, "_Delta=0.RData"))
     rm(sim_df)
   }
 }

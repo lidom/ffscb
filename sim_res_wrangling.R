@@ -52,7 +52,11 @@ for(DGP in DGP_seq){
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
       if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
       ##
-      ## Compute the relative frequency of crossings per interval [0,1/4],[1/4,2/4],[2/4,3/4],[3/4,1]
+      ## Compute the 
+      ## 1. relative frequency of exceedances per interval [0,1/4],[1/4,2/4],[2/4,3/4],[3/4,1]
+      ## 2. relative frequency of upcrossings per interval [0,1/4],[1/4,2/4],[2/4,3/4],[3/4,1]
+      ## 3. average widths 
+      ## and further 
       SimResults_tmp <- sim_df %>% 
         dplyr::group_by(band) %>% 
         dplyr::summarise(rfrq_excd    = mean(excd),
@@ -61,35 +65,42 @@ for(DGP in DGP_seq){
                          rfrq_excd_i2 = mean(excd_i2),
                          rfrq_excd_i3 = mean(excd_i3),
                          rfrq_excd_i4 = mean(excd_i4),
-                         rfrq_cros_i1 = mean(cros_i1),
-                         rfrq_cros_i2 = mean(cros_i2),
-                         rfrq_cros_i3 = mean(cros_i3),
-                         rfrq_cros_i4 = mean(cros_i4),
+                         #rfrq_cros_i1 = mean(cros_i1),
+                         #rfrq_cros_i2 = mean(cros_i2),
+                         #rfrq_cros_i3 = mean(cros_i3),
+                         #rfrq_cros_i4 = mean(cros_i4),
                          avg_width    = mean(wdth),
                          n_rep        = unique(sim_df$n_rep),
                          DGP          = unique(sim_df$DGP),
                          delta        = unique(sim_df$delta),
-                         N            = unique(sim_df$N)) %>% 
+                         N            = unique(sim_df$N),
+                         alpha        = alpha.level) 
+      ## Compute the Kullback-Leibler (KL) divergence between empirical and theoretical exeedance-frequences 
+      if(delta == 0){
         # Note: relative frequencies of zero result in: 0*log(0/.25) => 0*-Inf*0 => NaN
-        dplyr::mutate(KL = rfrq_excd_i1*log(rfrq_excd_i1/.25) + 
-                        rfrq_excd_i2*log(rfrq_excd_i2/.25) + 
-                        rfrq_excd_i3*log(rfrq_excd_i3/.25) + 
-                        rfrq_excd_i4*log(rfrq_excd_i4/.25),
-                      alpha = alpha.level)  
+        SimResults_tmp <- SimResults_tmp %>% 
+          dplyr::mutate(KL = 
+                          rfrq_excd_i1*log(rfrq_excd_i1/(alpha.level/4) ) + 
+                          rfrq_excd_i2*log(rfrq_excd_i2/(alpha.level/4) ) + 
+                          rfrq_excd_i3*log(rfrq_excd_i3/(alpha.level/4) ) + 
+                          rfrq_excd_i4*log(rfrq_excd_i4/(alpha.level/4) )) 
+      }else{
+        SimResults_tmp <- SimResults_tmp %>% dplyr::mutate(KL = NA)
+      }
       ##
       ## Row-Binding all 'SimResults_tmp' data frames:
       if(IWT){
         IWT_SimResults_df <- SimResults_tmp %>% 
           dplyr::select(band, DGP, N, delta, n_rep, alpha, rfrq_excd, rfrq_excd_t0, 
                         rfrq_excd_i1, rfrq_excd_i2, rfrq_excd_i3, rfrq_excd_i4, 
-                        rfrq_cros_i1, rfrq_cros_i2, rfrq_cros_i3, rfrq_cros_i4,
+                        #rfrq_cros_i1, rfrq_cros_i2, rfrq_cros_i3, rfrq_cros_i4,
                         KL) %>% 
           dplyr::bind_rows(SimResults_df, .)
       }else{
         SimResults_df <- SimResults_tmp %>% 
           dplyr::select(band, DGP, N, delta, n_rep, alpha, rfrq_excd, rfrq_excd_t0, 
                         rfrq_excd_i1, rfrq_excd_i2, rfrq_excd_i3, rfrq_excd_i4, 
-                        rfrq_cros_i1, rfrq_cros_i2, rfrq_cros_i3, rfrq_cros_i4,
+                        #rfrq_cros_i1, rfrq_cros_i2, rfrq_cros_i3, rfrq_cros_i4,
                         KL) %>% 
           dplyr::bind_rows(SimResults_df, .)
       }
@@ -102,9 +113,9 @@ for(DGP in DGP_seq){
 
 load(file = "Simulation_Results/Aggregated_SimResults.RData")
 
-SimResults_df %>% print(n=50)
+SimResults_df %>% print(n=Inf)
 
-SimResults_df %>% dplyr::filter(DGP=="DGP1_shift") %>% print(n=Inf)
+SimResults_df %>% dplyr::filter(DGP=="DGP4_local") %>% print(n=Inf)
 
 
 SimResults_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 
