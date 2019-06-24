@@ -64,7 +64,7 @@ get_pval_Ec <- function(x, x0=NULL, eigen, fpc.cut=NULL, prec=NULL){
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
 #' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
 #' @param diag.cov The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.  
-#' @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
+#' @param eval.points Evaluation points (in [0,1]) at which the pvalues should be computed.
 #' @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
 #' @examples 
@@ -86,15 +86,18 @@ get_pval_Ec <- function(x, x0=NULL, eigen, fpc.cut=NULL, prec=NULL){
 #' # pvalue
 #' pval <- get_pvalue_FFSCB_z(x=hat.mu, x0=mu0, tau=hat.tau, 
 #'                            diag.cov=diag(hat.cov.mu), 
-#'                            n.eval.points=6)
-#' plot(y=pval, x=grid, type="l", main="pvalue FFSCB (Gaussian)")
+#'                            eval.points=c(.25,.75))
+#' pval
 #' @export
-get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, n.eval.points=11, n_int=5){
-  if (is.null(x0)) {x0 <- rep(0,times=length(x))}
-  t_grid        <- seq(0,1,len=n.eval.points)
-  p_grid        <- numeric(n.eval.points)
-  x_f           <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x,  method = "natural")
-  x0_f          <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x0, method = "natural")
+get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, eval.points=NULL, n_int=5){
+  ##
+  if (is.null(x0))          {x0 <- rep(0,times=length(x))}
+  if (is.null(eval.points)) {stop("Please specify 'eval.points' (in [0,1]) at which the pvalue should be computed.")}
+  ##
+  t_grid        <- eval.points 
+  p_grid        <- numeric(length(t_grid))
+  x_f           <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x,        method = "natural")
+  x0_f          <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x0,       method = "natural")
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
@@ -108,10 +111,71 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, n.eval.points
   for(i in 1:length(t_grid)){
     p_grid[i] <- stats::optimize(f=function(p){myfun(p=p,t=t_grid[i])}, interval = c(0,1))$minimum
   }
-  p_grid[p_grid>1] <- 1
-  p_grid[p_grid<0] <- 0
-  pvalue <- stats::spline(x = t_grid, y = p_grid, xout = seq(0,1,len=length(tau)), method = "natural")$y
-  return(pvalue)
+  p_grid[p_grid > 1] <- 1
+  p_grid[p_grid < 0] <- 0
+  ##
+  return(p_grid)
+}
+
+
+#' FFSCB p-value (t-distr)
+#'
+#' @param x Functional parameter estimate (for instance, the empirical mean function).
+#' @param x0 Functional parameter under the null hypothesis. Default: zero.
+#' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
+#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
+#' @param diag.cov The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.  
+#' @param df Degrees of freedom parameter for the t-distribution based band 'FFSCB.t'. (Typically, df=N-1)
+#' @param eval.points Evaluation points (in [0,1]) at which the pvalues should be computed.
+#' @param n_int Number of intervals parameter used by the function make_band_FFSCB_t()
+#' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#' @examples 
+#' # Generate a sample
+#' p <- 200 
+#' N <- 80 
+#' grid   <- make_grid(p, rangevals=c(0,1))
+#' mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
+#' mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
+#' cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' sample <- make_sample(mu,cov.m,N)
+#'
+#' # Compute the estimate and its covariance
+#' hat.mu     <- rowMeans(sample)
+#' hat.cov    <- crossprod(t(sample - hat.mu)) / N
+#' hat.cov.mu <- hat.cov / N
+#' hat.tau    <- tau_fun(sample)
+#' 
+#' # Compute simultaneous pvalue function
+#' pval <- get_pvalue_FFSCB_t(x=hat.mu, x0=mu0, tau=hat.tau, 
+#'                            diag.cov=diag(hat.cov.mu), df=N-1, 
+#'                            eval.points=c(0.25, 0.75))
+#' pval
+#' @export
+get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, df, eval.points=NULL, n_int=5){
+  ##
+  if (is.null(x0))          {x0 <- rep(0,times=length(x))}
+  if (is.null(eval.points)) {stop("Please specify 'eval.points' (in [0,1]) at which the pvalue should be computed.")}
+  ##
+  t_grid        <- eval.points 
+  p_grid        <- numeric(length(t_grid))
+  x_f           <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x,  method = "natural")
+  x0_f          <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x0, method = "natural")
+  diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
+  ##
+  myfun <- function(p, t){
+    #b    <- ffscb::make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)
+    b    <- make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)
+    b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
+    sgn  <- sign(x_f(t) - x0_f(t))
+    tmp  <- x_f(t) - sgn * b_f(t) 
+    return((tmp - x0_f(t))^2)
+  }
+  for(i in 1:length(t_grid)){
+    p_grid[i] <- stats::optimize(f=function(p){myfun(p=p,t=t_grid[i])}, interval = c(0,1))$minimum
+  }
+  p_grid[p_grid > 1] <- 1
+  p_grid[p_grid < 0] <- 0
+  return(p_grid)
 }
 
 
@@ -170,66 +234,6 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, n.eval.points
 #   pvalue <- stats::spline(x = t_grid, y = p_grid, xout = seq(0,1,len=length(tau)), method = "natural")$y
 #   return(pvalue)
 # }
-
-
-
-
-#' FFSCB p-value (t-distr)
-#'
-#' @param x Functional parameter estimate (for instance, the empirical mean function).
-#' @param x0 Functional parameter under the null hypothesis. Default: zero.
-#' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
-#' @param diag.cov The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.  
-#' @param df Degrees of freedom parameter for the t-distribution based band 'FFSCB.t'. (Typically, df=N-1)
-#' @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
-#' @param n_int Number of intervals parameter used by the function make_band_FFSCB_t()
-#' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
-#' @examples 
-#' # Generate a sample
-#' p <- 200 
-#' N <- 80 
-#' grid   <- make_grid(p, rangevals=c(0,1))
-#' mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
-#' mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
-#' cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-#' sample <- make_sample(mu,cov.m,N)
-#'
-#' # Compute the estimate and its covariance
-#' hat.mu     <- rowMeans(sample)
-#' hat.cov    <- crossprod(t(sample - hat.mu)) / N
-#' hat.cov.mu <- hat.cov / N
-#' hat.tau    <- tau_fun(sample)
-#' 
-#' # Compute simultaneous pvalue function
-#' pval <- get_pvalue_FFSCB_t(x=hat.mu, x0=mu0, tau=hat.tau, 
-#'                            diag.cov=diag(hat.cov.mu), df=N-1, 
-#'                            n.eval.points=6)
-#' plot(y=pval, x=grid, type="l", main="pvalue FFSCB (t-distr)")
-#' @export
-get_pvalue_FFSCB_t <- function(x, x0=rep(0,times=length(x)), tau, t0=NULL, diag.cov, df, n.eval.points=11, n_int=5){
-  t_grid        <- seq(0,1,len=n.eval.points)
-  p_grid        <- numeric(n.eval.points)
-  x_f           <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x,  method = "natural")
-  x0_f          <- stats::splinefun(x = seq(0,1,len=length(tau)), y = x0, method = "natural")
-  diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
-  ##
-  myfun <- function(p, t){
-    #b    <- ffscb::make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)
-    b    <- make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)
-    b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
-    sgn  <- sign(x_f(t) - x0_f(t))
-    tmp  <- x_f(t) - sgn * b_f(t) 
-    return((tmp - x0_f(t))^2)
-  }
-  for(i in 1:length(t_grid)){
-    p_grid[i] <- stats::optimize(f=function(p){myfun(p=p,t=t_grid[i])}, interval = c(0,1))$minimum
-  }
-  p_grid[p_grid>1] <- 1
-  p_grid[p_grid<0] <- 0
-  pvalue <- stats::spline(x = t_grid, y = p_grid, xout = seq(0,1,len=length(tau)), method = "natural")$y
-  return(pvalue)
-}
 
 
 
