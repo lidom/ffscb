@@ -51,21 +51,20 @@ meanf_localshift <- function(x, delta=0){meanf_peak(x, c(0,1,1+delta,10,1)) }
 #' Meanfunction with local rectangles (polynomial with simple local rectangles)
 #'
 #' @param x function argument
-#' @param height hight of rectangles
-#' @param rect1 location of first rectangle
-#' @param rect2 location of second rectangle
+#' @param delta hight of rectangle
+#' @param rect location of the rectangle
 #' @examples 
-#' curve(meanf_rect(x, height=1/5), from=0, to=1,
+#' curve(meanf_rect(x, delta=1/5), from=0, to=1,
 #' main="Meanfct Rect", ylab="",xlab="")
-#' curve(meanf_rect(x, height=1/10), from=0, to=1, 
+#' curve(meanf_rect(x, delta=1/10), from=0, to=1, 
 #' lty=2, add=TRUE)
 #' @export
-meanf_rect <- function(x, height=1/5, rect1=c(0,0.2), rect2=c(0.8,1)){
+meanf_rect <- function(x, delta=1/5, rect=c(0,0.125)){
   tmp <- numeric(length(x))
   tmp[rect1[1] < x & x < rect1[2]] <- height
   tmp[rect2[1] < x & x < rect2[2]] <- height
-  return(c(tmp + meanf_poly(x)))
-  #return(c(tmp))
+  result <- c(tmp + meanf_poly(x))
+  return(result)
 }
 
 
