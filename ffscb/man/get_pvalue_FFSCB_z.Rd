@@ -5,7 +5,7 @@
 \title{FFSCB p-value (Gaussian)}
 \usage{
 get_pvalue_FFSCB_z(x, x0 = NULL, tau, t0 = NULL, diag.cov,
-  n.eval.points = 11, n_int = 5)
+  eval.points = NULL, n_int = 5)
 }
 \arguments{
 \item{x}{Functional parameter estimate (for instance, the empirical mean function).}
@@ -18,7 +18,7 @@ get_pvalue_FFSCB_z(x, x0 = NULL, tau, t0 = NULL, diag.cov,
 
 \item{diag.cov}{The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.}
 
-\item{n.eval.points}{Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.}
+\item{eval.points}{Evaluation points (in [0,1]) at which the pvalues should be computed.}
 
 \item{n_int}{Number of intervals parameter used by the function make_band_FFSCB_z()}
 }
@@ -44,8 +44,8 @@ hat.tau    <- tau_fun(sample)
 # pvalue
 pval <- get_pvalue_FFSCB_z(x=hat.mu, x0=mu0, tau=hat.tau, 
                            diag.cov=diag(hat.cov.mu), 
-                           n.eval.points=6)
-plot(y=pval, x=grid, type="l", main="pvalue FFSCB (Gaussian)")
+                           eval.points=c(.25,.75))
+pval
 }
 \references{
 Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
