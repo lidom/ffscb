@@ -4,23 +4,21 @@
 \alias{meanf_rect}
 \title{Meanfunction with local rectangles (polynomial with simple local rectangles)}
 \usage{
-meanf_rect(x, height = 1/5, rect1 = c(0, 0.2), rect2 = c(0.8, 1))
+meanf_rect(x, delta = 1/5, rect = c(0, 0.125))
 }
 \arguments{
 \item{x}{function argument}
 
-\item{height}{hight of rectangles}
+\item{delta}{hight of rectangle}
 
-\item{rect1}{location of first rectangle}
-
-\item{rect2}{location of second rectangle}
+\item{rect}{location of the rectangle}
 }
 \description{
 Meanfunction with local rectangles (polynomial with simple local rectangles)
 }
 \examples{
-curve(meanf_rect(x, height=1/5), from=0, to=1,
+curve(meanf_rect(x, delta=1/5), from=0, to=1,
 main="Meanfct Rect", ylab="",xlab="")
-curve(meanf_rect(x, height=1/10), from=0, to=1, 
+curve(meanf_rect(x, delta=1/10), from=0, to=1, 
 lty=2, add=TRUE)
 }

@@ -60,9 +60,8 @@ meanf_localshift <- function(x, delta=0){meanf_peak(x, c(0,1,1+delta,10,1)) }
 #' lty=2, add=TRUE)
 #' @export
 meanf_rect <- function(x, delta=1/5, rect=c(0,0.125)){
-  tmp <- numeric(length(x))
-  tmp[rect1[1] < x & x < rect1[2]] <- height
-  tmp[rect2[1] < x & x < rect2[2]] <- height
+  tmp    <- numeric(length(x))
+  tmp[rect[1] < x & x < rect[2]] <- delta
   result <- c(tmp + meanf_poly(x))
   return(result)
 }
