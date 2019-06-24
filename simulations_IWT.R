@@ -20,8 +20,8 @@ n_reps_H1    <- 5000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
-                  "DGP3_shift","DGP3_scale","DGP3_local",
-                  "DGP4_shift","DGP4_scale","DGP4_local")
+                  "DGP3_shift","DGP3_scale","DGP3_local"#, "DGP4_shift","DGP4_scale","DGP4_local"
+                  )
 ##
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
@@ -60,13 +60,13 @@ for(DGP in DGP_seq) {
         t0        <- grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1/4, 2.5))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.125, 1, 1/4, 2.5))
         t0        <- grid[p]
       }
-      if(grepl("DGP4", DGP)) {# non-stationary: from smooth to rough to smooth
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1/4))
-        t0        <- grid[which(0.5==grid)]
-      }
+      # if(grepl("DGP4", DGP)) {# non-stationary: from smooth to rough to smooth
+      #   cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1/4))
+      #   t0        <- grid[which(0.5==grid)]
+      # }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
       # matplot(grid, sim.dat, type="l", lty=1); lines(grid, mu, lwd=2)
@@ -83,37 +83,11 @@ for(DGP in DGP_seq) {
         ## IWT1 function from the fdatest package
         IWT_messages      <- capture.output(IWT_res <- fdatest::IWT1(data = t(dat), mu = mu0))
         exceedances       <- as.numeric(any(IWT_res$adjusted_pval < alpha.level))
-        exceed_loc        <- IWT_res$adjusted_pval < alpha.level
-        ## saving exceedances events per interval [0,1/4], [1/4,1/2], [1/2,3/4], [3/4,1]
-        exceed_intervals  <- cut(x=grid[exceed_loc], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
-        exceedances_int1  <- as.numeric(any(exceed_intervals == '1'))
-        exceedances_int2  <- as.numeric(any(exceed_intervals == '2'))
-        exceedances_int3  <- as.numeric(any(exceed_intervals == '3'))
-        exceedances_int4  <- as.numeric(any(exceed_intervals == '4'))
-        ##
-        tmp_cr_loc                 <- locate_crossings(IWT_res$adjusted_pval, rep(alpha.level, p), type="down")# down-crossing of pval means upcrossing of empirical mean
-        crossings_loc              <- rep(NaN, times=p)
-        crossings_loc[tmp_cr_loc]  <- grid[tmp_cr_loc]
-        crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
-        crossing_int1      <- as.numeric(any(crossing_intervals == '1'))
-        crossing_int2      <- as.numeric(any(crossing_intervals == '2'))
-        crossing_int3      <- as.numeric(any(crossing_intervals == '3'))
-        crossing_int4      <- as.numeric(any(crossing_intervals == '4'))
-        
         ##
         ## ==============================================================================================
         ## simulation data
         sim_df <- dplyr::tibble(band     = as_factor("IWT"),# band types
                                 excd     = exceedances,         # was there an exceedance event at all?
-                                excd_i1  = exceedances_int1,    # was there an exceedance event in interval 1?
-                                excd_i2  = exceedances_int2,    # was there an exceedance event in interval 2?
-                                excd_i3  = exceedances_int3,    # was there an exceedance event in interval 3?
-                                excd_i4  = exceedances_int4,    # was there an exceedance event in interval 4?
-                                excd_t0  = NA,                  # was there an exceedance event at t0
-                                cros_i1  = crossing_int1,       # was there a band-crossing in interval 1?
-                                cros_i2  = crossing_int2,       # was there a band-crossing in interval 2?
-                                cros_i3  = crossing_int3,       # was there a band-crossing in interval 3?
-                                cros_i4  = crossing_int4,       # was there a band-crossing in interval 4?
                                 wdth     = NA)    # width of the bands 
         ## glimpse(sim_df)
         return(sim_df)
