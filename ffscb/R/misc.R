@@ -69,6 +69,30 @@ locate_crossings <- function(x_vec, threshold, type=c("up", "down")){
 }
 
 
+cov_partial_fd <- function(X_mat){
+  p <- nrow(X_mat)
+  n <- ncol(X_mat)
+  ##
+  X_cent_mat  <- X_mat - rowMeans(X_mat, na.rm = TRUE)
+  ##
+  cov_mat <- matrix(NA, ncol = p, nrow = p)	
+  for(s in seq(1, p)){
+    for(t in seq(s, p)){
+      X_cent_s  <- X_cent_mat[s, ]
+      X_cent_t  <- X_cent_mat[t, ]
+      n_na      <- sum(is.na(c(X_cent_s * X_cent_t)))
+      if(n-n_na == 0){
+        cov_mat[s,t] <- NA
+      }else{
+        cov_mat[s,t] <- mean(X_cent_s * X_cent_t, na.rm = TRUE)
+      }
+      cov_mat[t,s] <- cov_mat[s,t]
+    }
+  }
+  return(cov_mat)
+}
+
+
 qt2 <- function(p,df){-stats::qt((1-p)/2,df)}
 
 get.req.n.pc <- function(proportion, lambdas){ # Finds how many pcs are required to achieve desired variance proportion(prop. as 1-10^(-x))
