@@ -7,15 +7,15 @@
 library("ffscb")
 library("tidyverse")
 ## 
-# source("simulations.R")
-# source("simulations_IWT.R")
+source("simulations.R")
+source("simulations_IWT.R")
 ##
 
 ## Looping-Variables
 DGP_seq       <- c("DGP1_shift","DGP1_scale","DGP1_local",
                    "DGP2_shift","DGP2_scale","DGP2_local", 
-                   "DGP3_shift","DGP3_scale","DGP3_local",
-                   "DGP4_shift","DGP4_scale","DGP4_local")
+                   "DGP3_shift","DGP3_scale","DGP3_local"#,"DGP4_shift","DGP4_scale","DGP4_local"
+                   )
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 alpha.level   <- 0.05
@@ -58,15 +58,15 @@ for(IWT in IWT_bool){
         SimResults_tmp <- sim_df %>% 
           dplyr::group_by(band) %>% 
           dplyr::summarise(rfrq_excd    = mean(excd),
-                           rfrq_excd_t0 = mean(excd_t0),
+                           # rfrq_excd_t0 = mean(excd_t0),
                            # rfrq_excd_i1 = mean(excd_i1),
                            # rfrq_excd_i2 = mean(excd_i2),
                            # rfrq_excd_i3 = mean(excd_i3),
                            # rfrq_excd_i4 = mean(excd_i4),
-                           rfrq_cros_i1 = mean(cros_i1),
-                           rfrq_cros_i2 = mean(cros_i2),
-                           rfrq_cros_i3 = mean(cros_i3),
-                           rfrq_cros_i4 = mean(cros_i4),
+                           # rfrq_cros_i1 = mean(cros_i1),
+                           # rfrq_cros_i2 = mean(cros_i2),
+                           # rfrq_cros_i3 = mean(cros_i3),
+                           # rfrq_cros_i4 = mean(cros_i4),
                            avg_width    = mean(wdth),
                            n_rep        = unique(sim_df$n_rep),
                            DGP          = unique(sim_df$DGP),
