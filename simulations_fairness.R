@@ -11,19 +11,16 @@ nworkers <- 6
 p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 type         <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
-alpha.level  <- 0.05
+alpha.level  <- 0.10
 n_int        <- 10
 ##
 n_reps_H0    <- 50000
-n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
-                  "DGP3_shift","DGP3_scale","DGP3_local",
-                  "DGP4_shift","DGP4_scale","DGP4_local")
+                  "DGP3_shift","DGP3_scale","DGP3_local")
 ##
-delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
-delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1, len = 5))
+delta <- 0
 ##
 N_seq         <- c(10,100)
 ## #########################################################
@@ -34,15 +31,6 @@ for(DGP in DGP_seq) {
   set.seed(1110)
   ##
   for(N in N_seq) {
-    ##
-    if(DGP==DGP_seq[1]){
-      ## H0 (i.e., delta_seq == 0 <=> mu0==mu ) is needed only once since it's equal for all DGPs. 
-      if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
-    }else{
-      if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
-    }
-    ##
-    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 100; delta <- 0.1
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
@@ -52,26 +40,22 @@ for(DGP in DGP_seq) {
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1, 1/4))
-        t0        <- grid[1]
+        t0        <- 0.5
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1, 1/4))
-        t0        <- grid[1]
+        t0        <- 0.5
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.25, 1, 1/4, 2.5))
-        t0        <- grid[p]
-      }
-      if(grepl("DGP4", DGP)) {# non-stationary: from smooth to rough to smooth
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1/4))
-        t0        <- grid[which(0.5==grid)]
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.125, 1, 1/4, 2.5))
+        t0        <- 0.5
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
       # matplot(grid, sim.dat, type="l", lty=1); lines(grid, mu, lwd=2)
       ## 
       ## Number of Monte-Carlo repetitions
-      n_reps     <- ifelse(delta==0, n_reps_H0, n_reps_H1)
+      n_reps     <- n_reps_H0
       ##
       start_time <- Sys.time()
       ##
@@ -96,18 +80,14 @@ for(DGP in DGP_seq) {
         ##
         ## saving exceedances events ('at least one crossing occured?')
         exceedances      <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
-        ## saving exceedances events per interval [0,1/4], [1/4,1/2], [1/2,3/4], [3/4,1]
+        ## saving exceedances events per interval [0,1/2] and [1/2,1]
         exceedances_int1 <- numeric(length(type))
         exceedances_int2 <- numeric(length(type))
-        exceedances_int3 <- numeric(length(type))
-        exceedances_int4 <- numeric(length(type))
         ##
         for(j in 1:length(type)){
-          exceed_intervals    <- cut(x=grid[exceed_loc[,j]], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
+          exceed_intervals    <- cut(x=grid[exceed_loc[,j]], breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE)
           exceedances_int1[j] <- as.numeric(any(exceed_intervals == '1'))
           exceedances_int2[j] <- as.numeric(any(exceed_intervals == '2'))
-          exceedances_int3[j] <- as.numeric(any(exceed_intervals == '3'))
-          exceedances_int4[j] <- as.numeric(any(exceed_intervals == '4'))
         }      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
@@ -176,22 +156,8 @@ for(DGP in DGP_seq) {
       ## Feedback
       cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0("Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
-    }# delta-loop
+      save(sim_df, file = paste0("Simulation_Results/Fair_", DGP, "_N=", N, "_Delta=", delta,".RData"))
   }# N-loop
 }# DGP-loop
-
-
-## Under H0 (mu0 == mu <=> delta == 0) are all DGPs equivalent, therefore, we use only one MC-Simulation (DGP1_shift).
-## The following code addes the results of DGP1_shift (delta==0) to all other DGPs.
-for(dgp in DGP_seq[-1]) {
-  for(N in N_seq) {
-    ##
-    load(file = paste0("Simulation_Results/", DGP_seq[1], "_N=", N, "_Delta=0.RData"))
-    sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
-    save(sim_df, file = paste0("Simulation_Results/", dgp, "_N=", N, "_Delta=0.RData"))
-    rm(sim_df)
-  }
-}
 
 
