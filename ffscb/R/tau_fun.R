@@ -1,4 +1,4 @@
-#' Computes tau(t), the pointwise standard deviation of the standardized and differentiated sample functions
+#' Computes tau(t), that is, the pointwise standard deviation of the standardized and differentiated sample functions.
 #' 
 #' @param x Matrix of sample functions (nrow=p, ncol=n, p=number of discretization point, n=sample size).  
 #' @return tau_t Pointwise standard deviation of the standardized and differentiated sample functions.
