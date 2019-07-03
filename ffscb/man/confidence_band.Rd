@@ -7,7 +7,7 @@
 confidence_band(x, cov.x, tau = NULL, t0 = NULL, df = NULL,
   type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"),
   conf.level = 0.95, grid.size = 200, Bs.sim.size = 10000,
-  n_int = 10, tol = NULL)
+  n_int = 10)
 }
 \arguments{
 \item{x}{Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.}
@@ -39,8 +39,6 @@ confidence_band(x, cov.x, tau = NULL, t0 = NULL, df = NULL,
 \item{Bs.sim.size}{This determines bootstrap sample size for Bs}
 
 \item{n_int}{Number of intervals for the piecewise linear confidence bounds.}
-
-\item{tol}{Controls the tolerance value used by stats::optimize(). The default (tol=NULL) leads to the functions' default values.}
 }
 \value{
 confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.

@@ -20,7 +20,6 @@
 #' @param grid.size This determines on how fine grid the bands will be constructed before converted as an `fd' object. This parameter is used only when 'x' is fd object and 'cov.x' is bifd object.
 #' @param Bs.sim.size This determines bootstrap sample size for Bs
 #' @param n_int Number of intervals for the piecewise linear confidence bounds.
-#' @param tol Controls the tolerance value used by stats::optimize(). The default (tol=NULL) leads to the functions' default values.
 #' @return confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.
 #' @references 
 #' \itemize{
@@ -63,8 +62,7 @@ confidence_band <- function(x,
                             conf.level  = 0.95, 
                             grid.size   = 200,
                             Bs.sim.size = 10000, 
-                            n_int       = 10, 
-                            tol         = NULL){
+                            n_int       = 10){
   ### Check the data type ###
   if (inherits(x,"fd") & (inherits(cov.x,"bifd") | inherits(cov.x,"pca.fd") | inherits(cov.x,"eigen.fd"))) datatype="fd" else if
      ((inherits(x,"numeric") | inherits(x,"matrix"))  & (inherits(cov.x,"matrix") | inherits(cov.x,"list") | inherits(cov.x,"eigen") )) datatype="vector" else stop ("The format of data is unknown")
@@ -155,15 +153,15 @@ confidence_band <- function(x,
 
     if ("FFSCB.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.z.u.",level), paste0("FFSCB.z.l.",level))
-      FFSCB.z          <- make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m), conf.level=level, n_int=n_int)
-      result           <- cbind(result, x.v + FFSCB.z, x.v - FFSCB.z)
+      FFSCB.z          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m), conf.level=level, n_int=n_int)
+      result           <- cbind(result, x.v + FFSCB.z$band, x.v - FFSCB.z$band)
       colnames(result) <- tmp.colnames
     }
 
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
-      FFSCB.t          <- make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int)
-      result           <- cbind(result, x.v + FFSCB.t, x.v - FFSCB.t)
+      FFSCB.t          <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int)
+      result           <- cbind(result, x.v + FFSCB.t$band, x.v - FFSCB.t$band)
       colnames(result) <- tmp.colnames
     }
     

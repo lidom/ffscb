@@ -101,7 +101,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, eval.points=N
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov, conf.level=(1-p), n_int=n_int)
+    b    <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov, conf.level=(1-p), n_int=n_int)$band
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     sgn  <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - sgn * b_f(t) 
@@ -162,7 +162,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, df, eval.poin
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)
+    b    <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)$band
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     sgn  <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - sgn * b_f(t) 

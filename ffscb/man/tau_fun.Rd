@@ -2,7 +2,7 @@
 % Please edit documentation in R/tau_fun.R
 \name{tau_fun}
 \alias{tau_fun}
-\title{Computes tau(t), the pointwise standard deviation of the standardized and differentiated sample functions}
+\title{Computes tau(t), that is, the pointwise standard deviation of the standardized and differentiated sample functions.}
 \usage{
 tau_fun(x)
 }
@@ -13,7 +13,7 @@ tau_fun(x)
 tau_t Pointwise standard deviation of the standardized and differentiated sample functions.
 }
 \description{
-Computes tau(t), the pointwise standard deviation of the standardized and differentiated sample functions
+Computes tau(t), that is, the pointwise standard deviation of the standardized and differentiated sample functions.
 }
 \examples{
  
