@@ -3,8 +3,10 @@
 library("tidyverse")
 library("parallel") 
 library("ffscb")    
-#library("fda")
 library("fdatest")
+##
+## path to simulation results:
+my_path <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
 ##
 detectCores()
 nworkers <- 6
@@ -20,8 +22,7 @@ n_reps_H1    <- 5000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
-                  "DGP3_shift","DGP3_scale","DGP3_local"#, "DGP4_shift","DGP4_scale","DGP4_local"
-                  )
+                  "DGP3_shift","DGP3_scale","DGP3_local")
 ##
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
@@ -36,8 +37,9 @@ for(DGP in DGP_seq) {
   ##
   for(N in N_seq) {
     ##
-    if(DGP=="DGP1_shift"){
-      ## H0 (i.e., delta_seq == 0 <=> mu0==mu) only one time, since equal for all other DGPs. 
+    if(any(DGP==c("DGP1_shift","DGP2_shift","DGP3_shift"))){
+      ## For H0 (i.e., delta_seq == 0 <=> mu0==mu ) only DGP*i*_shift is needed since 
+      ## DGP*i*_scale and DGP*i*_local equivalent for all i=1,2,3 if delta==0. 
       if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
     }else{
       if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
@@ -60,13 +62,9 @@ for(DGP in DGP_seq) {
         t0        <- grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.125, 1, 1/4, 2.5))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(3/4, 1, 1/4, 4))#c(1.125, 1, 1/4, 2.5)
         t0        <- grid[p]
       }
-      # if(grepl("DGP4", DGP)) {# non-stationary: from smooth to rough to smooth
-      #   cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.sigmoid, grid=grid, cov.f.params=c(1.25, 1, 1/4))
-      #   t0        <- grid[which(0.5==grid)]
-      # }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
       # matplot(grid, sim.dat, type="l", lty=1); lines(grid, mu, lwd=2)
@@ -108,21 +106,24 @@ for(DGP in DGP_seq) {
       ## Feedback
       cat("IWT_",DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (",attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0("Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta,".RData"))
+      save(sim_df, file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta,".RData"))
     }# delta-loop
   }# N-loop
 }# DGP-loop
 
 
-## Under H0 (mu0 == mu <=> delta == 0) are all DGPs equivalent, therefore, we use only one MC-Simulation (DGP1_shift).
-## The following code addes the results of DGP1_shift (delta==0) to all other DGPs.
-for(dgp in DGP_seq[-1]) {
-  for(N in N_seq) {
-    ##
-    load(file = paste0("Simulation_Results/IWT_", DGP_seq[1], "_N=", N, "_Delta=0.RData"))
-    sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
-    save(sim_df, file = paste0("Simulation_Results/IWT_", dgp, "_N=", N, "_Delta=0.RData"))
-    rm(sim_df)
+## Under H0 (mu0 == mu <=> delta == 0) are DGP*i*_scale and DGP*i*_local equivalent for all i=1,2,3. 
+## Therefore, we used only one MC-Simulation (DGP*i*_shift).
+## The following code addes the results for DGP*i*_scale (delta==0) and DGP*i*_local (delta==0) by 
+## copying the result of DGP*i*_shift (delta==0).
+for(i in 1:3){
+  for(dgp in c(paste0("DGP",i,"_scale"), paste0("DGP",i,"_local"))) {
+    for(N in N_seq) {
+      ##
+      load(file = paste0(my_path, "Simulation_Results/IWT_DGP",i,"_shift", "_N=", N, "_Delta=0.RData"))
+      sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
+      save(sim_df, file = paste0(my_path, "Simulation_Results/IWT_", dgp, "_N=", N, "_Delta=0.RData"))
+      rm(sim_df)
+    }
   }
 }
-

@@ -2,7 +2,8 @@
 library("tidyverse")
 library("parallel")
 library("ffscb")
-
+## path to simulation results:
+my_path <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
 ##
 detectCores()
 nworkers <- 6
@@ -30,7 +31,7 @@ for(DGP in DGP_seq) {
   ##
   set.seed(1110)
   ##
-  for(N in N_seq) {
+  for(N in N_seq) {# DGP <- "DGP1_local"; delta <- 1.5
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
@@ -47,12 +48,12 @@ for(DGP in DGP_seq) {
         t0        <- 0.5
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1.125, 1, 1/4, 2.5))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(3/4, 1, 1/4, 4))
         t0        <- 0.5
       }
       ## check plot:
-      # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
-      # matplot(grid, sim.dat, type="l", lty=1); lines(grid, mu, lwd=2)
+       sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
+       matplot(grid, sim.dat, type="l", lty=1); lines(grid, mu, lwd=2)
       ## 
       ## Number of Monte-Carlo repetitions
       n_reps     <- n_reps_H0
@@ -85,9 +86,14 @@ for(DGP in DGP_seq) {
         exceedances_int2 <- numeric(length(type))
         ##
         for(j in 1:length(type)){
-          exceed_intervals    <- cut(x=grid[exceed_loc[,j]], breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE)
-          exceedances_int1[j] <- as.numeric(any(exceed_intervals == '1'))
-          exceedances_int2[j] <- as.numeric(any(exceed_intervals == '2'))
+          exceed_tmp <- sapply(X   = grid[exceed_loc[,j]], 
+                               FUN = function(x){unique(
+                                 ## The following assures that an exceedance at x=0.5 gets counted for both intervals [0,1/2] and [1/2,1]
+                                 c(cut(x=x, breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE),
+                                   cut(x=x, breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE, right = FALSE)))})
+          exceed_tmp <- unlist(exceed_tmp)
+          exceedances_int1[j] <- as.numeric(any(exceed_tmp == '1'))
+          exceedances_int2[j] <- as.numeric(any(exceed_tmp == '2'))
         }      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
@@ -98,8 +104,6 @@ for(DGP in DGP_seq) {
         ## (If mu0 is completely in or out of the band, there is no crossing location.)
         n_crossing_int1 <- numeric(length(type))
         n_crossing_int2 <- numeric(length(type))
-        n_crossing_int3 <- numeric(length(type))
-        n_crossing_int4 <- numeric(length(type))
         for(j in 1:length(type)){
           crossings_loc <- rep(FALSE, p)
           ## 'ngbt0': number of gridpoints before t0:
@@ -115,11 +119,9 @@ for(DGP in DGP_seq) {
           ## save crossing locations (if any):
           if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc]  <- TRUE }
           ##
-          crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=5), labels = c(1,2,3,4), include.lowest = TRUE)
+          crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE)
           n_crossing_int1[j] <- length(crossing_intervals[crossing_intervals == '1'])
           n_crossing_int2[j] <- length(crossing_intervals[crossing_intervals == '2'])
-          n_crossing_int3[j] <- length(crossing_intervals[crossing_intervals == '3'])
-          n_crossing_int4[j] <- length(crossing_intervals[crossing_intervals == '4'])
         }
         ## widths of the bands:
         intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
@@ -130,13 +132,9 @@ for(DGP in DGP_seq) {
                                 excd      = exceedances,         # was there an exceedance event at all?
                                 excd_i1   = exceedances_int1,    # was there an exceedance event in interval 1?
                                 excd_i2   = exceedances_int2,    # was there an exceedance event in interval 2?
-                                excd_i3   = exceedances_int3,    # was there an exceedance event in interval 3?
-                                excd_i4   = exceedances_int4,    # was there an exceedance event in interval 4?
-                                excd_t0   = exceedances_t0,      # was there an exceedance event at t0
+                                excd_t0   = exceedances_t0,      # was there an exceedance event at t0?
                                 n_cros_i1 = n_crossing_int1,     # number of band-crossing in interval 1?
                                 n_cros_i2 = n_crossing_int2,     # number of band-crossing in interval 2?
-                                n_cros_i3 = n_crossing_int3,     # number of band-crossing in interval 3?
-                                n_cros_i4 = n_crossing_int4,     # number of band-crossing in interval 4?
                                 wdth      = intgr_widths_sqr)    # width of the bands 
         ## glimpse(sim_df)
         return(sim_df)
@@ -156,7 +154,7 @@ for(DGP in DGP_seq) {
       ## Feedback
       cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0("Simulation_Results/Fair_", DGP, "_N=", N, "_Delta=", delta,".RData"))
+      save(sim_df, file = paste0(my_path, "Simulation_Results/Fair_", DGP, "_N=", N, "_Delta=", delta,".RData"))
   }# N-loop
 }# DGP-loop
 

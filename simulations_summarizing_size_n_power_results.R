@@ -31,23 +31,17 @@ IWT_bool      <- c(FALSE, TRUE)
 
 ## Wrangling
 for(IWT in IWT_bool){
-  if(IWT){
-    IWT_SimResults_df <- NULL
-  }else{
-    SimResults_df     <- NULL
-  }
+  if(IWT){ IWT_SimResults_df <- NULL }else{ SimResults_df <- NULL}
   for(DGP in DGP_seq){# IWT <- TRUE
     for(N in N_seq) {
       if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
       for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 10; delta <- 0
-        
         ## Load sim_df
         if(IWT){
           load(file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta, ".RData"))
         }else{
           load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_Delta=", delta, ".RData"))
         }
-        
         ## Compute which share of the difference between mu and mu0 was correctly found
         if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
         if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
@@ -77,12 +71,9 @@ for(IWT in IWT_bool){
     }
   }
 }
-## 
 
 ## ###############################################
-##
 ## Joining the aggregated simulation results
-##
 ## ###############################################
 
 ## 'band'-factor to 'band'-character (needed for the rowbinding)
@@ -94,18 +85,43 @@ Size_and_Power_df <- dplyr::bind_rows(SimResults_df, IWT_SimResults_df) %>%
   mutate(band = as.factor(band)) %>% 
   dplyr::arrange(DGP, N, delta)
 
-##
-save(Size_and_Power_df, file = paste0(my_path, "Simulation_Results/Size_and_Power.RData"))
-##
+
+## ###############################################
+## Building data frames  
+## ###############################################
+
+## n=10
+Size_and_Power_n10_df <- Size_and_Power_df %>% 
+  filter(band!="naive.t" & N==10) %>% 
+  select(-alpha, -n_rep, -N) %>% 
+  spread(delta, rfrq_excd) %>% 
+  select(DGP, band, `0`:`0.45`) %>%
+  arrange(DGP, band) 
+
+Size_n10_df <- Size_and_Power_n10_df %>% 
+  filter(grepl("_local", Size_and_Power_n10_df$DGP)) %>% 
+  select(DGP, band, `0`) %>% 
+  spread(band, `0`) %>% 
+  mutate(DGP=c("DGP1","DGP2","DGP3")) %>% 
+  select(DGP, FFSCB.t, KR.t, IWT, BEc, Bs)
 
 
+## n=100
+Size_and_Power_n100_df <- Size_and_Power_df %>% 
+  filter(band!="naive.t" & N==100) %>% 
+  select(-alpha, -n_rep, -N) %>% 
+  spread(delta, rfrq_excd) %>% 
+  select(DGP, band, `0`:`0.1`) %>% 
+  arrange(DGP, band) 
 
-# 
-# SimResults_All_df %>% dplyr::filter(DGP=="DGP4_local") %>% print(n=Inf)
-# 
-# 
-# SimResults_All_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 
-#   pull(KL) %>% round(.,digits=2)
+Size_n100_df <- Size_and_Power_n100_df %>% 
+  filter(grepl("_local", Size_and_Power_n100_df$DGP)) %>% 
+  select(DGP, band, `0`) %>% 
+  spread(band, `0`) %>% 
+  mutate(DGP=c("DGP1","DGP2","DGP3")) %>% 
+  select(DGP, FFSCB.t, KR.t, IWT, BEc, Bs)
+
+
 
 
 
