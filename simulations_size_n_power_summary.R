@@ -7,8 +7,8 @@
 library("ffscb")
 library("tidyverse")
 ## 
-source("simulations.R")
-source("simulations_IWT.R")
+source("simulations_size_n_power.R")
+source("simulations_size_n_power_IWT.R")
 ##
 
 ## path to simulation results:
