@@ -11,7 +11,7 @@ nworkers <- 6
 ## Setup ####################################################
 p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
-type         <- c("naive.t", "Bs", "BEc", "KR.t", "FFSCB.t")
+type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.10
 n_int        <- 10
 ##
