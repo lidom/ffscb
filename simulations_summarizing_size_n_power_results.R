@@ -1,0 +1,111 @@
+## #######################################################
+##
+## Summarizing the simulation results
+##
+## #######################################################
+
+library("ffscb")
+library("tidyverse")
+## 
+# source("simulations.R")
+# source("simulations_IWT.R")
+##
+
+## path to simulation results:
+my_path <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
+
+## Looping-Variables
+DGP_seq       <- c("DGP1_shift","DGP1_scale","DGP1_local",
+                   "DGP2_shift","DGP2_scale","DGP2_local", 
+                   "DGP3_shift","DGP3_scale","DGP3_local")
+##
+delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
+delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
+alpha.level   <- 0.05
+N_seq         <- c(10,100)
+p             <- 101
+grid          <- make_grid(p, rangevals=c(0,1))
+## 
+IWT_bool      <- c(FALSE, TRUE)
+
+
+## Wrangling
+for(IWT in IWT_bool){
+  if(IWT){
+    IWT_SimResults_df <- NULL
+  }else{
+    SimResults_df     <- NULL
+  }
+  for(DGP in DGP_seq){# IWT <- TRUE
+    for(N in N_seq) {
+      if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+      for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 10; delta <- 0
+        
+        ## Load sim_df
+        if(IWT){
+          load(file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta, ".RData"))
+        }else{
+          load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_Delta=", delta, ".RData"))
+        }
+        
+        ## Compute which share of the difference between mu and mu0 was correctly found
+        if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
+        if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
+        if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
+        ##
+        SimResults_tmp <- sim_df %>% 
+          dplyr::group_by(band) %>% 
+          dplyr::summarise(rfrq_excd    = mean(excd),
+                           avg_width    = mean(wdth),
+                           n_rep        = unique(sim_df$n_rep),
+                           DGP          = unique(sim_df$DGP),
+                           delta        = unique(sim_df$delta),
+                           N            = unique(sim_df$N),
+                           alpha        = alpha.level) 
+        ##
+        ## Row-Binding all 'SimResults_tmp' data frames:
+        if(IWT){
+          IWT_SimResults_df <- SimResults_tmp %>% 
+            dplyr::select(band, DGP, N, delta, n_rep, alpha, rfrq_excd) %>% 
+            dplyr::bind_rows(IWT_SimResults_df, .)
+        }else{
+          SimResults_df <- SimResults_tmp %>% 
+            dplyr::select(band, DGP, N, delta, n_rep, alpha, rfrq_excd) %>% 
+            dplyr::bind_rows(SimResults_df, .)
+        }
+      }
+    }
+  }
+}
+## 
+
+## ###############################################
+##
+## Joining the aggregated simulation results
+##
+## ###############################################
+
+## 'band'-factor to 'band'-character (needed for the rowbinding)
+SimResults_df     <- SimResults_df     %>% mutate(band = as.character(band))
+IWT_SimResults_df <- IWT_SimResults_df %>% mutate(band = as.character(band))
+
+Size_and_Power_df <- dplyr::bind_rows(SimResults_df, IWT_SimResults_df) %>% 
+  ## back to 'band'-factor
+  mutate(band = as.factor(band)) %>% 
+  dplyr::arrange(DGP, N, delta)
+
+##
+save(Size_and_Power_df, file = paste0(my_path, "Simulation_Results/Size_and_Power.RData"))
+##
+
+
+
+# 
+# SimResults_All_df %>% dplyr::filter(DGP=="DGP4_local") %>% print(n=Inf)
+# 
+# 
+# SimResults_All_df %>% dplyr::filter(band=="FFSCB.t" & DGP=="DGP1_shift") %>% 
+#   pull(KL) %>% round(.,digits=2)
+
+
+
