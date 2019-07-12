@@ -348,7 +348,11 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' lines(x=grid, y=b[,1], lty=1)
 #' @export
 make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, n_int=10){
-  result_tmp       <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov.x, df=df, conf.level=conf.level, n_int=n_int)
+  if(df <= 100){
+    result_tmp       <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov.x, df=df, conf.level=conf.level, n_int=n_int)
+  }else{
+    result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x,        conf.level=conf.level, n_int=n_int)
+  }
   band_m           <- cbind(x, x + result_tmp$band, x - result_tmp$band)
   colnames(band_m) <- c("x", paste0("FFSCB.t.u.", conf.level), paste0("FFSCB.t.l.", conf.level))
   ##

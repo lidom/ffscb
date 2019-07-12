@@ -160,7 +160,11 @@ confidence_band <- function(x,
 
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
-      FFSCB.t          <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int)
+      if(df <= 100){
+        FFSCB.t          <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int)
+      }else{
+        FFSCB.t          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m),        conf.level=level, n_int=n_int)
+      }
       result           <- cbind(result, x.v + FFSCB.t$band, x.v - FFSCB.t$band)
       colnames(result) <- tmp.colnames
     }
