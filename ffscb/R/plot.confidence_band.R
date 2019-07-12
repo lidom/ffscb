@@ -10,7 +10,8 @@
 plot.confidence_band <- function(x, center=TRUE, legendx="topleft", legendy=NULL, ...){
   ##
   band <- x
-  if(is.null(rownames(band))){rownames(band) <- seq(from=0,to=1,len=nrow(band))}
+  # if(is.null(rownames(band))){rownames(band) <- seq(from=0,to=1,len=nrow(band))}
+  rownames(band) <- seq(from=0,to=1,len=nrow(band))
   ##
   if (is.null(dim(band))) {type <- "fd" ; class(band) <- "fd"} else type <- "vector"
 
