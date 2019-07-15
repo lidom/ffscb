@@ -7,12 +7,9 @@
 library("ffscb")
 library("tidyverse")
 ## 
-source("simulations_size_n_power.R")
-source("simulations_size_n_power_IWT.R")
-##
 
 ## path to simulation results:
-my_path <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
+my_path       <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
 
 ## Looping-Variables
 DGP_seq       <- c("DGP1_shift","DGP1_scale","DGP1_local",
@@ -85,7 +82,6 @@ Size_and_Power_df <- dplyr::bind_rows(SimResults_df, IWT_SimResults_df) %>%
   mutate(band = as.factor(band)) %>% 
   dplyr::arrange(DGP, N, delta)
 
-
 ## ###############################################
 ## Building data frames  
 ## ###############################################
@@ -98,13 +94,14 @@ Size_and_Power_n10_df <- Size_and_Power_df %>%
   select(DGP, band, `0`:`0.45`) %>%
   arrange(DGP, band) 
 
+Size_and_Power_n10_df %>% print(n=Inf)
+
 Size_n10_df <- Size_and_Power_n10_df %>% 
   filter(grepl("_local", Size_and_Power_n10_df$DGP)) %>% 
   select(DGP, band, `0`) %>% 
   spread(band, `0`) %>% 
   mutate(DGP=c("DGP1","DGP2","DGP3")) %>% 
-  select(DGP, FFSCB.t, KR.t, IWT, BEc, Bs)
-
+  select(DGP, FFSCB.t, FFSCB.z, KR.t, KR.z, IWT, BEc, Bs)
 
 ## n=100
 Size_and_Power_n100_df <- Size_and_Power_df %>% 
@@ -114,14 +111,18 @@ Size_and_Power_n100_df <- Size_and_Power_df %>%
   select(DGP, band, `0`:`0.1`) %>% 
   arrange(DGP, band) 
 
+Size_and_Power_n100_df %>% print(n=Inf)
+
 Size_n100_df <- Size_and_Power_n100_df %>% 
   filter(grepl("_local", Size_and_Power_n100_df$DGP)) %>% 
   select(DGP, band, `0`) %>% 
   spread(band, `0`) %>% 
   mutate(DGP=c("DGP1","DGP2","DGP3")) %>% 
-  select(DGP, FFSCB.t, KR.t, IWT, BEc, Bs)
+  select(DGP, FFSCB.t, FFSCB.z, KR.t, KR.z, IWT, BEc, Bs)
 
+## Plots
 
+Size_and_Power_n100_df
 
 
 
