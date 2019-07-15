@@ -68,7 +68,7 @@ for(DGP in DGP_seq) {
         t0        <- grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1/2, 1, 1/4, 5))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(4/5, 1, 1/4, 4))
         t0        <- grid[p]
       }
       ## check plot:
