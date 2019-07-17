@@ -39,16 +39,17 @@ for(IWT in IWT_bool){
         }else{
           load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_Delta=", delta, ".RData"))
         }
-        ## Compute which share of the difference between mu and mu0 was correctly found
-        if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
-        if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
-        if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
+        # ## Compute which share of the difference between mu and mu0 was correctly found
+        # if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
+        # if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
+        # if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
         ##
         SimResults_tmp <- sim_df %>% 
           dplyr::group_by(band) %>% 
           dplyr::summarise(rfrq_excd    = mean(excd),
-                           #rfrq_excd_i1 = mean(excd_i1),
-                           #rfrq_excd_i2 = mean(excd_i2),
+                           rfrq_excd_i1 = mean(excd_i1),
+                           rfrq_excd_i2 = mean(excd_i2),
+                           rfrq_excd_i1v2 = mean(excd_i1)/mean(excd_i2),
                            avg_width    = mean(wdth),
                            n_rep        = unique(sim_df$n_rep),
                            DGP          = unique(sim_df$DGP),
