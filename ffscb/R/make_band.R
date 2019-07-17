@@ -160,7 +160,7 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' @param conf.level confidence level (default: 0.95)
 #' @param n_int Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
-#' @example 
+#' @examples 
 #' # Generate a sample
 #' p          <- 200 
 #' N          <- 80 
@@ -181,8 +181,8 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' # Make and plot confidence bands
 #' b <- make_band_FFSCB_z(x=hat.mu, diag.cov.x=diag(hat.cov.mu), tau=hat.tau,
 #'                        conf.level  = 0.95)
-#' matplot(y=b[,2:3], x=grid, lty=2)
-#' lines(x=grid, y=b[,1], lty=1)
+#' matplot(y=b$band[,2:3], x=grid, lty=2)
+#' lines(x=grid, y=b$band[,1], lty=1)
 #' @export
 make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_int=10){
   result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x, conf.level=conf.level, n_int=n_int)
@@ -323,7 +323,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' @param conf.level confidence level (default: 0.95)
 #' @param n_int Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
-#' @example 
+#' @examples 
 #' # Generate a sample
 #' p          <- 200 
 #' N          <- 80 
@@ -344,8 +344,8 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' # Make and plot confidence bands
 #' b <- make_band_FFSCB_t(x=hat.mu, diag.cov.x=diag(hat.cov.mu), tau=hat.tau,
 #'                        df = N-1, conf.level  = 0.95)
-#' matplot(y=b[,2:3], x=grid, lty=2)
-#' lines(x=grid, y=b[,1], lty=1)
+#' matplot(y=b$band[,2:3], x=grid, lty=2)
+#' lines(x=grid, y=b$band[,1], lty=1)
 #' @export
 make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, n_int=10){
   if(df <= 100){

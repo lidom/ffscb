@@ -25,6 +25,30 @@ make_band_FFSCB_t(x, diag.cov.x, tau, t0 = NULL, df, conf.level = 0.95,
 \description{
 Fast 'n' fair simultaneous confidence band (t-distr)
 }
+\examples{
+# Generate a sample
+p          <- 200 
+N          <- 80 
+grid       <- make_grid(p, rangevals=c(0,1))
+mu         <- meanf_poly(grid,c(0,1.1)) 
+names(mu)  <- grid
+cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+sample     <- make_sample(mu,cov.m,N)
+
+# Compute the estimate and its covariance
+hat.mu     <- rowMeans(sample)
+hat.cov    <- crossprod(t(sample - hat.mu)) / N
+hat.cov.mu <- hat.cov / N
+
+# Compute the tau-parameter (for the KR- and FFSCB-bands)
+hat.tau    <- tau_fun(sample)
+
+# Make and plot confidence bands
+b <- make_band_FFSCB_t(x=hat.mu, diag.cov.x=diag(hat.cov.mu), tau=hat.tau,
+                       df = N-1, conf.level  = 0.95)
+matplot(y=b$band[,2:3], x=grid, lty=2)
+lines(x=grid, y=b$band[,1], lty=1)
+}
 \references{
 Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
 }

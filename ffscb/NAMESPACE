@@ -3,6 +3,7 @@
 S3method(plot,confidence_band)
 export(Data2bifd)
 export(confidence_band)
+export(cov2tau_fun)
 export(covf.st.matern)
 export(covf.st.matern.warp.logit_inv)
 export(covf.st.matern.warp.power)
