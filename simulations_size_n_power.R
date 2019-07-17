@@ -7,7 +7,7 @@ library("ffscb")
 my_path <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
 ##
 detectCores()
-nworkers <- 6
+nworkers <- 7
 
 
 Error_Checker <- function(x){
