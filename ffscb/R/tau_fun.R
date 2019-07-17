@@ -100,7 +100,7 @@ tau_fun <- function(x){
 #' ylab="tau(t)", xlab="", ylim=range(tau_HR, tau_IR))
 #' par(mfrow=c(1,1))
 #' @export cov2tau_fun
-cov2tau_fun <- function(cov_mat, df=NULL){
+cov2tau_fun <- function(cov_mat){
   ## 'cov_mat' denotes the sample covariance function computed from the sample functions X_1(t),...X_n(t)
   ## Caution: assumed grid is in [0,1]
   ##

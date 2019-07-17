@@ -4,12 +4,10 @@
 \alias{cov2tau_fun}
 \title{This function computes the estimate of the roughness parameter function tau(t) using the covariance function (given as a matrix) of the functional data.}
 \usage{
-cov2tau_fun(cov_mat, df = NULL)
+cov2tau_fun(cov_mat)
 }
 \arguments{
 \item{cov_mat}{Matrix (pxp) of evaluated covariance function (p=number of discretization point). Caution: It is assumed that the evaluation grid is within [0,1].}
-
-\item{df}{Possibility to take into account the degrees of freedom (typically df=N-1). If df is provided, the internally computed correlation function is scaled by (df-2)/df. If df=null (default), there will be no scaling.}
 }
 \value{
 tau_t Estimate of the roughness parameter function tau(t)
@@ -45,10 +43,8 @@ hat_mu_IR   <- rowMeans(X_IR)
 hat_cov_IR  <- crossprod(t(X_IR - hat_mu_IR)) / (N-1)
 
 # Estimate tau(t):
-tau_HR  <- cov2tau_fun(hat_cov_HR, df=N-1)
-tau_HR2 <- cov2tau_fun(hat_cov_HR)
-tau_IR  <- cov2tau_fun(hat_cov_IR, df=N-1)
-tau_IR2 <- cov2tau_fun(hat_cov_IR)
+tau_HR <- cov2tau_fun(hat_cov_HR)
+tau_IR <- cov2tau_fun(hat_cov_IR)
 
 # Plot data and estimated tau() functions
 par(mfrow=c(2,2))
@@ -56,9 +52,9 @@ matplot(x=grid, y=X_HR, type="l", main="Homogeneous Roughness",
 ylab="X(t)", xlab="")
 matplot(x=grid, y=X_IR, type="l", main="Increasing Roughness",  
 ylab="X(t)", xlab="")
-matplot(x=grid, y=cbind(tau_HR,tau_HR2),  type="l", main="Homogeneous Roughness", 
+plot(x=grid, y=tau_HR,  type="l", main="Homogeneous Roughness", 
 ylab="tau(t)", xlab="", ylim=range(tau_HR, tau_IR))
-matplot(x=grid, y=cbind(tau_IR,tau_IR2),  type="l", main="Increasing Roughness",  
+plot(x=grid, y=tau_IR,  type="l", main="Increasing Roughness",  
 ylab="tau(t)", xlab="", ylim=range(tau_HR, tau_IR))
 par(mfrow=c(1,1))
 }

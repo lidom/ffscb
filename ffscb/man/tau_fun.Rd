@@ -4,12 +4,10 @@
 \alias{tau_fun}
 \title{This function computes the estimate of the roughness parameter function tau(t) using the pointwise standard deviation of the standardized and differentiated sample functions.}
 \usage{
-tau_fun(x, df = NULL)
+tau_fun(x)
 }
 \arguments{
 \item{x}{Matrix of sample functions (nrow=p, ncol=n, p=number of discretization point, n=sample size).}
-
-\item{df}{Possibility to take into account the degrees of freedom (typically df=N-1). If df is provided, the internally standardized sample functions are scaled by ((df-2)/df)^(1/2). If df=null (default), there will be no scaling.}
 }
 \value{
 tau_t Pointwise standard deviation of the standardized and differentiated sample functions.
@@ -38,10 +36,8 @@ cov.f.params=c(1, 1, 1, 3))
 X_IR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 
 # Estimate tau(t):
-tau_HR  <- tau_fun(X_HR, df=N-1)
-tau_HR2 <- tau_fun(X_HR)
-tau_IR  <- tau_fun(X_IR, df=N-1)
-tau_IR2 <- tau_fun(X_IR)
+tau_HR  <- tau_fun(X_HR)
+tau_IR  <- tau_fun(X_IR)
 
 # Plot data and estimated tau() functions
 par(mfrow=c(2,2))
@@ -49,9 +45,9 @@ matplot(x=grid, y=X_HR, type="l", main="Homogeneous Roughness",
 ylab="X(t)", xlab="")
 matplot(x=grid, y=X_IR, type="l", main="Increasing Roughness",  
 ylab="X(t)", xlab="")
-matplot(x=grid, y=cbind(tau_HR,tau_HR2),  type="l", main="Homogeneous Roughness", 
+plot(x=grid, y=tau_HR,  type="l", main="Homogeneous Roughness", 
 ylab="tau(t)", xlab="", ylim=range(tau_HR, tau_IR))
-matplot(x=grid, y=cbind(tau_IR,tau_IR2),  type="l", main="Increasing Roughness",  
+plot(x=grid, y=tau_IR,  type="l", main="Increasing Roughness",  
 ylab="tau(t)", xlab="", ylim=range(tau_HR, tau_IR))
 par(mfrow=c(1,1))
 }
