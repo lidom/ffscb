@@ -23,7 +23,7 @@ type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.05
 n_int        <- 10
 ##
-n_reps_H0    <- 20000
+n_reps_H0    <- 50000
 n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
@@ -89,7 +89,7 @@ for(DGP in DGP_seq) {
           hat_mu      <- rowMeans(dat)
           hat.cov     <- crossprod(t(dat - hat_mu)) / (N-1)
           hat.cov.mu  <- hat.cov / N
-          hat.tau     <- tau_fun(dat) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
+          hat.tau     <- tau_fun(dat, df = N-1) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
           ##
           ## Confidence bands
           b <- try(confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 
