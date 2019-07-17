@@ -133,31 +133,7 @@ Size_and_Power_n100_df
 ## Plots of the Data Generating Processes
 ## #########################################
 
-cov2tau_fun <- function(cov_mat, df=NULL){
-  ## 'cov_mat' denotes the sample covariance function computed from the sample functions X_1(t),...X_n(t)
-  ## Caution: assumed grid is in [0,1]
-  ##
-  if(is.null(df)           ){scl <- 1}
-  if(is.numeric(df) & df >2){scl <- (df-2)/df}else{scl <- 1}
-  ##
-  p        <- ncol(cov_mat)
-  grid     <- seq(0,1,len=p)
-  corr_mat <- cov2cor(cov_mat) * scl
-  ## computing the numeric approximation to c_12(t,s) := \partial^2 c(t,s)/(\partial t \partial t) 
-  ## with c_12(t,s) evaluated at t=t and s=t
-  a1  <- corr_mat[cbind(2:p,2:p)]        # corr(t+h, t+h) with h=0.005, and t\in{0.005,0.015,0.025,...,0.995}
-  a2  <- corr_mat[cbind(1:(p-1),2:p)]    # corr(t-h, t+h) 
-  a3  <- corr_mat[cbind(1:(p-1),1:(p-1))]# corr(t-h, t-h) 
-  ##
-  h   <- diff(grid)[1]/2
-  tau <- sqrt( c(a1- 2*a2 + a3) /( 4* h^2 ) )
-  ## tau has length p-1, so we interpolate to get length p
-  xx  <- c(0,      grid[-p] + h, 1               )
-  yy  <- c(tau[1], tau,          tau[length(tau)])
-  tau <- spline(y=yy, x=xx, xout = grid, method = "natural")$y
-  ##
-  return(tau)
-}
+
 
 ## Load packages 
 library("ffscb")
