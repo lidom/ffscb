@@ -12,13 +12,13 @@
 #' # Generate random functions using a stationary 
 #' # covariance function (homogeneous roughness (HR))
 #' cov.m = make_cov_m(cov.f = covf.st.matern, grid=grid, 
-#' cov.f.params=c(2,2,2))
+#' cov.f.params=c(2,2))
 #' X_HR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 #' 
 #' # Generate random functions using non-stationary 
 #' # covariance function (increasing roughness (IR))
-#' cov.m = make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, 
-#' cov.f.params=c(1, 1, 1, 3))
+#' cov.m = make_cov_m(cov.f = covf.nonst.matern, grid=grid, 
+#' cov.f.params=c(3/2, 1/2, 2))
 #' X_IR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 #' 
 #' # Estimate tau(t):
@@ -73,8 +73,8 @@ tau_fun <- function(x){
 #' 
 #' # Generate random functions using non-stationary 
 #' # covariance function (increasing roughness (IR))
-#' cov.m = make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, 
-#' cov.f.params=c(1, 1, 1, 3))
+#' cov.m = make_cov_m(cov.f = covf.nonst.matern, grid=grid, 
+#' cov.f.params=c(3/2, 1/2, 2))
 #' X_IR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 #' 
 #' # Estimate covariance functions

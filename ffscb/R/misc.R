@@ -14,7 +14,7 @@ make_grid <- function(p=100,rangevals=c(0,1)){seq(rangevals[1],rangevals[2],len=
 #' @export
 make_cov_m <- function(cov.f=covf.st.matern, grid, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
   grid.size <- length(grid)
-  cov.m <- matrix(0,nrow=grid.size,ncol=grid.size)
+  cov.m     <- matrix(0,nrow=grid.size,ncol=grid.size)
   if (is.null(cov.f.params)) {
     for (i in (1:grid.size)){
       cov.m[i,]=sapply(grid, cov.f, x1=grid[i])

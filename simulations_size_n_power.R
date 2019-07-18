@@ -60,15 +60,15 @@ for(DGP in DGP_seq) {
       names(mu0) <- grid
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1/4))
         t0        <- grid[1]
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1/4))
         t0        <- grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1, 1, 1/4, 2.5))
+        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, 1/2, 1/4))
         t0        <- grid[p]
       }
       ## check plot:
@@ -89,7 +89,7 @@ for(DGP in DGP_seq) {
           hat_mu      <- rowMeans(dat)
           hat.cov     <- crossprod(t(dat - hat_mu)) / (N-1)
           hat.cov.mu  <- hat.cov / N
-          hat.tau     <- tau_fun(dat) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
+          hat.tau     <- tau_fun(dat, df = N-1) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
           ##
           ## Confidence bands
           b <- try(confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 

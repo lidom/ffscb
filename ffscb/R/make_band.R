@@ -167,7 +167,7 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' grid       <- make_grid(p, rangevals=c(0,1))
 #' mu         <- meanf_poly(grid,c(0,1.1)) 
 #' names(mu)  <- grid
-#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1))
 #' sample     <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -335,7 +335,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' grid       <- make_grid(p, rangevals=c(0,1))
 #' mu         <- meanf_poly(grid,c(0,1.1)) 
 #' names(mu)  <- grid
-#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1))
 #' sample     <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
