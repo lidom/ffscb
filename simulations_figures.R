@@ -23,7 +23,7 @@ mu           <- meanf_shift(grid, delta)
 ##
 cov.m_s      <- make_cov_m(cov.f = covf.st.matern,    grid=grid, cov.f.params=c(3/2, 1/4))
 cov.m_r      <- make_cov_m(cov.f = covf.st.matern,    grid=grid, cov.f.params=c(1/2, 1/4))
-cov.m_s2r    <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, .9, 1/4))
+cov.m_s2r    <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/2, 1/4))
 
 
 ## Plots:
