@@ -21,9 +21,9 @@ p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.05
-n_int        <- 4
+n_int        <- 3
 ##
-n_reps_H0    <- 20000
+n_reps_H0    <- 50000
 n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
@@ -61,15 +61,15 @@ for(DGP in DGP_seq) {
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1/4))
-        t0        <- 0.5#grid[1]
+        t0        <- 0#grid[1]
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1/4))
-        t0        <- 0.5#grid[1]
+        t0        <- 0#grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
         cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/2, 1/4))
-        t0        <- 0.5#grid[50]
+        t0        <- 0#grid[50]
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
@@ -107,18 +107,22 @@ for(DGP in DGP_seq) {
         ## saving exceedances events ('at least one crossing occured?')
         exceedances       <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
         ## saving exceedances events per interval [0,1/2] and [1/2,1]
+        if(n_int != 3){stop("The below code is written for n_int==3.")}
+        breaks           <- seq(0,1,len=n_int+1)
         exceedances_int1 <- numeric(length(type))
         exceedances_int2 <- numeric(length(type))
+        exceedances_int3 <- numeric(length(type))
         ##
         for(j in 1:length(type)){
           exceed_tmp <- sapply(X   = grid[exceed_loc[,j]], 
                                FUN = function(x){unique(
                                  ## The following assures that an exceedance at x=0.5 gets counted for both intervals [0,1/2] and [1/2,1]
-                                 c(cut(x=x, breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE),
-                                   cut(x=x, breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE, right = FALSE)))})
+                                 c(cut(x=x, breaks=breaks, labels = c(1,2,3), include.lowest = TRUE),
+                                   cut(x=x, breaks=breaks, labels = c(1,2,3), include.lowest = TRUE, right = FALSE)))})
           exceed_tmp <- unlist(exceed_tmp)
           exceedances_int1[j] <- as.numeric(any(exceed_tmp == '1'))
           exceedances_int2[j] <- as.numeric(any(exceed_tmp == '2'))
+          exceedances_int3[j] <- as.numeric(any(exceed_tmp == '3'))
         }      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
@@ -127,40 +131,42 @@ for(DGP in DGP_seq) {
         ##
         ## saving crossing (band vs. mu0) locations:
         ## (If mu0 is completely in or out of the band, there is no crossing location.)
-        n_crossing_int1 <- numeric(length(type))
-        n_crossing_int2 <- numeric(length(type))
-        for(j in 1:length(type)){
-          crossings_loc <- rep(FALSE, p)
-          ## 'ngbt0': number of gridpoints before t0:
-          if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
-          ## crossing locations with respect to the upper Bands:
-          tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"),         # down-crossings (left of t0)
-                          ngbt0 + locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
-          ## crossing locations with respect to the lower Bands:
-          tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ),         # down-crossings (left of t0)
-                          ngbt0 + locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
-          ## all (sorted) crossing locations together:
-          tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
-          ## save crossing locations (if any):
-          if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc]  <- TRUE }
-          ##
-          crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE)
-          n_crossing_int1[j] <- length(crossing_intervals[crossing_intervals == '1'])
-          n_crossing_int2[j] <- length(crossing_intervals[crossing_intervals == '2'])
-        }
+        # n_crossing_int1 <- numeric(length(type))
+        # n_crossing_int2 <- numeric(length(type))
+        # for(j in 1:length(type)){
+        #   crossings_loc <- rep(FALSE, p)
+        #   ## 'ngbt0': number of gridpoints before t0:
+        #   if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
+        #   ## crossing locations with respect to the upper Bands:
+        #   tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"),         # down-crossings (left of t0)
+        #                   ngbt0 + locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
+        #   ## crossing locations with respect to the lower Bands:
+        #   tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ),         # down-crossings (left of t0)
+        #                   ngbt0 + locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
+        #   ## all (sorted) crossing locations together:
+        #   tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
+        #   ## save crossing locations (if any):
+        #   if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc]  <- TRUE }
+        #   ##
+        #   crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE)
+        #   n_crossing_int1[j] <- length(crossing_intervals[crossing_intervals == '1'])
+        #   n_crossing_int2[j] <- length(crossing_intervals[crossing_intervals == '2'])
+        # }
         ## widths of the bands:
-        intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
+        # intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
+        avg_width  <- colMeans((upper_Bands - lower_Bands))
         ## Names of methods in correct order:
-        Band_type         <- stringr::str_replace(string  = names(intgr_widths_sqr), pattern = paste0(".u.", (1-alpha.level)),"")
+        Band_type         <- stringr::str_replace(string  = names(avg_width), pattern = paste0(".u.", (1-alpha.level)),"")
         ## simulation data
         sim_df <- dplyr::tibble(band      = as_factor(Band_type),# band types
                                 excd      = exceedances,         # was there an exceedance event at all?
                                 excd_i1   = exceedances_int1,    # was there an exceedance event in interval 1?
                                 excd_i2   = exceedances_int2,    # was there an exceedance event in interval 2?
+                                excd_i3   = exceedances_int3,    # was there an exceedance event in interval 3?
                                 excd_t0   = exceedances_t0,      # was there an exceedance event at t0?
-                                n_cros_i1 = n_crossing_int1,     # number of band-crossing in interval 1?
-                                n_cros_i2 = n_crossing_int2,     # number of band-crossing in interval 2?
-                                wdth      = intgr_widths_sqr)    # width of the bands 
+                                #n_cros_i1 = n_crossing_int1,     # number of band-crossing in interval 1?
+                                #n_cros_i2 = n_crossing_int2,     # number of band-crossing in interval 2?
+                                wdth      = avg_width)           # width of the bands 
         ## glimpse(sim_df)
         return(sim_df)
       }, mc.cores = nworkers)
