@@ -21,7 +21,7 @@ p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.05
-n_int        <- 10
+n_int        <- 5
 ##
 n_reps_H0    <- 20000
 n_reps_H1    <- 10000
@@ -69,7 +69,7 @@ for(DGP in DGP_seq) {
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
         cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, 1/2, 1/4))
-        t0        <- grid[1]
+        t0        <- grid[50]
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
@@ -174,12 +174,13 @@ for(DGP in DGP_seq) {
           n_rep     = rep(n_reps, times=length(type)*n_reps),# Number of Monte-Carlo simulation
           delta     = rep(delta,  times=length(type)*n_reps),# Delta   
           N         = rep(N,      times=length(type)*n_reps),# Sample size
+          t0        = rep(t0,     times=length(type)*n_reps),# Value of t0
           DGP       = rep(DGP,    times=length(type)*n_reps))# Name of DGP
       ##
       ## Feedback
       cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_Delta=", delta,".RData"))
+      save(sim_df, file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=", delta,".RData"))
     }# delta-loop
   }# N-loop
 }# DGP-loop

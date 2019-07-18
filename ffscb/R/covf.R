@@ -20,7 +20,7 @@ covf.st.matern <- function(x1, x2, params = c(1,1)){
 #' @param params Covariance function parameters: params=c(nu1, nu2, sigma). 
 #' @export
 covf.nonst.matern <- function(x1,x2,params=c(3/2, 1/2, 1)){
-  nu    <- params[1] + max(x1,x2) * (params[2] - params[1])
+  nu    <- params[1] + sqrt(max(x1,x2)) * (params[2] - params[1])
   sigma <- params[3]  
   l     <- 1 
   d     <- sqrt(2*nu)*abs(x1-x2)/l
