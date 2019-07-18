@@ -194,8 +194,9 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   ##
   return(list("band"    = band_m,
               "t0"      = t0,
-              "prob_t0" = result_tmp$prob_t0,
-              "a_star"  = result_tmp$a_star))
+              "prob_t0" = result_tmp$prob_t0 * 2, # multipled by two, since two-sided SCB
+              "a_star"  = result_tmp$a_star  * 2  # multipled by two, since two-sided SCB
+              ))
 }
 
 
@@ -300,8 +301,9 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     ##
     return(list("optim_target"     = optim_target,
                 "band.eval"        = band.eval, 
-                "prob_t0"          = 2 * stats::pnorm(q=u_star_f(t0), lower.tail=F),
-                "a_star"           = 2 * (intgr1_star + intgr2_star - intgr3_star) ))
+                "prob_t0"          = stats::pnorm(q=u_star_f(t0), lower.tail=F),
+                "a_star"           = (intgr1_star + intgr2_star - intgr3_star) 
+                ))
   }
   ##
   opt_res <- stats::optimize(f = function(x){find_u(alpha.aux = x)$optim_target}, interval = c(0,alpha.level), tol=tol)$minimum
@@ -361,8 +363,9 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   ##
   return(list("band"    = band_m,
               "t0"      = t0,
-              "prob_t0" = result_tmp$prob_t0,
-              "a_star"  = result_tmp$a_star))
+              "prob_t0" = result_tmp$prob_t0 *2, # multipled by two, since two-sided SCB
+              "a_star"  = result_tmp$a_star  *2  # multipled by two, since two-sided SCB
+              ))
 }
 
 
@@ -485,8 +488,9 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     ##
     return(list("optim_target"     = optim_target,
                 "band.eval"        = band.eval, 
-                "prob_t0"          = 2*stats::pt(q=u_star_f(t0), lower.tail=F, df = nu),
-                "a_star"           = 2*(intgr1_star + intgr2_star - intgr3_star) ))
+                "prob_t0"          = stats::pt(q=u_star_f(t0), lower.tail=F, df = nu),
+                "a_star"           = (intgr1_star + intgr2_star - intgr3_star) 
+                ))
   }
   ##
   opt_res <- stats::optimize(f = function(x){find_u(alpha.aux = x)$optim_target}, interval = c(0,alpha.level), tol=tol)$minimum
