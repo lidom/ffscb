@@ -7,9 +7,9 @@
 covf.nonst.matern(x1, x2, params = c(3/2, 1/2, 1))
 }
 \arguments{
-\item{x1}{First argument of cov(x1,x2).}
+\item{x1}{First argument of cov(x1,x2). Caution: It is assumed that 0<=x1<=1.}
 
-\item{x2}{Second argument of cov(x1,x2).}
+\item{x2}{Second argument of cov(x1,x2). Caution: It is assumed that 0<=x2<=1.}
 
 \item{params}{Covariance function parameters: params=c(nu1, nu2, sigma).}
 }
