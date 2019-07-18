@@ -32,7 +32,7 @@ for(IWT in IWT_bool){
   for(DGP in DGP_seq){# IWT <- TRUE
     for(N in N_seq) {
       if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
-      for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 10; delta <- 0
+      for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 100; delta <- 0
         ## Load sim_df
         if(IWT){
           load(file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta, ".RData"))
@@ -133,9 +133,6 @@ Size_and_Power_n100_df
 ## #########################################
 ## Plots of the Data Generating Processes
 ## #########################################
-
-
-
 ## Load packages 
 library("ffscb")
 ##
@@ -148,15 +145,16 @@ cov.m_s      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2
 cov.m_r      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1, 1/4))
 cov.m_s2r    <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(4/5, 1, 1/4, 4))
 
+
 ## Plots:
-N            <- 50
-n_int        <- 10
+N            <- 10
+n_int        <- 20
 alpha.level  <- 0.05
 type         <- c("Bs", "BEc", "naive.t", "FFSCB.t")
-
+seed <- 2
 ##
 ## Smooth
-set.seed(1)
+set.seed(seed)
 sim.dat_s      <- make_sample(mean.v = mu, cov.m = cov.m_s,   N = N, dist = "rnorm")
 t0_s           <- grid[1]
 hat_mu_s       <- rowMeans(sim.dat_s)
@@ -175,7 +173,7 @@ Bs_diff_s      <- Bs_band_s[,1]      - Bs_band_s[,2]
 BEc_diff_s     <- BEc_band_s[,1]     - BEc_band_s[,2]
 ## true cov
 true.cov.mu_s  <- cov.m_s/N
-true.cov.tau_s <- cov2tau_fun(cov.m_s, df = (N-1) )
+true.cov.tau_s <- cov2tau_fun(cov.m_s)
 true.cov.b_s   <- confidence_band(x=hat_mu_s, cov=true.cov.mu_s, tau=true.cov.tau_s, t0=t0_s, df=N-1, 
                                   type=type, conf.level=(1-alpha.level), n_int=n_int)
 true.cov.FFSCB_t_band_s <- true.cov.b_s[, grepl("FFSCB.t", colnames(true.cov.b_s))]
@@ -188,12 +186,10 @@ true.cov.Bs_diff_s      <- true.cov.Bs_band_s[,1]      - true.cov.Bs_band_s[,2]
 true.cov.BEc_diff_s     <- true.cov.BEc_band_s[,1]     - true.cov.BEc_band_s[,2]
 
 
-matplot(y=cbind(FFSCB_diff_s,true.cov.FFSCB_diff_s_OLD, true.cov.FFSCB_diff_s), x=grid, type="l")
-
 
 ##
 ## Rough  
-set.seed(1)
+set.seed(seed)
 sim.dat_r      <- make_sample(mean.v = mu, cov.m = cov.m_r,   N = N, dist = "rnorm")
 t0_r           <- grid[1]
 hat_mu_r       <- rowMeans(sim.dat_r)
@@ -225,7 +221,7 @@ true.cov.Bs_diff_r      <- true.cov.Bs_band_r[,1]      - true.cov.Bs_band_r[,2]
 true.cov.BEc_diff_r     <- true.cov.BEc_band_r[,1]     - true.cov.BEc_band_r[,2]
 ##
 ## From smooth to rough
-set.seed(1)
+set.seed(seed)
 sim.dat_s2r    <- make_sample(mean.v = mu, cov.m = cov.m_s2r, N = N, dist = "rnorm")
 t0_s2r         <- grid[p]
 hat_mu_s2r     <- rowMeans(sim.dat_s2r)
@@ -257,8 +253,25 @@ true.cov.Bs_diff_s2r      <- true.cov.Bs_band_s2r[,1]      - true.cov.Bs_band_s2
 true.cov.BEc_diff_s2r     <- true.cov.BEc_band_s2r[,1]     - true.cov.BEc_band_s2r[,2]
 
 
+res_true_s <- make_band_FFSCB_t(x=hat_mu_s, diag.cov.x = diag(true.cov.mu_s), tau=true.cov.tau_s, t0=t0_s, df=N-1, 
+                                  conf.level=(1-alpha.level), n_int=n_int)
+
+res_true_s$prob_t0 + res_true_s$a_star
+
+res_true_s2r <- make_band_FFSCB_t(x=hat_mu_s, diag.cov.x = diag(hat.cov.mu_s), tau=hat.tau_s, t0=t0_s2r, df=N-1, 
+                                  conf.level=(1-alpha.level), n_int=n_int)
+
+res_true_s2r$prob_t0 + res_true_s2r$a_star
 
 
+
+x=hat_mu_s2r
+diag.cov= diag(hat.cov.mu_s2r)
+tau=hat.tau_s2r
+t0=t0_s2r
+df=N-1
+conf.level=(1-alpha.level)
+n_int=n_int
 
 
 
@@ -278,53 +291,69 @@ path_plot <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/
 ## 
 pdf(file = paste0(path_plot, "Fig_SIM_DGPs.pdf"), width = width, height = height)
 par(mfrow=c(2,1), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=mar_u1)
-matplot(y = sim.dat_s,  x = grid, lwd=.5, col=gray(.25), type="l", lty=1, 
+matplot(y = sim.dat_s,  x = grid, lwd=.5, col=gray(.75), type="l", lty=1, 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu)
+lines(y=hat_mu_s,x=grid)
+legend("bottomright", legend=expression(paste("Estimated mean")), lty=1,bty="n",cex = .87)
 axis(2);box()
 mtext(text = "Smooth (Cov1)", side = 3, line = .75)
 text(x = 0, y=1.5, labels = "Sample Paths", cex = .95, pos = 4)
 par(mar=mar_l1)
 matplot( y = 0, x = 0, type="n", ylab="", xlab = "", main="", ylim = yliml, xlim = c(0,1))
-matlines(x=grid, y=FFSCB_t_band_s - hat_mu_s, col=1, lty=1, lwd=.75)
-matlines(x=grid, y=Bs_band_s      - hat_mu_s, col=1, lty=2, lwd=.75)
-matlines(x=grid, y=naive_t_band_s - hat_mu_s, col=1, lty=3, lwd=.75)
-legend("left", legend = c("FFSCB (t distr.)", "Bootstrap", "naive (t distr.)"), 
-       lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = .87, seg.len=1)
+matlines(x=grid, y=FFSCB_t_band_s - hat_mu_s, col=1, lty=1, lwd=.85)
+matlines(x=grid, y=Bs_band_s      - hat_mu_s, col=1, lty=2, lwd=.85)
+matlines(x=grid, y=BEc_band_s     - hat_mu_s, col=1, lty=3, lwd=.85)
+polygon(x=c(grid,rev(grid)), y=c(naive_t_band_s[,1]-hat_mu_s,rev(naive_t_band_s[,2]-hat_mu_s)), 
+        col=gray(.75), border = gray(.75))
+legend("center", legend = c("FFSCB-t", "Bootstrap", expression(hat(B)[Ec])), 
+       lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = .9)
+legend(x = 0.35, y=-0.12, legend = "naive-t", pch=22, col=gray(.78), pt.bg = gray(.75), pt.cex = 1.75, cex = .9, bty="n")
+#legend(x = 0.35, y=-0.12, legend = "naive-t", lty = 1, col=gray(.78), lwd=10, cex = .9, bty="n")
 mtext(text = "t", side = 1, line = 1.75)
 text(x = 0, y=0.15, labels = "Centered Confidence Bands", cex = .95, pos = 4)
 dev.off()
 ##
 pdf(file = paste0(path_plot, "Fig_SIM_DGPr.pdf"), width = width, height = height)
 par(mfrow=c(2,1), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=mar_u2)
-matplot(y = sim.dat_r,  x = grid, lwd=.5, col=gray(.25), type="l", lty=1, 
+matplot(y = sim.dat_r,  x = grid, lwd=.5, col=gray(.75), type="l", lty=1, 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu)
+lines(y=hat_mu_r,x=grid)
+#legend("bottomright", legend=expression(paste("Estimated mean")), lty=1,bty="n",cex = .87)
 box()
 mtext(text = "Rough (Cov2)", side = 3, line = .75)
 par(mar=mar_l2)
 matplot( y = 0, x = 0, type="n", ylab="", xlab = "", main="", ylim = yliml, xlim = c(0,1), axes=F)
 axis(1);box()
-matlines(x=grid, y=FFSCB_t_band_r - hat_mu_r, col=1, lty=1, lwd=.75)
-matlines(x=grid, y=Bs_band_r      - hat_mu_r,      col=1, lty=2, lwd=.75)
-matlines(x=grid, y=naive_t_band_r - hat_mu_r, col=1, lty=3, lwd=.75)
-legend("left", legend = c("FFSCB (t distr.)", "Bootstrap", "naive (t distr.)"), 
-       lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = .87, seg.len=2)
+matlines(x=grid, y=FFSCB_t_band_r - hat_mu_r, col=1, lty=1, lwd=.85)
+matlines(x=grid, y=Bs_band_r      - hat_mu_r, col=1, lty=2, lwd=.85)
+matlines(x=grid, y=BEc_band_r     - hat_mu_r, col=1, lty=3, lwd=.85)
+polygon(x=c(grid,rev(grid)), y=c(naive_t_band_r[,1]-hat_mu_r,rev(naive_t_band_r[,2]-hat_mu_r)), 
+        col=gray(.75), border = gray(.75))
+# legend("left", legend = c("FFSCB (t distr.)", "Bootstrap", expression(hat(B)[Ec])), 
+#        lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = .87)
+#legend(x = 0, y=-0.12, legend = "naive (t distr.)", pch=22, col=gray(.75), pt.bg = gray(.75), cex = .87, bty="n")
 mtext(text = "t", side = 1, line = 1.75)
 dev.off()
 ##
 pdf(file = paste0(path_plot, "Fig_SIM_DGPs2r.pdf"), width = width, height = height)
 par(mfrow=c(2,1), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=mar_u3)
-matplot(y = sim.dat_s2r,  x = grid, lwd=.5, col=gray(.25), type="l", lty=1, 
+matplot(y = sim.dat_s2r,  x = grid, lwd=.5, col=gray(.75), type="l", lty=1, 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu)
+lines(y=hat_mu_s2r,x=grid)
+#legend("bottomright", legend=expression(paste("Estimated mean")), lty=1,bty="n",cex = .87)
 box()
 mtext(text = "Smooth to Rough (Cov3)", side = 3, line = .75)
 par(mar=mar_l3)
 matplot( y = 0, x = 0, type="n", ylab="", xlab = "", main="", ylim = yliml, xlim = c(0,1), axes=F)
 axis(1);box()
-matlines(x=grid, y=FFSCB_t_band_s2r- hat_mu_s2r, col=1, lty=1, lwd=.75)
-matlines(x=grid, y=Bs_band_s2r     - hat_mu_s2r, col=1, lty=2, lwd=.75)
-matlines(x=grid, y=naive_t_band_s2r- hat_mu_s2r, col=1, lty=3, lwd=.75)
-legend("left", legend = c("FFSCB (t distr.)", "Bootstrap", "naive (t distr.)"), 
-       lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = .87, seg.len=2)
+matlines(x=grid, y=FFSCB_t_band_s2r- hat_mu_s2r, col=1, lty=1, lwd=.85)
+matlines(x=grid, y=Bs_band_s2r     - hat_mu_s2r, col=1, lty=2, lwd=.85)
+matlines(x=grid, y=BEc_band_s2r    - hat_mu_s2r, col=1, lty=3, lwd=.85)
+polygon(x=c(grid,rev(grid)), y=c(naive_t_band_s2r[,1]-hat_mu_s2r,rev(naive_t_band_s2r[,2]-hat_mu_s2r)), 
+        col=gray(.75), border = gray(.75))
+# legend("left", legend = c("FFSCB (t distr.)", "Bootstrap", expression(hat(B)[Ec])), 
+#        lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = .87)
+#legend(x = 0, y=-0.12, legend = "naive (t distr.)", pch=22, col=gray(.75), pt.bg = gray(.75), cex = .87, bty="n")
 mtext(text = "t", side = 1, line = 1.75)
 dev.off()
 
