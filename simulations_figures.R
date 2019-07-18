@@ -23,7 +23,7 @@ mu           <- meanf_shift(grid, delta)
 ##
 cov.m_s      <- make_cov_m(cov.f = covf.st.matern,    grid=grid, cov.f.params=c(3/2, 1/4))
 cov.m_r      <- make_cov_m(cov.f = covf.st.matern,    grid=grid, cov.f.params=c(1/2, 1/4))
-cov.m_s2r    <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, 1/2, 1/4))
+cov.m_s2r    <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, .9, 1/4))
 
 
 ## Plots:
@@ -186,15 +186,15 @@ yliml     <- range(b_r - hat_mu_r,b_s - hat_mu_s,b_s2r - hat_mu_s2r)
 path_plot <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/Manuscript/"
 ## 
 pdf(file = paste0(path_plot, "Fig_SIM_DGPs.pdf"), width = width, height = height)
-par(mfrow=c(2,1), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=mar_u1)
+par(mfrow=c(2,1), family = "serif", ps=13, cex.main=1, font.main = 1, mar=mar_u1)
 matplot(y = sim.dat_s[,1:plot_max],  x = grid, lwd=.5, col=gray(.75), type="l", lty=1, 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu)
 lines(y=hat_mu_s,x=grid)
 legend("bottomright", legend=expression(paste("Estimated mean")), lty=1,bty="n",cex = .95)
 axis(2);box()
 mtext(text = "Smooth (Cov1)", side = 3, line = .75)
-text(x = -.05, y=ylimu[2]*0.9, labels = "Sample Paths (n=100)", cex = .95, pos = 4)
-text(x = -.05, y=ylimu[2]*0.75, labels = "(first 50 plotted)", cex = .85, pos = 4)
+text(x = -.05, y=ylimu[2]*0.95, labels = "Sample Paths (n=100)", cex = .95, pos = 4)
+text(x = -.05, y=ylimu[2]*0.8, labels = "(first 50 plotted)", cex = .85, pos = 4)
 par(mar=mar_l1)
 matplot( y = 0, x = 0, type="n", ylab="", xlab = "", main="", ylim = yliml, xlim = c(0,1))
 matlines(x=grid, y=FFSCB_t_band_s - hat_mu_s, col=1, lty=1, lwd=.85)
@@ -204,14 +204,14 @@ polygon(x=c(grid,rev(grid)), y=c(naive_t_band_s[,1]-hat_mu_s,rev(naive_t_band_s[
         col=gray(.75), border = gray(.75))
 legend("center", legend = c("FFSCB-t", "Bootstrap", expression(hat(B)[Ec])), 
        lty=c(1,2,3), bty="n", lwd = c(1), col=c("black"), cex = 1)
-legend(x = 0.35, y=yliml[1]*0.75, legend = "naive-t", pch=22, col=gray(.78), pt.bg = gray(.75), pt.cex = 1.75, cex = 1, bty="n")
+legend(x = 0.35, y=yliml[1]*0.65, legend = "naive-t", pch=22, col=gray(.78), pt.bg = gray(.75), pt.cex = 1.75, cex = 1, bty="n")
 #legend(x = 0.35, y=-0.12, legend = "naive-t", lty = 1, col=gray(.78), lwd=10, cex = .9, bty="n")
 mtext(text = "t", side = 1, line = 1.75)
-text(x = 0, y=yliml[2]*0.9, labels = "Centered Confidence Bands", cex = .95, pos = 4)
+text(x = -0.05, y=yliml[2]*0.95, labels = "Centered Confidence Bands", cex = .95, pos = 4)
 dev.off()
 ##
 pdf(file = paste0(path_plot, "Fig_SIM_DGPr.pdf"), width = width, height = height)
-par(mfrow=c(2,1), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=mar_u2)
+par(mfrow=c(2,1), family = "serif", ps=13, cex.main=1, font.main = 1, mar=mar_u2)
 matplot(y = sim.dat_r[,1:plot_max],  x = grid, lwd=.5, col=gray(.75), type="l", lty=1, 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu)
 lines(y=hat_mu_r,x=grid)
@@ -233,7 +233,7 @@ mtext(text = "t", side = 1, line = 1.75)
 dev.off()
 ##
 pdf(file = paste0(path_plot, "Fig_SIM_DGPs2r.pdf"), width = width, height = height)
-par(mfrow=c(2,1), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=mar_u3)
+par(mfrow=c(2,1), family = "serif", ps=13, cex.main=1, font.main = 1, mar=mar_u3)
 matplot(y = sim.dat_s2r[,1:plot_max],  x = grid, lwd=.5, col=gray(.75), type="l", lty=1, 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu)
 lines(y=hat_mu_s2r,x=grid)

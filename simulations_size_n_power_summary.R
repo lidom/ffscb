@@ -32,7 +32,7 @@ for(IWT in IWT_bool){
   for(DGP in DGP_seq){# IWT <- TRUE
     for(N in N_seq) {
       if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
-      for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 100; delta <- 0
+      for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 10; delta <- 0
         ## Load sim_df
         if(IWT){
           load(file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta, ".RData"))
