@@ -21,7 +21,7 @@ p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.05
-n_int        <- 5
+n_int        <- 4
 ##
 n_reps_H0    <- 20000
 n_reps_H1    <- 10000
@@ -61,15 +61,15 @@ for(DGP in DGP_seq) {
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1/4))
-        t0        <- grid[1]
+        t0        <- 0.5#grid[1]
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1/4))
-        t0        <- grid[1]
+        t0        <- 0.5#grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, 1/2, 1/4))
-        t0        <- grid[50]
+        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/2, 1/4))
+        t0        <- 0.5#grid[50]
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
