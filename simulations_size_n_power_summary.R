@@ -24,6 +24,8 @@ p             <- 101
 grid          <- make_grid(p, rangevals=c(0,1))
 ## 
 IWT_bool      <- c(FALSE, TRUE)
+##
+t0            <- 0.5
 
 
 ## Wrangling
@@ -37,12 +39,8 @@ for(IWT in IWT_bool){
         if(IWT){
           load(file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta, ".RData"))
         }else{
-          load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_Delta=", delta, ".RData"))
+          load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=", delta, ".RData"))
         }
-        # ## Compute which share of the difference between mu and mu0 was correctly found
-        # if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
-        # if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
-        # if(grepl("local", DGP)) { mu0 <- meanf_rect( grid, 0);  mu <- meanf_rect( grid, delta) }
         ##
         SimResults_tmp <- sim_df %>% 
           dplyr::group_by(band) %>% 
