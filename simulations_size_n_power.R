@@ -98,7 +98,7 @@ for(DGP in DGP_seq) {
                                    type=type, conf.level=(1-alpha.level), n_int=n_int, tol=tol), 
                    silent = TRUE)
           if(Error_Checker(b)){ check <- TRUE; cat("Error"); counter <- counter +1} else { check <- FALSE }
-          if(counter >= 5){stop("ERROR!")}
+          if(counter >= 15){stop("ERROR!")}
         }
         # plot(b); lines(x=grid, y=mu, col="blue"); lines(x=grid, y=mu0, lty=2, col="blue")
         ##
