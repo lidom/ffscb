@@ -5,7 +5,7 @@
 \title{Fast 'n' fair simultaneous confidence band (Gaussian)}
 \usage{
 make_band_FFSCB_z(x, diag.cov.x, tau, t0 = NULL, conf.level = 0.95,
-  n_int = 10)
+  n_int = 4, tol = NULL)
 }
 \arguments{
 \item{x}{Functional parameter estimate.}
@@ -18,7 +18,9 @@ make_band_FFSCB_z(x, diag.cov.x, tau, t0 = NULL, conf.level = 0.95,
 
 \item{conf.level}{confidence level (default: 0.95)}
 
-\item{n_int}{Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.}
+\item{n_int}{Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.}
+
+\item{tol}{tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().}
 }
 \description{
 Fast 'n' fair simultaneous confidence band (Gaussian)
@@ -30,7 +32,7 @@ N          <- 80
 grid       <- make_grid(p, rangevals=c(0,1))
 mu         <- meanf_poly(grid,c(0,1.1)) 
 names(mu)  <- grid
-cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1))
+cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
 sample     <- make_sample(mu,cov.m,N)
 
 # Compute the estimate and its covariance

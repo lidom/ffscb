@@ -28,7 +28,7 @@ cov.m_s2r    <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(
 
 ## Plots:
 N            <- 100
-n_int        <- 5
+n_int        <- 3
 seq(0,1,len=n_int+1)
 alpha.level  <- 0.05
 type         <- c("Bs", "BEc", "naive.t", "FFSCB.t")
