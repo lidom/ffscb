@@ -22,6 +22,7 @@ grid         <- make_grid(p, rangevals=c(0,1))
 type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.05
 n_int        <- 3
+tol          <- .Machine$double.eps^0.5
 ##
 n_reps_H0    <- 50000
 n_reps_H1    <- 10000
@@ -68,8 +69,7 @@ for(DGP in DGP_seq) {
         t0        <- 0#grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/2, 1/4))
-        # cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, .1, 1/4)); t0 <- .5
+        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/4, 1/4))
         t0        <- 0#grid[50]
       }
       ## check plot:
@@ -94,7 +94,7 @@ for(DGP in DGP_seq) {
           ##
           ## Confidence bands
           b <- try(confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 
-                                   type=type, conf.level=(1-alpha.level), n_int=n_int), 
+                                   type=type, conf.level=(1-alpha.level), n_int=n_int, tol=tol), 
                    silent = TRUE)
           if(Error_Checker(b)){ check <- TRUE; cat("Error") } else { check <- FALSE }
         }
@@ -109,10 +109,10 @@ for(DGP in DGP_seq) {
         exceedances       <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
         ## saving exceedances events per interval [0,1/2] and [1/2,1]
         if(n_int != 3){stop("The below code is written for n_int==3.")}
-        breaks           <- seq(0,1,len=n_int+1)
-        exceedances_int1 <- numeric(length(type))
-        exceedances_int2 <- numeric(length(type))
-        exceedances_int3 <- numeric(length(type))
+        breaks             <- seq(0,1,len=n_int+1)
+        exceedances_int1   <- numeric(length(type))
+        exceedances_int12  <- numeric(length(type))
+        exceedances_int123 <- numeric(length(type))
         ##
         for(j in 1:length(type)){
           exceed_tmp <- sapply(X   = grid[exceed_loc[,j]], 
@@ -121,9 +121,9 @@ for(DGP in DGP_seq) {
                                  c(cut(x=x, breaks=breaks, labels = c(1,2,3), include.lowest = TRUE),
                                    cut(x=x, breaks=breaks, labels = c(1,2,3), include.lowest = TRUE, right = FALSE)))})
           exceed_tmp <- unlist(exceed_tmp)
-          exceedances_int1[j] <- as.numeric(any(exceed_tmp == '1'))
-          exceedances_int2[j] <- as.numeric(any(exceed_tmp == '2'))
-          exceedances_int3[j] <- as.numeric(any(exceed_tmp == '3'))
+          exceedances_int1[j]   <- as.numeric(any(exceed_tmp == '1'))
+          exceedances_int12[j]  <- as.numeric(any(exceed_tmp == '1') | any(exceed_tmp == '2'))
+          exceedances_int123[j] <- as.numeric(any(exceed_tmp == '1') | any(exceed_tmp == '2') | any(exceed_tmp == '3'))
         }      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
@@ -162,11 +162,9 @@ for(DGP in DGP_seq) {
         sim_df <- dplyr::tibble(band      = as_factor(Band_type),# band types
                                 excd      = exceedances,         # was there an exceedance event at all?
                                 excd_i1   = exceedances_int1,    # was there an exceedance event in interval 1?
-                                excd_i2   = exceedances_int2,    # was there an exceedance event in interval 2?
-                                excd_i3   = exceedances_int3,    # was there an exceedance event in interval 3?
+                                excd_i2   = exceedances_int12,   # was there an exceedance event in interval 1 or 2?
+                                excd_i3   = exceedances_int123,  # was there an exceedance event in interval 1 or 2 or 3?
                                 excd_t0   = exceedances_t0,      # was there an exceedance event at t0?
-                                #n_cros_i1 = n_crossing_int1,     # number of band-crossing in interval 1?
-                                #n_cros_i2 = n_crossing_int2,     # number of band-crossing in interval 2?
                                 wdth      = avg_width)           # width of the bands 
         ## glimpse(sim_df)
         return(sim_df)
