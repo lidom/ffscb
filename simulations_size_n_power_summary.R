@@ -25,7 +25,7 @@ grid          <- make_grid(p, rangevals=c(0,1))
 ## 
 IWT_bool      <- c(FALSE, TRUE)
 ##
-t0            <- 0.5
+t0            <- 0
 
 
 ## Wrangling
