@@ -130,29 +130,6 @@ for(DGP in DGP_seq) {
         tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
         exceedances_t0  <- as.numeric(tmp_t0_up | tmp_t0_lo)
         ##
-        ## saving crossing (band vs. mu0) locations:
-        ## (If mu0 is completely in or out of the band, there is no crossing location.)
-        # n_crossing_int1 <- numeric(length(type))
-        # n_crossing_int2 <- numeric(length(type))
-        # for(j in 1:length(type)){
-        #   crossings_loc <- rep(FALSE, p)
-        #   ## 'ngbt0': number of gridpoints before t0:
-        #   if(which(grid==t0) != p){ ngbt0 <- (which(grid==t0)-1) }else{ ngbt0 <- 0 }
-        #   ## crossing locations with respect to the upper Bands:
-        #   tmp_cr_up  <- c(locate_crossings(mu0[1:which(grid==t0)],upper_Bands[1:which(grid==t0),j],type="down"),         # down-crossings (left of t0)
-        #                   ngbt0 + locate_crossings(mu0[which(grid==t0):p],upper_Bands[which(grid==t0):p,j],type="up"  )) #   up-crossings (right of t0)
-        #   ## crossing locations with respect to the lower Bands:
-        #   tmp_cr_lo  <- c(locate_crossings(mu0[1:which(grid==t0)],lower_Bands[1:which(grid==t0),j],type="up"  ),         # down-crossings (left of t0)
-        #                   ngbt0 + locate_crossings(mu0[which(grid==t0):p],lower_Bands[which(grid==t0):p,j],type="down")) #   up-crossings (right of t0)
-        #   ## all (sorted) crossing locations together:
-        #   tmp_cr_loc <- sort(c(tmp_cr_up, tmp_cr_lo))
-        #   ## save crossing locations (if any):
-        #   if( length(tmp_cr_loc)>0 ){ crossings_loc[tmp_cr_loc]  <- TRUE }
-        #   ##
-        #   crossing_intervals <- cut(x=grid[crossings_loc], breaks=seq(0,1,len=3), labels = c(1,2), include.lowest = TRUE)
-        #   n_crossing_int1[j] <- length(crossing_intervals[crossing_intervals == '1'])
-        #   n_crossing_int2[j] <- length(crossing_intervals[crossing_intervals == '2'])
-        # }
         ## widths of the bands:
         # intgr_widths_sqr  <- colSums((upper_Bands - lower_Bands)^2)*diff(grid)[1]
         avg_width  <- colMeans((upper_Bands - lower_Bands))
