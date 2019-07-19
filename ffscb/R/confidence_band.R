@@ -20,6 +20,7 @@
 #' @param grid.size This determines on how fine grid the bands will be constructed before converted as an `fd' object. This parameter is used only when 'x' is fd object and 'cov.x' is bifd object.
 #' @param Bs.sim.size This determines bootstrap sample size for Bs
 #' @param n_int Number of intervals for the piecewise linear confidence bounds.
+#' @param tol tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().
 #' @return confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.
 #' @references 
 #' \itemize{
@@ -62,7 +63,8 @@ confidence_band <- function(x,
                             conf.level  = 0.95, 
                             grid.size   = 200,
                             Bs.sim.size = 10000, 
-                            n_int       = 10){
+                            n_int       = 10,
+                            tol         = NULL){
   ### Check the data type ###
   if (inherits(x,"fd") & (inherits(cov.x,"bifd") | inherits(cov.x,"pca.fd") | inherits(cov.x,"eigen.fd"))) datatype="fd" else if
      ((inherits(x,"numeric") | inherits(x,"matrix"))  & (inherits(cov.x,"matrix") | inherits(cov.x,"list") | inherits(cov.x,"eigen") )) datatype="vector" else stop ("The format of data is unknown")
@@ -106,6 +108,10 @@ confidence_band <- function(x,
   ## Parameter estimate in first column
   result           <- as.matrix(x.v, ncol=1) 
   colnames(result) <- c("x")
+  
+  if(is.null(tol)){
+    tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25) used by the FFSCB functions
+  }
   
   ## Take loop for conf.level
   for (i in c(1:length(conf.level))){
@@ -153,7 +159,7 @@ confidence_band <- function(x,
 
     if ("FFSCB.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.z.u.",level), paste0("FFSCB.z.l.",level))
-      FFSCB.z          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m), conf.level=level, n_int=n_int)
+      FFSCB.z          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m), conf.level=level, n_int=n_int, tol=tol)
       result           <- cbind(result, x.v + FFSCB.z$band, x.v - FFSCB.z$band)
       colnames(result) <- tmp.colnames
     }
@@ -161,20 +167,13 @@ confidence_band <- function(x,
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
       if(df <= 100){
-        FFSCB.t          <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int)
+        FFSCB.t          <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int, tol=tol)
       }else{
-        FFSCB.t          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m),        conf.level=level, n_int=n_int)
+        FFSCB.t          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m),        conf.level=level, n_int=n_int, tol=tol)
       }
       result           <- cbind(result, x.v + FFSCB.t$band, x.v - FFSCB.t$band)
       colnames(result) <- tmp.colnames
     }
-    
-    # if ("minW.z" %in% type){
-    #   tmp.colnames     <- c(colnames(result), paste0("minW.z.u.",level), paste0("minW.z.l.",level))
-    #   band             <- make_band_minW_z(x=x.v, tau=tau, diag.cov=diag(cov.m), N=N, conf.level=level)
-    #   result           <- cbind(result, band[,3], band[,1]);
-    #   colnames(result) <- tmp.colnames
-    # }
 
   }
   if (datatype=="fd") {
