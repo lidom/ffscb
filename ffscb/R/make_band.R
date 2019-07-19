@@ -187,7 +187,7 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' @export
 make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_int=4, tol=NULL){
   ##
-  if(any(tau < 0.05)){warning("This method may not work if tau(t) is too small.")}
+  if(any(tau < 0.005)){warning("This method may not work if tau(t) is too small.")}
   ##
   result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x, conf.level=conf.level, n_int=n_int, tol=tol)
   band_m           <- cbind(x, x + result_tmp$band, x - result_tmp$band)
@@ -367,7 +367,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' @export
 make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, n_int=4, tol=NULL){
   ##
-  if(any(tau < 0.05)){warning("This method may not work if tau(t) is too small.")}
+  if(any(tau < 0.005)){warning("This method may not work if tau(t) is too small.")}
   ##
   if(df <= 100){
     result_tmp       <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov.x, df=df, conf.level=conf.level, n_int=n_int, tol=tol)
