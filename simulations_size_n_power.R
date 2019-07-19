@@ -61,15 +61,15 @@ for(DGP in DGP_seq) {
       names(mu0) <- grid
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1/4))
         t0        <- 0#grid[1]
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/4, 1/4))
         t0        <- 0#grid[1]
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/4, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
         t0        <- 0#grid[50]
       }
       ## check plot:
@@ -82,7 +82,8 @@ for(DGP in DGP_seq) {
       start_time <- Sys.time()
       ##
       res_mclapply <- mclapply(1:n_reps, function(reps) {
-        check <- TRUE
+        check   <- TRUE
+        counter <- 0
         while(check){
           ## Generate data
           dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
@@ -96,7 +97,8 @@ for(DGP in DGP_seq) {
           b <- try(confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 
                                    type=type, conf.level=(1-alpha.level), n_int=n_int, tol=tol), 
                    silent = TRUE)
-          if(Error_Checker(b)){ check <- TRUE; cat("Error") } else { check <- FALSE }
+          if(Error_Checker(b)){ check <- TRUE; cat("Error"); counter <- counter +1} else { check <- FALSE }
+          if(counter >= 5){stop("ERROR!")}
         }
         # plot(b); lines(x=grid, y=mu, col="blue"); lines(x=grid, y=mu0, lty=2, col="blue")
         ##
