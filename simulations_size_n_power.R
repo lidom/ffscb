@@ -24,7 +24,7 @@ alpha.level  <- 0.05
 n_int        <- 3
 tol          <- .Machine$double.eps^0.5
 ##
-n_reps_H0    <- 50000
+n_reps_H0    <- 40000
 n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
@@ -109,24 +109,12 @@ for(DGP in DGP_seq) {
         ##
         ## saving exceedances events ('at least one crossing occured?')
         exceedances       <- as.numeric(apply(exceed_loc, 2, function(x){any(x==TRUE)}))
-        ## saving exceedances events per interval [0,1/2] and [1/2,1]
-        if(n_int != 3){stop("The below code is written for n_int==3.")}
-        breaks             <- seq(0,1,len=n_int+1)
-        exceedances_int1   <- numeric(length(type))
-        exceedances_int12  <- numeric(length(type))
-        exceedances_int123 <- numeric(length(type))
         ##
-        for(j in 1:length(type)){
-          exceed_tmp <- sapply(X   = grid[exceed_loc[,j]], 
-                               FUN = function(x){unique(
-                                 ## The following assures that an exceedance at x=0.5 gets counted for both intervals [0,1/2] and [1/2,1]
-                                 c(cut(x=x, breaks=breaks, labels = c(1,2,3), include.lowest = TRUE),
-                                   cut(x=x, breaks=breaks, labels = c(1,2,3), include.lowest = TRUE, right = FALSE)))})
-          exceed_tmp <- unlist(exceed_tmp)
-          exceedances_int1[j]   <- as.numeric(any(exceed_tmp == '1'))
-          exceedances_int12[j]  <- as.numeric(any(exceed_tmp == '1') | any(exceed_tmp == '2'))
-          exceedances_int123[j] <- as.numeric(any(exceed_tmp == '1') | any(exceed_tmp == '2') | any(exceed_tmp == '3'))
-        }      
+        if(n_int != 3){stop("The following code is written for n_int==3.")}
+        ## saving exceedances events per interval int1=[0,1/3] and int1=[1,2/3]
+        exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
+        exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        ##      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
         tmp_t0_lo       <- lower_Bands[which(t0==grid),] > mu0[which(t0==grid)]
@@ -140,9 +128,8 @@ for(DGP in DGP_seq) {
         ## simulation data
         sim_df <- dplyr::tibble(band      = as_factor(Band_type),# band types
                                 excd      = exceedances,         # was there an exceedance event at all?
-                                excd_i1   = exceedances_int1,    # was there an exceedance event in interval 1?
-                                excd_i2   = exceedances_int12,   # was there an exceedance event in interval 1 or 2?
-                                excd_i3   = exceedances_int123,  # was there an exceedance event in interval 1 or 2 or 3?
+                                excd_i1   = exceedances_int1,    # was there an exceedance event in int1=[0,1/3]?
+                                excd_i2   = exceedances_int2,    # was there an exceedance event in int1=[0,2/3]?
                                 excd_t0   = exceedances_t0,      # was there an exceedance event at t0?
                                 wdth      = avg_width)           # width of the bands 
         ## glimpse(sim_df)
