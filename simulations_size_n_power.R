@@ -51,7 +51,7 @@ for(DGP in DGP_seq) {
       if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
     }
     ##
-    for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 100; delta <- 0.1
+    for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 10; delta <- 0
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
@@ -69,6 +69,7 @@ for(DGP in DGP_seq) {
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
         cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, 1/2, 1/4))
+        # cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(4/2, .1, 1/4)); t0 <- .5
         t0        <- 0#grid[50]
       }
       ## check plot:
