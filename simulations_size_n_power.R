@@ -24,12 +24,12 @@ alpha.level  <- 0.05
 n_int        <- 3
 tol          <- .Machine$double.eps^0.5
 ##
-n_reps_H0    <- 40000
+n_reps_H0    <- 50000
 n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
-                  "DGP3_shift","DGP3_scale","DGP3_local")[7:9]
+                  "DGP3_shift","DGP3_scale","DGP3_local")
 ##
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
@@ -62,15 +62,15 @@ for(DGP in DGP_seq) {
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1/4))
-        t0        <- 0#grid[1]
+        t0        <- 0
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/4, 1/4))
-        t0        <- 0#grid[1]
+        t0        <- 0
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
         cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
-        t0        <- 0#grid[50]
+        t0        <- 0
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
