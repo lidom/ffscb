@@ -158,7 +158,8 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
 #' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.
 #' @param conf.level confidence level (default: 0.95)
-#' @param n_int Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.
+#' @param n_int Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.
+#' @param tol tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
@@ -167,7 +168,7 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' grid       <- make_grid(p, rangevals=c(0,1))
 #' mu         <- meanf_poly(grid,c(0,1.1)) 
 #' names(mu)  <- grid
-#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1))
+#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample     <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -184,11 +185,11 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' matplot(y=b$band[,2:3], x=grid, lty=2)
 #' lines(x=grid, y=b$band[,1], lty=1)
 #' @export
-make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_int=10){
+make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_int=4, tol=NULL){
   ##
   if(any(tau < 0.05)){warning("This method may not work if tau(t) is too small.")}
   ##
-  result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x, conf.level=conf.level, n_int=n_int)
+  result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x, conf.level=conf.level, n_int=n_int, tol=tol)
   band_m           <- cbind(x, x + result_tmp$band, x - result_tmp$band)
   colnames(band_m) <- c("x", paste0("FFSCB.z.u.", conf.level), paste0("FFSCB.z.l.", conf.level))
   ##
@@ -203,14 +204,16 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 }
 
 
-.make_band_FFSCB_z <- function(tau, t0=NULL, diag.cov, conf.level=0.95, n_int=10){
+.make_band_FFSCB_z <- function(tau, t0=NULL, diag.cov, conf.level=0.95, n_int=4, tol=NULL){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
   tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
   tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
   knots       <- seq(0,1,len=(n_int + 1))
-  tol         <- .Machine$double.eps^0.25 # default accuracy for optimize() 
+  if(is.null(tol)){
+    tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
+  }
   if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0,tt)]}
   ##
   if(n_int == 1){# Case n_int=1 == constant band == Kac-Rice Band
@@ -236,8 +239,9 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     if(tau_init > 2*pi*(alpha.aux/2)/n_int){# if possible use the analytic solution
       c_v[const_int] <- sqrt(2) * sqrt(log(tau_init/(2*pi*(alpha.aux/2)/n_int))) 
     }else{
-      myfun1         <- function(c){c(exp(-c^2/2) * tau_init / (2*pi) - (alpha.aux/2)/n_int)^2}
-      c_v[const_int] <- stats::optimize(f = myfun1, interval = c(0,10), tol = tol)$minimum
+      myfun1         <- function(c1){c(exp(-c^2/2) * tau_init / (2*pi) - (alpha.aux/2)/n_int)}
+      # curve(myfun1, 0,5); abline(h=0)
+      c_v[const_int] <- stats::uniroot(f = myfun1, interval = c(0,10), extendInt = "downX", tol = tol)$root
     }
     ##
     if(const_int > 1){
@@ -253,11 +257,11 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
           intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
           intgr2 <- sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
           ##
-          res    <- c(intgr1 + intgr2 - (alpha.aux/2)/n_int)#^2
+          res    <- c(intgr1 + intgr2 - (alpha.aux/2)/n_int)
           return(res)
         }
-        # c_v[j] <- stats::optimize(f = myfunj, interval = c(-4,4), tol = tol)$minimum
-        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-4,4), extendInt = "upX", tol = tol)$root
+        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "upX", tol = tol)$root
       }
     }
     if(const_int < n_int){
@@ -273,11 +277,11 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
           intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
           intgr3 <- sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
           ##
-          res    <- c(intgr1 - intgr3 - (alpha.aux/2)/n_int)#^2
+          res    <- c(intgr1 - intgr3 - (alpha.aux/2)/n_int)
           return(res)
         }
-        #c_v[j] <- stats::optimize(f = myfunj, interval = c(-4,4), tol = tol)$minimum
-        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-4,4), extendInt = "downX", tol = tol)$root
+        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "downX", tol = tol)$root
       }
     }
     ## 
@@ -299,20 +303,28 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     if(t0>0){intgr2_star <- sum(fn2_star(t=tt[tt <= t0])) * diff(tt)[1]}else{intgr2_star <- 0}
     if(t0<1){intgr3_star <- sum(fn3_star(t=tt[t0 <  tt])) * diff(tt)[1]}else{intgr3_star <- 0}
     ##
-    optim_target <- c( (stats::pnorm(q=u_star_f(t0), lower.tail=F) + intgr1_star + intgr2_star - intgr3_star) - alpha.level/2)^2
+    optim_target <- c( (stats::pnorm(q=u_star_f(t0), lower.tail=FALSE) + intgr1_star + intgr2_star - intgr3_star) - alpha.level/2)
     band.eval    <- u_star_f(t=seq(0,1,len=length(tau)))
     ##
     return(list("optim_target"     = optim_target,
                 "band.eval"        = band.eval, 
-                "prob_t0"          = stats::pnorm(q=u_star_f(t0), lower.tail=F),
+                "prob_t0"          = stats::pnorm(q=u_star_f(t0), lower.tail=FALSE),
                 "a_star"           = (intgr1_star + intgr2_star - intgr3_star) 
                 ))
   }
   ##
-  opt_res <- stats::optimize(f = function(x){find_u(alpha.aux = x)$optim_target}, interval = c(0,alpha.level), tol=tol)$minimum
+  fu <- function(x){find_u(x)$optim_target}
+  # fu <- Vectorize(fu); curve(fu, .Machine$double.eps, 1); abline(h=0)
+  ##
+  opt_res <- stats::uniroot(f = fu, interval = c(.Machine$double.eps, 1), extendInt = "upX", tol=tol)$root
   band    <- find_u(opt_res)$band.eval * sqrt(diag.cov)
   prob_t0 <- find_u(opt_res)$prob_t0
   a_star  <- find_u(opt_res)$a_star
+  ##
+  if(abs(prob_t0 + a_star - alpha.level/2) > ( (alpha.level/2) / 25 ) ){
+    stop("Numeric equation solvers 'uniroot()' give too imprecise results. \nPlease, set the 'tol' argument smaller than the default value (<.Machine$double.eps^0.32).")
+  }
+  ##
   return(list("band"    = band,
               "prob_t0" = prob_t0,
               "a_star"  = a_star))
@@ -326,7 +338,8 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.
 #' @param df Degrees of freedom 
 #' @param conf.level confidence level (default: 0.95)
-#' @param n_int Number of equidistant intervals among which to allocate the type-I error rate (1-conf.level) in equal shares.
+#' @param n_int Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.
+#' @param tol tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().
 #' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
@@ -335,7 +348,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' grid       <- make_grid(p, rangevals=c(0,1))
 #' mu         <- meanf_poly(grid,c(0,1.1)) 
 #' names(mu)  <- grid
-#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1))
+#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample     <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -352,14 +365,14 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' matplot(y=b$band[,2:3], x=grid, lty=2)
 #' lines(x=grid, y=b$band[,1], lty=1)
 #' @export
-make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, n_int=10){
+make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, n_int=4, tol=NULL){
   ##
   if(any(tau < 0.05)){warning("This method may not work if tau(t) is too small.")}
   ##
   if(df <= 100){
-    result_tmp       <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov.x, df=df, conf.level=conf.level, n_int=n_int)
+    result_tmp       <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov.x, df=df, conf.level=conf.level, n_int=n_int, tol=tol)
   }else{
-    result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x,        conf.level=conf.level, n_int=n_int)
+    result_tmp       <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov.x,        conf.level=conf.level, n_int=n_int, tol=tol)
   }
   band_m           <- cbind(x, x + result_tmp$band, x - result_tmp$band)
   colnames(band_m) <- c("x", paste0("FFSCB.t.u.", conf.level), paste0("FFSCB.t.l.", conf.level))
@@ -375,14 +388,16 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
 }
 
 
-.make_band_FFSCB_t <- function(tau, t0=NULL, diag.cov, df, conf.level=0.95, n_int=10){
+.make_band_FFSCB_t <- function(tau, t0=NULL, diag.cov, df, conf.level=0.95, n_int=4, tol=NULL){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
   tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
   tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
   knots       <- seq(0,1,len=(n_int + 1))
-  tol         <- .Machine$double.eps^0.25 # default accuracy for optimize() 
+  if(is.null(tol)){
+    tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
+  }
   nu          <- df
   nup         <- nu+1
   if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0,tt)]}
@@ -410,8 +425,9 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     if(nu*(( (pi*alpha.aux) / ( tau_init *n_int) )^(-2/nu) -1) >0){# if possible use the analytic solution
       c_v[const_int] <- sqrt(nu*(( (pi*alpha.aux) / ( tau_init *n_int) )^(-2/nu) -1))
     }else{
-      myfun1         <- function(c1){c((tau_init/(2*pi))*(1+c1^2/nu)^(-nu/2)-(alpha.aux/2)/n_int)^2}
-      c_v[const_int] <- stats::optimize(f = myfun1, interval = c(0,10), tol = tol)$minimum
+      myfun1         <- function(c1){c((tau_init/(2*pi))*(1+c1^2/nu)^(-nu/2)-(alpha.aux/2)/n_int)}
+      # curve(myfun1, 0,5); abline(h=0)
+      c_v[const_int] <- stats::uniroot(f = myfun1, interval = c(0,10), extendInt = "downX", tol = tol)$root
     }
     ##
     if(const_int > 1){
@@ -430,11 +446,11 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
               stats::pt(q = (sum(c(c_v_sum,cj)) / afun_j(t,cj) ), df=nup) 
           }
           res <- ( (sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]  +
-                      sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]) - (alpha.aux/2)/n_int )#^2
+                      sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]) - (alpha.aux/2)/n_int )
           return(res)
         } 
-        #c_v[j] <- stats::optimize(f = myfunj, interval = c(-4,4), tol = tol)$minimum
-        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-4,4), extendInt = "upX", tol = tol)$root
+        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "upX", tol = tol)$root
       }
     }
     if(const_int < n_int){
@@ -454,11 +470,11 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
               stats::pt(q = (-sum(c(c_v_sum,cj)) / afun_j(t,cj) ), df=nup) 
           }
           res <- ( (sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]  -
-                      sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]) - (alpha.aux/2)/n_int )#^2
+                      sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]) - (alpha.aux/2)/n_int )
           return(res)
         } 
-        #c_v[j] <- stats::optimize(f = myfunj, interval = c(-4,4), tol = tol)$minimum
-        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-4,4), extendInt = "downX", tol = tol)$root
+        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "downX", tol = tol)$root
       }
     }
     ## 
@@ -489,25 +505,32 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     if(t0>0){intgr2_star <- sum(fn2_star(t=tt[tt <= t0])) * diff(tt)[1]}else{intgr2_star <- 0}
     if(t0<1){intgr3_star <- sum(fn3_star(t=tt[t0 <  tt])) * diff(tt)[1]}else{intgr3_star <- 0}
     ##
-    optim_target <- c( (stats::pt(q=u_star_f(t0), lower.tail=F, df = nu) + intgr1_star + intgr2_star - intgr3_star) - alpha.level/2)^2
+    optim_target <- c( (stats::pt(q=u_star_f(t0), lower.tail=FALSE, df = nu) + (intgr1_star + intgr2_star - intgr3_star)) - alpha.level/2 )
     band.eval    <- u_star_f(t=seq(0,1,len=length(tau)))
     ##
     return(list("optim_target"     = optim_target,
                 "band.eval"        = band.eval, 
-                "prob_t0"          = stats::pt(q=u_star_f(t0), lower.tail=F, df = nu),
+                "prob_t0"          = stats::pt(q=u_star_f(t0), lower.tail=FALSE, df = nu),
                 "a_star"           = (intgr1_star + intgr2_star - intgr3_star) 
                 ))
   }
   ##
-  opt_res <- stats::optimize(f = function(x){find_u(alpha.aux = x)$optim_target}, interval = c(0,alpha.level), tol=tol)$minimum
+  fu <- function(x){find_u(x)$optim_target}
+  # fu <- Vectorize(fu); curve(fu, .Machine$double.eps, 1); abline(h=0)
+  ##
+  opt_res <- stats::uniroot(f = fu, interval = c(.Machine$double.eps, 1), extendInt = "upX", tol=tol)$root
   band    <- find_u(opt_res)$band.eval * sqrt(diag.cov) 
   prob_t0 <- find_u(opt_res)$prob_t0
   a_star  <- find_u(opt_res)$a_star
+  ##
+  if(abs(prob_t0 + a_star - alpha.level/2) > ( (alpha.level/2) / 25 ) ){
+    stop("Numeric equation solvers 'uniroot()' give too imprecise results. \nPlease, set the 'tol' argument smaller than the default value (<.Machine$double.eps^0.32).")
+  }
+  ##
   return(list("band"    = band,
               "prob_t0" = prob_t0,
               "a_star"  = a_star))
 }
-
 
 
 # make_band_minW_z <- function(x, tau, diag.cov, N, conf.level=0.95, band_pen=1){
