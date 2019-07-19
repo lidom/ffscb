@@ -4,18 +4,6 @@
 ## Load packages 
 library("ffscb")
 
-
-## Lessons learnt from the below plottings: 
-## If prob_t0 + a_star is far from the chosen alpha, 
-## then something went wrong. Ususally, the assumptions on tau(t) are then not met. 
-## Problematic cases: tau(t)==0 or tau computed from very rough functions. 
-## The later can be cured/mitigated as following:
-## 1. set t0 to the smooth region. 
-## 2. choose a low number of intervals n_int => more averaging of tau(t) values. 
-##
-
-
-
 p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 delta        <- 0
@@ -28,7 +16,7 @@ cov.m_s2r    <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(
 
 ## Plots:
 N            <- 100
-n_int        <- 5
+n_int        <- 3
 seq(0,1,len=n_int+1)
 alpha.level  <- 0.05
 type         <- c("Bs", "BEc", "naive.t", "FFSCB.t")
