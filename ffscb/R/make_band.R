@@ -239,7 +239,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     if(tau_init > 2*pi*(alpha.aux/2)/n_int){# if possible use the analytic solution
       c_v[const_int] <- sqrt(2) * sqrt(log(tau_init/(2*pi*(alpha.aux/2)/n_int))) 
     }else{
-      myfun1         <- function(c1){c(exp(-c^2/2) * tau_init / (2*pi) - (alpha.aux/2)/n_int)}
+      myfun1         <- function(c1){c(exp(-c1^2/2) * tau_init / (2*pi) - (alpha.aux/2)/n_int)}
       # curve(myfun1, 0,5); abline(h=0)
       c_v[const_int] <- stats::uniroot(f = myfun1, interval = c(0,10), extendInt = "downX", tol = tol)$root
     }
@@ -316,7 +316,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   fu <- function(x){find_u(x)$optim_target}
   # fu <- Vectorize(fu); curve(fu, .Machine$double.eps, 1); abline(h=0)
   ##
-  opt_res <- stats::uniroot(f = fu, interval = c(.Machine$double.eps, 1), extendInt = "upX", tol=tol)$root
+  opt_res <- stats::uniroot(f = fu, interval = c(.Machine$double.eps, (alpha.level/2)), extendInt = "upX", tol=tol)$root
   band    <- find_u(opt_res)$band.eval * sqrt(diag.cov)
   prob_t0 <- find_u(opt_res)$prob_t0
   a_star  <- find_u(opt_res)$a_star
@@ -388,15 +388,6 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
 }
 
 
-
-# diag.cov=diag(hat.cov.mu_s); tau=hat.tau_s; t0=t0_s; df=N-1 
-# conf.level=(1-alpha.level); n_int=n_int
-# 
-# tau <- rep(5,length(hat.tau_s))
-# 
-# .make_band_FFSCB_t(tau=hat.tau_s, t0=t0_s, diag.cov=diag(hat.cov.mu_s), df=N-1, conf.level=0.95, n_int=n_int, tol=NULL)
-
-
 .make_band_FFSCB_t <- function(tau, t0=NULL, diag.cov, df, conf.level=0.95, n_int=4, tol=NULL){
   ##
   alpha.level <- 1-conf.level
@@ -435,7 +426,6 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
       c_v[const_int] <- sqrt(nu*(( (pi*alpha.aux) / ( tau_init *n_int) )^(-2/nu) -1))
     }else{ 
       myfun1         <- function(c1){c((tau_init/(2*pi))*(1+c1^2/nu)^(-nu/2)-(alpha.aux/2)/n_int)}
-      #myfun1         <- function(c1){c(stats::pt(q=c1, lower.tail=FALSE, df = nu)+(tau_init/(2*pi))*(1+c1^2/nu)^(-nu/2)-(alpha.aux/2)/n_int)}
       # curve(myfun1, 0,1); abline(h=0)
       c_v[const_int] <- stats::uniroot(f = myfun1, interval = c(0,10), extendInt = "downX", tol = tol)$root
     }
