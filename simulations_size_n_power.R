@@ -34,7 +34,7 @@ DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
-N_seq         <- c(10, 100)
+N_seq         <- c(10, 15, 100)[2]
 ## #########################################################
 
 ##
