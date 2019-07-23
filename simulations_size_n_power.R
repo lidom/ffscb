@@ -165,9 +165,9 @@ for(i in 1:3){
   for(dgp in c(paste0("DGP",i,"_scale"), paste0("DGP",i,"_local"))) {
     for(N in N_seq) {
       ##
-      load(file = paste0(my_path, "Simulation_Results/DGP",i,"_shift", "_N=", N, "_Delta=0.RData"))
+      load(file = paste0(my_path, "Simulation_Results/DGP",i,"_shift", "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=0.RData"))
       sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
-      save(sim_df, file = paste0(my_path, "Simulation_Results/", dgp, "_N=", N, "_Delta=0.RData"))
+      save(sim_df, file = paste0(my_path, "Simulation_Results/", dgp, "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=0.RData"))
       rm(sim_df)
     }
   }
