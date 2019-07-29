@@ -27,7 +27,6 @@ IWT_bool      <- c(FALSE, TRUE)
 ##
 t0            <- 0
 
-
 ## Wrangling
 for(IWT in IWT_bool){
   if(IWT){ IWT_SimResults_df <- NULL }else{ SimResults_df <- NULL}
@@ -70,6 +69,34 @@ for(IWT in IWT_bool){
     }
   }
 }
+
+t0                <- 1
+t01_SimResults_df <- NULL
+for(DGP in DGP_seq){
+  for(N in N_seq) {
+    if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+    for(delta in delta_seq) {# DGP <- "DGP3_local"; N <- 100; delta <- 0.08
+      load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_alpha=", alpha.level, "_t0=",t0, "_Delta=", delta, ".RData"))
+      ##
+      t01_SimResults_tmp <- sim_df %>% 
+        dplyr::group_by(band) %>% 
+        dplyr::summarise(rfrq_excd    = mean(excd),
+                         avg_width    = mean(wdth),
+                         n_rep        = unique(sim_df$n_rep),
+                         DGP          = unique(sim_df$DGP),
+                         delta        = unique(sim_df$delta),
+                         N            = unique(sim_df$N),
+                         alpha        = alpha.level) 
+      ##
+      ## Row-Binding all 'SimResults_tmp' data frames:
+      t01_SimResults_df <- t01_SimResults_tmp %>% 
+        dplyr::select(band, DGP, N, delta, n_rep, alpha, avg_width, rfrq_excd) %>% 
+        dplyr::bind_rows(t01_SimResults_df, .)
+    }
+  }
+}
+
+
 
 ## ###############################################
 ## Joining the aggregated simulation results

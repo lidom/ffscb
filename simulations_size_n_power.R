@@ -34,7 +34,7 @@ DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
-N_seq         <- c(15, 100)[2]
+N_seq         <- c(15, 100)[1]
 ## #########################################################
 
 ##
@@ -44,13 +44,14 @@ for(DGP in DGP_seq) {
   ##
   for(N in N_seq) {
     ##
-    if(any(DGP==c("DGP1_shift","DGP2_shift","DGP3_shift"))){
-      ## For H0 (i.e., delta_seq == 0 <=> mu0==mu ) only DGP*i*_shift is needed since 
-      ## DGP*i*_scale and DGP*i*_local equivalent for all i=1,2,3 if delta==0. 
-      if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
-    }else{
-      if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
-    }
+    # if(any(DGP==c("DGP1_shift","DGP2_shift","DGP3_shift"))){
+    #   ## For H0 (i.e., delta_seq == 0 <=> mu0==mu ) only DGP*i*_shift is needed since 
+    #   ## DGP*i*_scale and DGP*i*_local equivalent for all i=1,2,3 if delta==0. 
+    #   if( N==min(N_seq) ) delta_seq <- delta_Nsmall     else delta_seq <- delta_Nlarge     # Take the correct delta_seq corresponding to N
+    # }else{
+    #   if( N==min(N_seq) ) delta_seq <- delta_Nsmall[-1] else delta_seq <- delta_Nlarge[-1] # Take the correct delta_seq corresponding to N
+    # }
+    delta_seq <- delta_Nlarge[-1]
     ##
     for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 10; delta <- 0
       ## 
