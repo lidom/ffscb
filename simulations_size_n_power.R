@@ -19,7 +19,7 @@ Error_Checker <- function(x){
 ## Setup ####################################################
 p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
-type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
+type         <- c("Bs", "BEc", "KR.z", "KR.t", "FFSCB.z", "FFSCB.t")[5:6]
 alpha.level  <- 0.05
 n_int        <- 3
 tol          <- .Machine$double.eps^0.5
@@ -34,7 +34,7 @@ DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
-N_seq         <- c(10, 15, 100)[2]
+N_seq         <- c(15, 100)[2]
 ## #########################################################
 
 ##
@@ -62,15 +62,15 @@ for(DGP in DGP_seq) {
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1/4))
-        t0        <- 0
+        t0        <- 1
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/4, 1/4))
-        t0        <- 0
+        t0        <- 1
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
         cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
-        t0        <- 0
+        t0        <- 1
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
@@ -112,8 +112,10 @@ for(DGP in DGP_seq) {
         ##
         if(n_int != 3){stop("The following code is written for n_int==3.")}
         ## saving exceedances events per interval int1=[0,1/3] and int1=[1,2/3]
-        exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
-        exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        # exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
+        # exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 2/3]==TRUE)}))
+        exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3]==TRUE)}))
         ##      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      

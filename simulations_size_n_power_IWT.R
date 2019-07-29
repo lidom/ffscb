@@ -30,12 +30,12 @@ n_reps_H1    <- 5000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
-                  "DGP3_shift","DGP3_scale","DGP3_local")[7:9]
+                  "DGP3_shift","DGP3_scale","DGP3_local")
 ##
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
-N_seq         <- c(10,100)
+N_seq         <- c(15,100)
 ## #########################################################
 
 ##
@@ -62,16 +62,16 @@ for(DGP in DGP_seq) {
       names(mu0) <- grid
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1, 1/4))
-        t0        <- grid[1]
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1/4))
+        t0        <- 0
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1, 1/4))
-        t0        <- grid[1]
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/4, 1/4))
+        t0        <- 0
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern.warp.power, grid=grid, cov.f.params=c(1/2, 1, 1/4, 5))
-        t0        <- grid[p]
+        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
+        t0        <- 0
       }
       ## check plot:
       # sim.dat  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
@@ -82,22 +82,8 @@ for(DGP in DGP_seq) {
       start_time   <- Sys.time()
       ##
       res_mclapply <- mclapply(1:n_reps, function(reps) {
-        check <- TRUE
-        while(check){
-          ## Generate data
-          dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
-          ## Estimate mean, covariance, and tau
-          hat_mu      <- rowMeans(dat)
-          hat.cov     <- crossprod(t(dat - hat_mu)) / (N-1)
-          hat.cov.mu  <- hat.cov / N
-          hat.tau     <- tau_fun(dat) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
-          ##
-          ## Confidence bands
-          b <- try(confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 
-                                   type=type, conf.level=(1-alpha.level), n_int=n_int), 
-                   silent = TRUE)
-          if(Error_Checker(b)){ check <- TRUE } else { check <- FALSE }
-        }
+        ## Generate data
+        dat         <- make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
         ##
         ## ==============================================================================================
         ## IWT1 function from the fdatest package
