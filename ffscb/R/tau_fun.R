@@ -53,6 +53,39 @@ tau_fun <- function(x){
 
 
 
+#' R-function for computing tau from fragmentary functional data.
+#' Caution: only one single fragment per function is assumed.
+#' 
+#' @param X_mat Matrix of sample functions (nrow=p, ncol=n, p=number of discretization point, n=sample size). 
+#' @param grid_mat Matrix (pxn) of grid points over which the fragments are observed.
+# @export
+tau_fragments <- function(X_mat, grid_mat){
+  ##
+  ## Caution: this function assumes *single* fragments per function
+  ##
+  ## Assumed dimensions:
+  ## ncol == sample size (i.e., number of functions)
+  ## nrow == number of discretization points
+  ##
+  ## Check [0,1] restriction
+  if(!all(range(grid_mat, na.rm = TRUE) == c(0,1))){stop("grid_mat has to be within [0,1]")}
+  ##
+  X_scl <- t(apply(X_mat, 1, scale))
+  ## Derivative
+  X_p <- matrix(NA, nrow=nrow(X_mat), ncol=ncol(X_mat))
+  for(j in 1:ncol(X_p)){
+    fn <- stats::splinefun(x = grid_mat[,j], y = X_scl[,j], method = "natural")
+    X_p[!is.na(grid_mat[,j]),j] <- pracma::fderiv(f = fn, x = c(stats::na.omit(grid_mat[,j])), n = 1, 
+                                                  h = diff(c(stats::na.omit(grid_mat[,j])))[1], method = "central")
+  }
+  ##
+  tau_t    <- apply(X_p, 1, function(x) stats::sd(x, na.rm = TRUE) )
+  return(tau_t)
+}
+
+
+
+
 
 #' This function computes the estimate of the roughness parameter function tau(t) using the covariance function (given as a matrix) of the functional data.
 #' 

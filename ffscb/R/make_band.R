@@ -43,6 +43,14 @@ make_band_naive_t <- function(cov, conf.level, df, fd.eval.grid.size=200){
   } else return(band.eval)
 }
 
+make_band_naive_t_fragm <- function(diag.cov, conf.level, df){
+  ##
+  band.eval  <- qt2(conf.level,df) * sqrt(diag.cov)
+  ##
+  return(band.eval)
+}
+
+
 # Kac-Rice simultaneous confidence band (Gaussian)
 # 
 # @param x Functional parameter estimate.

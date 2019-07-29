@@ -10,6 +10,7 @@ Imports:
      CompQuadForm,
      fda,
      splines,
-     pracma
+     pracma,
+     rmutil
 LazyData: TRUE
 RoxygenNote: 6.1.1

@@ -50,6 +50,55 @@ make_sample <- function(mean.v,cov.m,N,dist="rnorm",...){
 }
 
 
+#' Make sample (for simulation)
+#'
+#' @param mean.v Mean-Vector (discretized mean function)
+#' @param cov.m Covariance-Matrix (discretized covariance function)
+#' @param N Number of functions
+#' @param fragm_len Number of evaluation points per fragment
+#' @param grid Grid in [0,1]. Default: grid <- seq(0,1,length(mean.v))
+#' @param dist Distribution
+#' @param ... further parameters for dist
+#' @export
+make_fragm_sample <- function(mean.v, cov.m, N, fragm_len, grid=NULL, dist="rnorm",...){
+  p           <- length(mean.v)
+  if(is.null(grid)) grid <- seq(0,1,len=p)
+  if( (p - fragm_len) >= p*0.95) stop("The value of 'fragm_len' is too small.")
+  if( (p - fragm_len) <=   0   ) stop("The value of 'fragm_len' is too large.")
+  if (p != dim(cov.m)[1] | p != dim(cov.m)[2]) stop("Dimensions of mean vector and cov. matrix do not match")
+  dist        <- get(dist, mode <- "function", envir <- parent.frame())
+  Z           <- matrix(dist(N*p,...),nrow=p,ncol=N)
+  eigen.cov.m <- eigen(cov.m);
+  eigen.cov.m$values[eigen.cov.m$values<0] <- 0
+  X           <- crossprod( t(eigen.cov.m$vectors), crossprod(diag(sqrt(eigen.cov.m$values)), Z)) + mean.v
+  rownames(X) <- names(mean.v)
+  colnames(X) <- paste0("x",c(1:N))
+  ##
+  alpha       <- .3 
+  beta        <- .3
+  s           <- alpha+beta
+  m           <- alpha/s
+  lower_v     <- 1 + rmutil::rbetabinom(N, size = (p-fragm_len-1), m = m, s = s)
+  upper_v     <- lower_v + fragm_len
+  ##
+  X_frag_mat    <- X
+  grid_frag_mat <- matrix(grid, nrow(X_frag_mat), ncol(X_frag_mat))
+  for(i in 1:N){
+    lo <- lower_v[i %% length(lower_v) + 1]
+    up <- upper_v[i %% length(lower_v) + 1]
+    ##
+    X_frag_mat[   grid < grid[lo], i] <- NA
+    X_frag_mat[   grid > grid[up], i] <- NA
+    ##
+    grid_frag_mat[grid < grid[lo], i] <- NA
+    grid_frag_mat[grid > grid[up], i] <- NA
+  }
+  ##
+  return(list("X_frag_mat"    = X_frag_mat,
+              "grid_frag_mat" = grid_frag_mat))
+}
+
+
 #' Locate crossings
 #'
 #' @param x_vec Vector which might cross the given threshold
