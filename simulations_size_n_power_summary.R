@@ -546,10 +546,10 @@ colnames(nom_sl_mat) <- c("[0,1/3]_nom", "[0,2/3]_nom", "[0,1]_nom")
 dplyr::bind_cols(SR_FFt_Fair_df, as_tibble(nom_sl_mat)) %>% 
   select(Scenario, N, band,
          `[0,1/3]_emp`, `[0,1/3]_nom`,
-         `[0,2/3]_emp`, `[0,2/3]_nom`, 
-         `[0,1]_emp`  , `[0,1]_nom`) %>% 
+         `[0,2/3]_emp`, `[0,2/3]_nom`  # , `[0,1]_emp`  , `[0,1]_nom`
+         ) %>% 
   dplyr::filter(band == "FF-t") %>% 
-  xtable(., digits=c(NA,NA,NA,NA,3,2,3,2,3,2)) %>% 
+  xtable(., digits=c(NA,NA,NA,NA,4,4,4,4)) %>% 
   print(., include.rownames=FALSE)
 
 
@@ -642,9 +642,13 @@ alpha_i1_n100_s2r <- p_t0_n100_s2r + a_star_n100_s2r * (1/3)
 alpha_i2_n100_s2r <- p_t0_n100_s2r + a_star_n100_s2r * (2/3)
 ##
 
-round(c(quantile(alpha_i1_n15_s, probs = c(.1,.9)), quantile(alpha_i2_n15_s, probs = c(.1,.9))),d=3)# 0.028 0.034 0.039 0.042 
-
-
+round(c(quantile(alpha_i1_n15_s,  probs = c(.1,.9)), quantile(alpha_i2_n15_s,  probs = c(.1,.9))),d=3)# 0.0282 0.0337 0.0391 0.0419 
+round(c(quantile(alpha_i1_n15_r,  probs = c(.1,.9)), quantile(alpha_i2_n15_r,  probs = c(.1,.9))),d=3)# 0.0176 0.0180 0.0338 0.0340
+round(c(quantile(alpha_i1_n15_s2r,probs = c(.1,.9)), quantile(alpha_i2_n15_s2r,probs = c(.1,.9))),d=4)# 0.0253 0.0298 0.0377 0.0399 
+##
+round(c(quantile(alpha_i1_n100_s,  probs = c(.1,.9)), quantile(alpha_i2_n100_s,  probs = c(.1,.9))),d=4)# 0.0290 0.0310 0.0395 0.0405 
+round(c(quantile(alpha_i1_n100_r,  probs = c(.1,.9)), quantile(alpha_i2_n100_r,  probs = c(.1,.9))),d=4)# 0.0176 0.0177 0.0338 0.0339 
+round(c(quantile(alpha_i1_n100_s2r,probs = c(.1,.9)), quantile(alpha_i2_n100_s2r,probs = c(.1,.9))),d=4)# 0.0259 0.0274 0.0379 0.0387  
 
 
 MSE_i1_n15_s   <- mean(c(alpha_i1_n15_s   - nom_sgnf_levels_n15_s[1])^2)
@@ -700,7 +704,7 @@ for(DGP in DGP_seq){
   delta_seq <- delta_Nlarge
   for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 500; delta <- 0
     ## Load sim_df
-    load(file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=0.5_fragm=40_Delta=", delta, ".RData"))
+    load(file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=0_fragm=40_Delta=", delta, ".RData"))
     ##
     SimRes_fragm_tmp <- sim_df %>% 
       dplyr::group_by(band) %>% 
