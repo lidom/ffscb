@@ -681,3 +681,40 @@ quantile(alpha_i1_n15_s, probs = c(.1,.9))
 
 boxplot(alpha_i1_n15_s); points(x=1,y=nom_sgnf_levels_n15_s[1])
 
+
+
+
+
+## #############################################
+## Partially obseved / fragmentary functions
+## #############################################
+
+## Wrangling
+SimRes_fragm_df <- NULL
+for(DGP in DGP_seq){
+  N         <- 500
+  delta_seq <- delta_Nlarge
+  for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 500; delta <- 0
+    ## Load sim_df
+    load(file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=0.5_fragm=40_Delta=", delta, ".RData"))
+    ##
+    SimRes_fragm_tmp <- sim_df %>% 
+      dplyr::group_by(band) %>% 
+      dplyr::summarise(rfrq_excd    = mean(excd),
+                       avg_width    = mean(wdth),
+                       n_rep        = unique(sim_df$n_rep),
+                       DGP          = unique(sim_df$DGP),
+                       delta        = unique(sim_df$delta),
+                       N            = unique(sim_df$N),
+                       alpha        = alpha.level) 
+    ##
+    ## Row-Binding all 'SimResults_tmp' data frames:
+    SimRes_fragm_df <- SimRes_fragm_tmp %>% 
+      dplyr::filter(delta==0) %>% 
+      dplyr::select(band, DGP, N, delta, rfrq_excd) %>% 
+      dplyr::bind_rows(SimRes_fragm_df, .)
+  }
+}
+
+
+
