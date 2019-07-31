@@ -642,6 +642,10 @@ alpha_i1_n100_s2r <- p_t0_n100_s2r + a_star_n100_s2r * (1/3)
 alpha_i2_n100_s2r <- p_t0_n100_s2r + a_star_n100_s2r * (2/3)
 ##
 
+round(c(quantile(alpha_i1_n15_s, probs = c(.1,.9)), quantile(alpha_i2_n15_s, probs = c(.1,.9))),d=3)# 0.028 0.034 0.039 0.042 
+
+
+
 
 MSE_i1_n15_s   <- mean(c(alpha_i1_n15_s   - nom_sgnf_levels_n15_s[1])^2)
 MSE_i2_n15_s   <- mean(c(alpha_i2_n15_s   - nom_sgnf_levels_n15_s[2])^2)
