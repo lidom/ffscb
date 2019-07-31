@@ -21,15 +21,15 @@ p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 type         <- c("KR.z", "KR.t", "FFSCB.z", "FFSCB.t")
 alpha.level  <- 0.05
-n_int        <- 3
+n_int        <- 10
 tol          <- .Machine$double.eps^0.5
 ##
-n_reps_H0    <- 50000
+n_reps_H0    <- 10000
 n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
                   "DGP2_shift","DGP2_scale","DGP2_local", 
-                  "DGP3_shift","DGP3_scale","DGP3_local_2")
+                  "DGP3_shift","DGP3_scale","DGP3_local")[4]
 ##
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
@@ -52,7 +52,7 @@ for(DGP in DGP_seq) {
       delta_seq <- delta_Nlarge[-1] 
     }
     ##
-    for(delta in delta_seq) {# DGP <- "DGP3_local"; N <- N; fragm_len <- fragm_len_v[1]; delta <- 0
+    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- N; fragm_len <- fragm_len_v[1]; delta <- 0
       ## 
       if(grepl("shift", DGP)) { mu0 <- meanf_shift(grid, 0);  mu <- meanf_shift(grid, delta) }
       if(grepl("scale", DGP)) { mu0 <- meanf_scale(grid, 0);  mu <- meanf_scale(grid, delta) }
@@ -62,24 +62,33 @@ for(DGP in DGP_seq) {
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1/4))
-        t0        <- 0.5
+        t0        <- 0
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
         cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/4, 1/4))
-        t0        <- 0.5
+        t0        <- 0
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
         cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
-        t0        <- 0.5
+        t0        <- 0
       }
       ## check plot:
-      # sim.dat  <-  make_fragm_sample(mean.v = mu, cov.m = cov.m, N = N, fragm_len = fragm_len, dist = "rnorm")
-      # matplot(x=0,y=0,ylim=range(sim.dat$X_frag_mat,na.rm=TRUE),xlim=range(grid), type="n")
-      # for(i in 1:10){
-      #   lines(x = sim.dat$grid_frag_mat[,i], y = sim.dat$X_frag_mat[,i])
-      # }
-      # N_frag             <- apply(sim.dat$X_frag_mat, 1, function(x) length(c(na.omit(x))))
+      # dat  <-  make_fragm_sample(mean.v = mu, cov.m = cov.m, N = N, fragm_len = fragm_len, dist = "rnorm")
+      # # matplot(x=0,y=0,ylim=range(dat$X_frag_mat,na.rm=TRUE),xlim=range(grid), type="n")
+      # # for(i in 1:10){
+      # #   lines(x = dat$grid_frag_mat[,i], y = dat$X_frag_mat[,i])
+      # # }
+      # N_frag             <- apply(dat$X_frag_mat, 1, function(x) length(c(na.omit(x))))
       # min(N_frag); N_frag
+      # ## Estimate mean, covariance, and tau
+      # hat_mu          <- rowMeans(dat$X_frag_mat, na.rm = TRUE)
+      # hat_cov         <- ffscb:::cov_partial_fd(dat$X_frag_mat)# image(hat_cov)
+      # N_frag          <- apply(dat$X_frag_mat, 1, function(x) length(c(na.omit(x))))
+      # hat_diag_cov_mu <- diag(hat_cov) / min(N_frag)
+      # hat_tau         <- ffscb:::tau_fragments(X_mat = dat$X_frag_mat, grid_mat = dat$grid_frag_mat)
+      # b <- ffscb:::confidence_band_fragm(x=hat_mu, diag.cov.x = hat_diag_cov_mu, tau=hat_tau, t0=t0, df=min(N_frag)-1,
+      #                                    type=type, conf.level=(1-alpha.level), n_int=n_int, tol=tol)
+      # matplot(x = grid, y = b[,grepl("FFSCB.t",colnames(b))] - mu0, type="l", col=1, lty=c(1,1)); abline(h=0)
       ## 
       ## Number of Monte-Carlo repetitions
       n_reps     <- ifelse(delta==0, n_reps_H0, n_reps_H1)
@@ -96,7 +105,7 @@ for(DGP in DGP_seq) {
           hat_mu          <- rowMeans(dat$X_frag_mat, na.rm = TRUE)
           hat_cov         <- ffscb:::cov_partial_fd(dat$X_frag_mat)# image(hat_cov)
           N_frag          <- apply(dat$X_frag_mat, 1, function(x) length(c(na.omit(x))))
-          hat_diag_cov_mu <- diag(hat_cov) / N_frag
+          hat_diag_cov_mu <- diag(hat_cov) / min(N_frag)
           hat_tau         <- ffscb:::tau_fragments(X_mat = dat$X_frag_mat, grid_mat = dat$grid_frag_mat)
           ##
           ## Confidence bands
