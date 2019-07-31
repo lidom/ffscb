@@ -119,9 +119,9 @@ Size_and_Power_df <- dplyr::bind_rows(SRes_df, IWT_SRes_df) %>%
 ## Size 'n' Power df
 ## ###############################################
 
-## n=15
+## n=15 and t0=0
 Size_and_Power_n15_df <- Size_and_Power_df %>% 
-  filter(N==15) %>% 
+  filter(N==15) %>% # only for N==15, since the delta sequences for N=100 are different
   select(-alpha, -n_rep, -avg_width) %>% 
   spread(delta, rfrq_excd) %>% 
   select(DGP, N, band, `0`:`0.45`) %>%
@@ -129,7 +129,7 @@ Size_and_Power_n15_df <- Size_and_Power_df %>%
   arrange(DGP, N, band) 
 #Size_and_Power_n15_df %>% print(n=Inf)
 
-## n=100
+## n=100 and t0=0
 Size_and_Power_n100_df <- Size_and_Power_df %>% 
   filter(N==100) %>% 
   select(-alpha, -n_rep, -avg_width) %>% 
@@ -139,6 +139,33 @@ Size_and_Power_n100_df <- Size_and_Power_df %>%
   arrange(DGP, N, band) 
 #Size_and_Power_n100_df %>% print(n=Inf)
 
+## n=15 and t0=1
+Size_and_Power_n15_t01_df <- t01_SimResults_df %>% 
+  filter(N==15) %>% # only for N==15, since the delta sequences for N=100 are different
+  select(-alpha, -n_rep, -avg_width) %>% 
+  spread(delta, rfrq_excd) %>% 
+  select(DGP, N, band, `0`:`0.45`) %>%
+  mutate_at(4:9, round, 3) %>% 
+  mutate(band = fct_recode(band, 
+                           "FF_z_t01" = "FFSCB.z",
+                           "FF_t_t01" = "FFSCB.t")) %>% 
+  arrange(DGP, N, band) 
+#Size_and_Power_n15_t01_df %>% print(n=Inf)
+
+## n=100 and t0=1
+Size_and_Power_n100_t01_df <- t01_SimResults_df %>% 
+  filter(N==100) %>% # only for N==15, since the delta sequences for N=100 are different
+  select(-alpha, -n_rep, -avg_width) %>% 
+  spread(delta, rfrq_excd) %>% 
+  select(DGP, N, band, `0`:`0.1`) %>%
+  mutate_at(4:9, round, 3) %>% 
+  mutate(band = fct_recode(band, 
+                           "FF_z_t01" = "FFSCB.z",
+                           "FF_t_t01" = "FFSCB.t")) %>%
+  arrange(DGP, N, band) 
+#Size_and_Power_n100_t01_df %>% print(n=Inf)
+
+
 Size_n15_df <- Size_and_Power_n15_df %>% 
   filter(grepl("_shift", Size_and_Power_n15_df$DGP)) %>% 
   select(DGP, band, N, `0`) %>% 
@@ -146,12 +173,26 @@ Size_n15_df <- Size_and_Power_n15_df %>%
   mutate(DGP     = c("DGP1","DGP2","DGP3")) %>% 
   select(DGP, N, FFSCB.t, KR.t, IWT, BEc, Bs)
 
+Size_n15_t01_df <- Size_and_Power_n15_t01_df %>% 
+  filter(grepl("_shift", Size_and_Power_n15_t01_df$DGP)) %>% 
+  select(DGP, band, N, `0`) %>% 
+  spread(band, `0`) %>% 
+  mutate(DGP     = c("DGP1","DGP2","DGP3")) %>% 
+  select(DGP, N, FF_t_t01)
+
 Size_n100_df <- Size_and_Power_n100_df %>% 
   filter(grepl("_shift", Size_and_Power_n100_df$DGP)) %>% 
   select(DGP, band, N, `0`) %>% 
   spread(band, `0`) %>% 
   mutate(DGP   = c("DGP1","DGP2","DGP3")) %>% 
   select(DGP, N, FFSCB.t, KR.t, IWT, BEc, Bs)
+
+Size_n100_t01_df <- Size_and_Power_n100_t01_df %>% 
+  filter(grepl("_shift", Size_and_Power_n100_t01_df$DGP)) %>% 
+  select(DGP, band, N, `0`) %>% 
+  spread(band, `0`) %>% 
+  mutate(DGP     = c("DGP1","DGP2","DGP3")) %>% 
+  select(DGP, N, FF_t_t01)
   
 Size_df     <- dplyr::bind_rows(Size_n15_df, Size_n100_df)
 
@@ -171,9 +212,55 @@ AvgWidth_df <- Size_and_Power_df %>%
          BEc_w     = BEc,
          Bs_w      = Bs)
 
+
 ## Table for size and average width:
 full_join( Size_df, AvgWidth_df %>% select(-FFSCB_z_w, -KR_z_w))
 
+library("xtable")
+Size_and_Power_n15_df %>% 
+  mutate(DGP = fct_recode(DGP, 
+                          "Mean1 Cov1" = "DGP1_shift",
+                          "Mean2 Cov1" = "DGP1_scale",
+                          "Mean3 Cov1" = "DGP1_local",
+                          "Mean1 Cov2" = "DGP2_shift",
+                          "Mean2 Cov2" = "DGP2_scale",
+                          "Mean3 Cov2" = "DGP2_local",
+                          "Mean1 Cov3" = "DGP3_shift",
+                          "Mean2 Cov3" = "DGP3_scale",
+                          "Mean3 Cov3" = "DGP3_local")) %>% 
+  mutate(band = fct_recode(band, 
+                          "FF-t"  = "FFSCB.t",
+                          "FF-z"  = "FFSCB.z",
+                          "Boots" = "Bs"),
+         N    = as.factor(N)) %>% 
+  rename(Scenario = DGP) %>% 
+  filter(grepl(pattern = "Cov3",x = .$Scenario)) %>% 
+  rowwise() %>% mutate(`Avg.Power` = mean(c(`0.05`, `0.15`, `0.25`, `0.35`, `0.45`))) %>% 
+  xtable(., digits=3) %>% 
+  print(., include.rownames=FALSE)
+
+
+Size_and_Power_n100_df %>% 
+  mutate(DGP = fct_recode(DGP, 
+                          "Mean1 Cov1" = "DGP1_shift",
+                          "Mean2 Cov1" = "DGP1_scale",
+                          "Mean3 Cov1" = "DGP1_local",
+                          "Mean1 Cov2" = "DGP2_shift",
+                          "Mean2 Cov2" = "DGP2_scale",
+                          "Mean3 Cov2" = "DGP2_local",
+                          "Mean1 Cov3" = "DGP3_shift",
+                          "Mean2 Cov3" = "DGP3_scale",
+                          "Mean3 Cov3" = "DGP3_local")) %>% 
+  mutate(band = fct_recode(band, 
+                           "FF-t"  = "FFSCB.t",
+                           "FF-z"  = "FFSCB.z",
+                           "Boots" = "Bs"),
+         N    = as.factor(N)) %>% 
+  rename(Scenario = DGP) %>% 
+  filter(grepl(pattern = "Cov3",x = .$Scenario)) %>% 
+  rowwise() %>% mutate(`Avg.Power` = mean(c(`0.02`, `0.04`, `0.06`, `0.08`, `0.1`))) %>% 
+  xtable(., digits=3) %>% 
+  print(., include.rownames=FALSE)
 
 ## ###################
 ## Power plots
@@ -233,7 +320,7 @@ axis(1, at=seq(0,1,len=6))
 axis(2, at=seq(0,1,len=6)); box()
 matlines(y = mu_shift,  x = grid, col=1, lty=c(1,2))
 legend("topleft", title="Mean functions",legend=c(expression(paste(theta," (",Delta==0.1,")")),expression(paste(theta[0]))), lty=c(2,1), bty="n",cex =1.5)
-mtext(text = "Shift (Mean1)", side = 3, line = .75)
+mtext(text = "Mean1 (shift)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75, cex = 1)
 ##
 par(mar=mar_l1)
@@ -259,6 +346,8 @@ legend("topleft", title="Power (avg.)",
        pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
 abline(h=0.05); text(x = 0.085, y = 0.02, labels = expression(paste(alpha==0.05)), cex=1.4)
 mtext(text = expression(Delta), side = 1, line = 2.05)
+text(x = .09, y = 0.185, labels = "*Caution:", pos=3, srt = 90, cex=1.5, adj = c(0,0))
+text(x = .1,  y = 0.4, labels = "Inflated type-I error rates", pos=3, srt = 90, cex=1.5, adj = c(0,0))
 ##
 par(mar=mar_u1)
 matplot(y = mu_scale,  x = grid, col=1, lty=c(1,2), 
@@ -266,7 +355,7 @@ matplot(y = mu_scale,  x = grid, col=1, lty=c(1,2),
 matlines(y = mu_scale,  x = grid, col=1, lty=c(1,2))
 legend("topleft", title="Mean functions",legend=c(expression(paste(theta," (",Delta==0.1,")")),expression(paste(theta[0]))), lty=c(2,1), bty="n",cex =1.5)
 axis(1, at=seq(0,1,len=6)); box()
-mtext(text = "Scale (Mean2)", side = 3, line = .75)
+mtext(text = "Mean2 (scale)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75)
 ##
 par(mar=mar_l1)
@@ -294,7 +383,7 @@ matplot(y = mu_local,  x = grid, col=1, lty=c(1,2),
 matlines(y = mu_local,  x = grid, col=1, lty=c(1,2))
 legend("topleft", title="Mean functions", legend=c(expression(paste(theta," (",Delta==0.1,")")),expression(paste(theta[0]))), lty=c(2,1), bty="n",cex =1.5)
 axis(1, at=seq(0,1,len=6)); box()
-mtext(text = "Local (Mean3)", side = 3, line = .75)
+mtext(text = "Mean3 (local)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75)
 ##
 par(mar=mar_l1)
@@ -319,10 +408,84 @@ dev.off()
 
 
 
-
 ## ####################
 ## Fairness
 ## ####################
+
+
+## Wrangling
+SimResFair_df <- NULL
+for(DGP in DGP_seq){
+  for(N in N_seq) {
+    if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+    for(delta in delta_seq) {# DGP <- "DGP3_local"; N <- 100; delta <- 0.08
+      ## Load sim_df
+      load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_alpha=", alpha.level, "_t0=0_Delta=", delta, ".RData"))
+      ##
+      SimResFair_tmp <- sim_df %>% 
+        dplyr::group_by(band) %>% 
+        dplyr::summarise(rfrq_excd    = mean(excd),
+                         rfrq_excd_i1 = mean(excd_i1),
+                         rfrq_excd_i2 = mean(excd_i2),
+                         avg_width    = mean(wdth),
+                         n_rep        = unique(sim_df$n_rep),
+                         DGP          = unique(sim_df$DGP),
+                         delta        = unique(sim_df$delta),
+                         N            = unique(sim_df$N),
+                         alpha        = alpha.level) 
+      ##
+      ## Row-Binding all 'SimResults_tmp' data frames:
+      SimResFair_df <- SimResFair_tmp %>% 
+        dplyr::filter(delta==0) %>% 
+        dplyr::select(band, DGP, N, rfrq_excd, rfrq_excd_i1, rfrq_excd_i2) %>% 
+        dplyr::bind_rows(SimResFair_df, .)
+    }
+  }
+}
+
+SR_Fair_df <- SimResFair_df %>% 
+  mutate(band = factor(band, level = c("FFSCB.t", "FFSCB.z", "KR.t", "KR.z", 
+                                       "BEc", "Bs")),
+         band = fct_recode(band, 
+                           "FF-t"  = "FFSCB.t",
+                           "FF-z"  = "FFSCB.z",
+                           "KR-t"  = "KR.t",
+                           "KR-z"  = "KR.z",
+                           "Boots" = "Bs"),
+         DGP  = factor(DGP, levels = c("DGP1_shift", "DGP1_scale", "DGP1_local", 
+                                       "DGP2_shift", "DGP2_scale", "DGP2_local", 
+                                       "DGP3_shift", "DGP3_scale", "DGP3_local")),
+         DGP  = fct_recode(DGP, 
+                           "Mean1 Cov1" = "DGP1_shift",
+                           "Mean2 Cov1" = "DGP1_scale",
+                           "Mean3 Cov1" = "DGP1_local",
+                           "Mean1 Cov2" = "DGP2_shift",
+                           "Mean2 Cov2" = "DGP2_scale",
+                           "Mean3 Cov2" = "DGP2_local",
+                           "Mean1 Cov3" = "DGP3_shift",
+                           "Mean2 Cov3" = "DGP3_scale",
+                           "Mean3 Cov3" = "DGP3_local"), 
+         N    = factor(N, level=c("15","100"))) %>% 
+  #dplyr::select(DGP, N, band, rfrq_excd_i1, rfrq_excd_i2, rfrq_excd) %>% 
+  dplyr::rename(`[0,1/3]_emp` = rfrq_excd_i1, 
+                `[0,2/3]_emp` = rfrq_excd_i2, 
+                `[0,1]_emp`   = rfrq_excd) 
+
+
+SR_FFt_Fair_df <- SR_Fair_df %>%
+  dplyr::filter(band == "FF-t" | band == "KR-t" | band == "BEc", grepl("Mean1", .$DGP)) %>% 
+  rename(Scenario = DGP) %>% 
+  mutate(Scenario = fct_recode(Scenario,
+                               "Cov1" = "Mean1 Cov1",
+                               "Cov2" = "Mean1 Cov2",
+                               "Cov3" = "Mean1 Cov3")) %>% 
+  dplyr::arrange(N, Scenario, band) %>% 
+  dplyr::select(Scenario, N, band, `[0,1/3]_emp`, `[0,2/3]_emp`, `[0,1]_emp`)  
+# SR_FFt_Fair_df
+
+
+
+## computing the 'true' p_t0 and \mathfrak{a}^\star values
 p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 delta        <- 0
@@ -350,45 +513,171 @@ b_n15_s2r  <- make_band_FFSCB_t(x = mu, diag.cov.x = diag(cov.mu_s2r),tau = tau_
 b_n100_s   <- make_band_FFSCB_t(x = mu, diag.cov.x = diag(cov.mu_s),  tau = tau_s,  t0 = t0, df =100-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
 b_n100_r   <- make_band_FFSCB_t(x = mu, diag.cov.x = diag(cov.mu_r),  tau = tau_r,  t0 = t0, df =100-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
 b_n100_s2r <- make_band_FFSCB_t(x = mu, diag.cov.x = diag(cov.mu_s2r),tau = tau_s2r,t0 = t0, df =100-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+## interval-wise nominal significance levels
+nom_sgnf_levels_n15_s    <-    b_n15_s$prob_t0  + c(   b_n15_s$a_star*(1/3),    b_n15_s$a_star*(2/3),    b_n15_s$a_star)
+nom_sgnf_levels_n15_r    <-    b_n15_r$prob_t0  + c(   b_n15_r$a_star*(1/3),    b_n15_r$a_star*(2/3),    b_n15_r$a_star)
+nom_sgnf_levels_n15_s2r  <-  b_n15_s2r$prob_t0  + c( b_n15_s2r$a_star*(1/3),  b_n15_s2r$a_star*(2/3),  b_n15_s2r$a_star)
+nom_sgnf_levels_n100_s   <-   b_n100_s$prob_t0  + c(  b_n100_s$a_star*(1/3),   b_n100_s$a_star*(2/3),   b_n100_s$a_star)
+nom_sgnf_levels_n100_r   <-   b_n100_r$prob_t0  + c(  b_n100_r$a_star*(1/3),   b_n100_r$a_star*(2/3),   b_n100_r$a_star)
+nom_sgnf_levels_n100_s2r <- b_n100_s2r$prob_t0  + c(b_n100_s2r$a_star*(1/3), b_n100_s2r$a_star*(2/3), b_n100_s2r$a_star)
 ##
-sgnf_levels_n15_s    <- b_n15_s$prob_t0    + c(b_n15_s$a_star*(1/3),    b_n15_s$a_star*(2/3),    b_n15_s$a_star)
-sgnf_levels_n15_r    <- b_n15_r$prob_t0    + c(b_n15_r$a_star*(1/3),    b_n15_r$a_star*(2/3),    b_n15_r$a_star)
-sgnf_levels_n15_s2r  <- b_n15_s2r$prob_t0  + c(b_n15_s2r$a_star*(1/3),  b_n15_s2r$a_star*(2/3),  b_n15_s2r$a_star)
-sgnf_levels_n100_s   <- b_n100_s$prob_t0   + c(b_n100_s$a_star*(1/3),   b_n100_s$a_star*(2/3),   b_n100_s$a_star)
-sgnf_levels_n100_r   <- b_n100_r$prob_t0   + c(b_n100_r$a_star*(1/3),   b_n100_r$a_star*(2/3),   b_n100_r$a_star)
-sgnf_levels_n100_s2r <- b_n100_s2r$prob_t0 + c(b_n100_s2r$a_star*(1/3), b_n100_s2r$a_star*(2/3), b_n100_s2r$a_star)
+nom_sl_mat <- rbind(nom_sgnf_levels_n15_s,
+                    nom_sgnf_levels_n15_s,
+                    nom_sgnf_levels_n15_s,
+                    nom_sgnf_levels_n15_r,
+                    nom_sgnf_levels_n15_r,
+                    nom_sgnf_levels_n15_r,
+                    nom_sgnf_levels_n15_s2r,
+                    nom_sgnf_levels_n15_s2r,
+                    nom_sgnf_levels_n15_s2r,
+                    nom_sgnf_levels_n100_s,
+                    nom_sgnf_levels_n100_s,
+                    nom_sgnf_levels_n100_s,
+                    nom_sgnf_levels_n100_r,
+                    nom_sgnf_levels_n100_r,
+                    nom_sgnf_levels_n100_r,
+                    nom_sgnf_levels_n100_s2r,
+                    nom_sgnf_levels_n100_s2r,
+                    nom_sgnf_levels_n100_s2r)
 ##
-sl_mat <- rbind(sgnf_levels_n15_s,
-                sgnf_levels_n15_r,
-                sgnf_levels_n15_s2r,
-                sgnf_levels_n100_s,
-                sgnf_levels_n100_r,
-                sgnf_levels_n100_s2r)
-##
-Size_and_Power_df %>% 
-  filter(band=="FFSCB.t", delta==0,
-         grepl("_shift",Size_and_Power_df$DGP)) %>% 
-  arrange(N, DGP) %>% 
-  mutate(esl_1 = round(rfrq_excd_i1,3),
-         esl_2 = round(rfrq_excd_i2,3),
-         esl_3 = round(rfrq_excd,3),
-         sl_1  = round(sl_mat[,1],2),
-         sl_2  = round(sl_mat[,2],2),
-         sl_3  = round(sl_mat[,3],2)) %>% 
-  select(DGP, N, band, esl_1, esl_2, esl_3, sl_1, sl_2, sl_3) 
-# select(DGP, N, band, esl_1, sl_1, esl_2, sl_2, esl_3, sl_3) 
+colnames(nom_sl_mat) <- c("[0,1/3]_nom", "[0,2/3]_nom", "[0,1]_nom")
 
 
-Size_and_Power_df %>% 
-  filter(band=="KR.t", delta==0,
-         grepl("_shift",Size_and_Power_df$DGP)) %>% 
-  arrange(N, DGP) %>% 
-  mutate(esl_1 = round(rfrq_excd_i1,3),
-         esl_2 = round(rfrq_excd_i2,3),
-         esl_3 = round(rfrq_excd,3),
-         sl_1  = round(sl_mat[,1],2),
-         sl_2  = round(sl_mat[,2],2),
-         sl_3  = round(sl_mat[,3],2)) %>% 
-  select(DGP, N, band, esl_1, esl_2, esl_3, sl_1, sl_2, sl_3) 
-# select(DGP, N, band, esl_1, sl_1, esl_2, sl_2, esl_3, sl_3) 
+dplyr::bind_cols(SR_FFt_Fair_df, as_tibble(nom_sl_mat)) %>% 
+  select(Scenario, N, band,
+         `[0,1/3]_emp`, `[0,1/3]_nom`,
+         `[0,2/3]_emp`, `[0,2/3]_nom`, 
+         `[0,1]_emp`  , `[0,1]_nom`) %>% 
+  dplyr::filter(band == "FF-t") %>% 
+  xtable(., digits=c(NA,NA,NA,NA,3,2,3,2,3,2)) %>% 
+  print(., include.rownames=FALSE)
+
+
+
+reps         <- 5000
+N            <- 15
+p_t0_n15_s   <- numeric(reps)
+for(r in 1:reps){
+  dat           <- make_sample(mean.v = mu, cov.m = cov.m_s, N=N)
+  hat_mu        <- rowMeans(dat)
+  hat.cov       <- crossprod(t(dat - hat_mu)) / (N-1)
+  hat.cov.mu    <- hat.cov / N
+  hat.tau       <- tau_fun(dat)
+  FF_t_band     <- make_band_FFSCB_t(x=hat_mu, diag.cov.x=diag(hat.cov.mu),  tau=hat.tau,  t0=t0, df=N-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+  p_t0_n15_s[r] <- FF_t_band$prob_t0
+}
+p_t0_n15_r   <- numeric(reps)
+for(r in 1:reps){
+  dat           <- make_sample(mean.v = mu, cov.m = cov.m_r, N=N)
+  hat_mu        <- rowMeans(dat)
+  hat.cov       <- crossprod(t(dat - hat_mu)) / (N-1)
+  hat.cov.mu    <- hat.cov / N
+  hat.tau       <- tau_fun(dat)
+  FF_t_band     <- make_band_FFSCB_t(x=hat_mu, diag.cov.x=diag(hat.cov.mu),  tau=hat.tau,  t0=t0, df=N-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+  p_t0_n15_r[r] <- FF_t_band$prob_t0
+}
+p_t0_n15_s2r   <- numeric(reps)
+for(r in 1:reps){
+  dat           <- make_sample(mean.v = mu, cov.m = cov.m_s2r, N=N)
+  hat_mu        <- rowMeans(dat)
+  hat.cov       <- crossprod(t(dat - hat_mu)) / (N-1)
+  hat.cov.mu    <- hat.cov / N
+  hat.tau       <- tau_fun(dat)
+  FF_t_band     <- make_band_FFSCB_t(x=hat_mu, diag.cov.x=diag(hat.cov.mu),  tau=hat.tau,  t0=t0, df=N-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+  p_t0_n15_s2r[r] <- FF_t_band$prob_t0
+}
+N <- 100
+p_t0_n100_s   <- numeric(reps)
+for(r in 1:reps){
+  dat           <- make_sample(mean.v = mu, cov.m = cov.m_s, N=N)
+  hat_mu        <- rowMeans(dat)
+  hat.cov       <- crossprod(t(dat - hat_mu)) / (N-1)
+  hat.cov.mu    <- hat.cov / N
+  hat.tau       <- tau_fun(dat)
+  FF_t_band     <- make_band_FFSCB_t(x=hat_mu, diag.cov.x=diag(hat.cov.mu),  tau=hat.tau,  t0=t0, df=N-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+  p_t0_n100_s[r] <- FF_t_band$prob_t0
+}
+p_t0_n100_r   <- numeric(reps)
+for(r in 1:reps){
+  dat           <- make_sample(mean.v = mu, cov.m = cov.m_r, N=N)
+  hat_mu        <- rowMeans(dat)
+  hat.cov       <- crossprod(t(dat - hat_mu)) / (N-1)
+  hat.cov.mu    <- hat.cov / N
+  hat.tau       <- tau_fun(dat)
+  FF_t_band     <- make_band_FFSCB_t(x=hat_mu, diag.cov.x=diag(hat.cov.mu),  tau=hat.tau,  t0=t0, df=N-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+  p_t0_n100_r[r] <- FF_t_band$prob_t0
+}
+p_t0_n100_s2r   <- numeric(reps)
+for(r in 1:reps){
+  dat           <- make_sample(mean.v = mu, cov.m = cov.m_s2r, N=N)
+  hat_mu        <- rowMeans(dat)
+  hat.cov       <- crossprod(t(dat - hat_mu)) / (N-1)
+  hat.cov.mu    <- hat.cov / N
+  hat.tau       <- tau_fun(dat)
+  FF_t_band     <- make_band_FFSCB_t(x=hat_mu, diag.cov.x=diag(hat.cov.mu),  tau=hat.tau,  t0=t0, df=N-1, conf.level = 1-alpha.level, n_int = n_int, tol = tol)
+  p_t0_n100_s2r[r] <- FF_t_band$prob_t0
+}
+
+a_star_n15_s    <- alpha.level - p_t0_n15_s    
+a_star_n15_r    <- alpha.level - p_t0_n15_r  
+a_star_n15_s2r  <- alpha.level - p_t0_n15_s2r 
+a_star_n100_s   <- alpha.level - p_t0_n100_s   
+a_star_n100_r   <- alpha.level - p_t0_n100_r   
+a_star_n100_s2r <- alpha.level - p_t0_n100_s2r
+
+
+## interval-wise empirical significance levels 
+alpha_i1_n15_s   <- p_t0_n15_s   + a_star_n15_s   * (1/3)
+alpha_i2_n15_s   <- p_t0_n15_s   + a_star_n15_s   * (2/3)
+alpha_i1_n15_r   <- p_t0_n15_r   + a_star_n15_r   * (1/3)
+alpha_i2_n15_r   <- p_t0_n15_r   + a_star_n15_r   * (2/3)
+alpha_i1_n15_s2r <- p_t0_n15_s2r + a_star_n15_s2r * (1/3)
+alpha_i2_n15_s2r <- p_t0_n15_s2r + a_star_n15_s2r * (2/3)
+#
+alpha_i1_n100_s   <- p_t0_n100_s   + a_star_n100_s   * (1/3)
+alpha_i2_n100_s   <- p_t0_n100_s   + a_star_n100_s   * (2/3)
+alpha_i1_n100_r   <- p_t0_n100_r   + a_star_n100_r   * (1/3)
+alpha_i2_n100_r   <- p_t0_n100_r   + a_star_n100_r   * (2/3)
+alpha_i1_n100_s2r <- p_t0_n100_s2r + a_star_n100_s2r * (1/3)
+alpha_i2_n100_s2r <- p_t0_n100_s2r + a_star_n100_s2r * (2/3)
+##
+
+
+MSE_i1_n15_s   <- mean(c(alpha_i1_n15_s   - nom_sgnf_levels_n15_s[1])^2)
+MSE_i2_n15_s   <- mean(c(alpha_i2_n15_s   - nom_sgnf_levels_n15_s[2])^2)
+MSE_i1_n15_r   <- mean(c(alpha_i1_n15_r   - nom_sgnf_levels_n15_r[1])^2)
+MSE_i2_n15_r   <- mean(c(alpha_i2_n15_r   - nom_sgnf_levels_n15_r[2])^2)
+MSE_i1_n15_s2r <- mean(c(alpha_i1_n15_s2r - nom_sgnf_levels_n15_s2r[1])^2)
+MSE_i2_n15_s2r <- mean(c(alpha_i2_n15_s2r - nom_sgnf_levels_n15_s2r[2])^2)
+##
+MSE_i1_n100_s   <- mean(c(alpha_i1_n100_s   - nom_sgnf_levels_n100_s[1])^2)
+MSE_i2_n100_s   <- mean(c(alpha_i2_n100_s   - nom_sgnf_levels_n100_s[2])^2)
+MSE_i1_n100_r   <- mean(c(alpha_i1_n100_r   - nom_sgnf_levels_n100_r[1])^2)
+MSE_i2_n100_r   <- mean(c(alpha_i2_n100_r   - nom_sgnf_levels_n100_r[2])^2)
+MSE_i1_n100_s2r <- mean(c(alpha_i1_n100_s2r - nom_sgnf_levels_n100_s2r[1])^2)
+MSE_i2_n100_s2r <- mean(c(alpha_i2_n100_s2r - nom_sgnf_levels_n100_s2r[2])^2)
+
+
+c(MSE_i1_n15_s, MSE_i2_n15_s,
+  MSE_i1_n15_r, MSE_i2_n15_r,
+  MSE_i1_n15_s2r, MSE_i2_n15_s2r,
+  ##
+  MSE_i1_n100_s, MSE_i2_n100_s,
+  MSE_i1_n100_r, MSE_i2_n100_r,
+  MSE_i1_n100_s2r, MSE_i2_n100_s2r)
+
+signif(
+c(4.547503e-06, 1.136876e-06, 
+  2.517864e-07, 6.294677e-08, 
+  3.646458e-06, 9.116144e-07, 
+  ##
+  5.784553e-07, 1.446138e-07, 
+  1.566453e-07, 3.916154e-08,
+  4.210575e-07, 1.052644e-07)
+, digits = 2)
+
+
+quantile(alpha_i1_n15_s, probs = c(.1,.9))
+
+boxplot(alpha_i1_n15_s); points(x=1,y=nom_sgnf_levels_n15_s[1])
 
