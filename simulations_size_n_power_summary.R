@@ -262,9 +262,9 @@ Size_and_Power_n100_df %>%
   xtable(., digits=3) %>% 
   print(., include.rownames=FALSE)
 
-## ###################
-## Power plots
-## ###################
+## ################### ## ################### ## ################### 
+## Power plots         ## Power plots         ## Power plots         
+## ################### ## ################### ## ################### 
 
 mu_shift   <- cbind(meanf_shift(grid, 0), meanf_shift(grid, .1))
 mu_scale   <- cbind(meanf_scale(grid, 0), meanf_scale(grid, .1))
@@ -295,12 +295,8 @@ AvgPWR_IWT_DGP3_local   <- mean(as.numeric(DGP3_local[grepl("IWT",    DGP3_local
 ## Plots
 width     <- 8.5
 height    <- 6
-mar_u1    <- c(2.5, 2, 2.5, 0.05)
-mar_l1    <- c(3.1, 2, 0.5, 0.05)
-mar_u2    <- c(2.5, 1.1, 2.5, 0.10)
-mar_l2    <- c(3.1, 1.1, 0.5, 0.10)
-mar_u3    <- c(2.5, 1.0, 2.5, 0.12)
-mar_l3    <- c(3.1, 1.0, 0.5, 0.12)
+mar_u     <- c(0.5, 2, 2.5, 0.05)#c(3.5, 2, 2.5, 0.05)
+mar_l     <- c(4.1, 2, 2.5, 0.05)
 ##
 ylimu     <- range(mu_shift, mu_scale, mu_local)
 yliml     <- range(DGP3_shift[,-1], DGP3_scale[,-1], DGP3_local[,-1])
@@ -309,7 +305,7 @@ path_plot <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/
 ## 
 pdf(file = paste0(path_plot, "Fig_SIM_PWR.pdf"), width = width, height = height)
 layout(mat = matrix(c(1:6), nrow=2, ncol=3),
-       heights = c(1, 2),   # Heights of the two rows
+       heights = c(1, 2.5),   # Heights of the two rows
        widths = c(1, 1, 1)) # Widths of the two columns
 
 #layout.show(6)
@@ -323,14 +319,14 @@ legend("topleft", title="Mean functions",legend=c(expression(paste(theta," (",De
 mtext(text = "Mean1 (shift)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75, cex = 1)
 ##
-par(mar=mar_l1)
+par(mar=mar_l)
 # FFSCB.t ==  4
 # KR.t    ==  3
 # BEc     ==  0
 # Bs      ==  5
 # IWT     ==  6
-matplot(x=delta_Nlarge, y=t(DGP3_shift[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5)
-axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
+matplot(x=delta_Nlarge, y=t(DGP3_shift[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+axis(1,at=as.numeric(delta_Nlarge), labels = c("0","0.02","0.04","0.06","0.08","0.1"))
 axis(2, at=c(0,0.05,0.2,0.4,0.6,0.8,1),labels = c("0",expression(alpha),"0.2","0.4","0.6","0.8","1"));box()
 my_order <- order(c(AvgPWR_FFt_DGP3_shift, 
                     AvgPWR_KRt_DGP3_shift, 
@@ -340,16 +336,16 @@ my_order <- order(c(AvgPWR_FFt_DGP3_shift,
 legend("topleft", title="Power (avg.)", 
        legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_shift,")"),
                   paste0("KR-t (",  AvgPWR_KRt_DGP3_shift,")"), 
-                  expression(paste(B[Ec]," (0.36)")), # AvgPWR_BEc_DGP3_shift
+                  eval(substitute( expression(paste(B[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_shift) )),
                   paste0("Boots* (", AvgPWR_Boots_DGP3_shift,")"), 
                   paste0("IWT (",   AvgPWR_IWT_DGP3_shift,")"))[my_order], 
        pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
 abline(h=0.05); text(x = 0.085, y = 0.02, labels = expression(paste(alpha==0.05)), cex=1.4)
-mtext(text = expression(Delta), side = 1, line = 2.05)
+mtext(text = expression(Delta), side = 1, line = 3)
 text(x = .09, y = 0.185, labels = "*Caution:", pos=3, srt = 90, cex=1.5, adj = c(0,0))
 text(x = .1,  y = 0.4, labels = "Inflated type-I error rates", pos=3, srt = 90, cex=1.5, adj = c(0,0))
 ##
-par(mar=mar_u1)
+par(mar=mar_u)
 matplot(y = mu_scale,  x = grid, col=1, lty=c(1,2), 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu, type="n")
 matlines(y = mu_scale,  x = grid, col=1, lty=c(1,2))
@@ -358,8 +354,8 @@ axis(1, at=seq(0,1,len=6)); box()
 mtext(text = "Mean2 (scale)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75)
 ##
-par(mar=mar_l1)
-matplot(x=delta_Nlarge, y=t(DGP3_scale[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5)
+par(mar=mar_l)
+matplot(x=delta_Nlarge, y=t(DGP3_scale[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
 axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
 box()
 my_order <- order(c(AvgPWR_FFt_DGP3_scale, 
@@ -370,14 +366,14 @@ my_order <- order(c(AvgPWR_FFt_DGP3_scale,
 legend("topleft", title="Power (avg.)", 
        legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_scale,")"), 
                   paste0("KR-t (",  AvgPWR_KRt_DGP3_scale,")"), 
-                  expression(paste(B[Ec]," (0.15)")), # AvgPWR_BEc_DGP3_scale
+                  eval(substitute( expression(paste(B[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_scale) )),
                   paste0("Boots* (", AvgPWR_Boots_DGP3_scale,")"),
                   paste0("IWT (",   AvgPWR_IWT_DGP3_scale,")"))[my_order], 
        pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
 abline(h=0.05)
-mtext(text = expression(Delta), side = 1, line = 2.05)
+mtext(text = expression(Delta), side = 1, line = 3)
 ##
-par(mar=mar_u1)
+par(mar=mar_u)
 matplot(y = mu_local,  x = grid, col=1, lty=c(1,2), 
         ylab="", xlab = "t", main="", axes=F, ylim = ylimu, type="n")
 matlines(y = mu_local,  x = grid, col=1, lty=c(1,2))
@@ -386,8 +382,8 @@ axis(1, at=seq(0,1,len=6)); box()
 mtext(text = "Mean3 (local)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75)
 ##
-par(mar=mar_l1)
-matplot(x=delta_Nlarge, y=t(DGP3_local[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5)
+par(mar=mar_l)
+matplot(x=delta_Nlarge, y=t(DGP3_local[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
 axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
 box()
 my_order <- order(c(AvgPWR_FFt_DGP3_local, 
@@ -398,12 +394,12 @@ my_order <- order(c(AvgPWR_FFt_DGP3_local,
 legend("topleft", title="Power (avg.)", 
        legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_local,")"),
                   paste0("KR-t (",  AvgPWR_KRt_DGP3_local,")"), 
-                  expression(paste(B[Ec]," (0.30)")), # AvgPWR_BEc_DGP3_local
+                  eval(substitute( expression(paste(B[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_local) )), 
                   paste0("Boots* (", AvgPWR_Boots_DGP3_local,")"), 
                   paste0("IWT (",   AvgPWR_IWT_DGP3_local,")"))[my_order], 
        pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
 abline(h=0.05)
-mtext(text = expression(Delta), side = 1, line = 2.05)
+mtext(text = expression(Delta), side = 1, line = 3)
 dev.off()
 
 
@@ -693,16 +689,22 @@ boxplot(alpha_i1_n15_s); points(x=1,y=nom_sgnf_levels_n15_s[1])
 
 
 
-## #############################################
-## Partially obseved / fragmentary functions
-## #############################################
+## ############################################# ## #############################################
+## Partially observed / fragmentary functions    ## Partially observed / fragmentary functions
+## ############################################# ## #############################################
 
 ## Wrangling
+DGP_seq         <- c("DGP1_shift","DGP1_scale","DGP1_local",
+                   "DGP2_shift","DGP2_scale","DGP2_local", 
+                   "DGP3_shift","DGP3_scale","DGP3_local")
+delta_Nlarge    <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 SimRes_fragm_df <- NULL
+N               <- 500
+alpha.level     <- 0.05
+delta_seq       <- delta_Nlarge
+##
 for(DGP in DGP_seq){
-  N         <- 500
-  delta_seq <- delta_Nlarge
-  for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 500; delta <- 0
+  for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 500; delta <- 0.02
     ## Load sim_df
     load(file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=0_fragm=40_Delta=", delta, ".RData"))
     ##
@@ -718,9 +720,199 @@ for(DGP in DGP_seq){
     ##
     ## Row-Binding all 'SimResults_tmp' data frames:
     SimRes_fragm_df <- SimRes_fragm_tmp %>% 
-      dplyr::filter(delta==0) %>% 
       dplyr::select(band, DGP, N, delta, rfrq_excd) %>% 
       dplyr::bind_rows(SimRes_fragm_df, .)
+  }
+}
+
+
+Size_and_Power_fragm_df <- SimRes_fragm_df %>% 
+  select(-N) %>% 
+  spread(delta, rfrq_excd) %>% 
+  select(DGP, band, `0`:`0.1`) %>%
+  mutate_at(3:8, round, 3) %>% 
+  mutate(band = factor(band, level = c("FFSCB.t", "FFSCB.z", "KR.t", "KR.z", "BEc", "Bs")),
+         band = fct_recode(band, 
+                           "FF-t"  = "FFSCB.t",
+                           "FF-z"  = "FFSCB.z",
+                           "KR-t"  = "KR.t",
+                           "KR-z"  = "KR.z",
+                           "Boots" = "Bs"),
+         DGP  = factor(DGP, levels = c("DGP1_shift", "DGP1_scale", "DGP1_local", 
+                                       "DGP2_shift", "DGP2_scale", "DGP2_local", 
+                                       "DGP3_shift", "DGP3_scale", "DGP3_local")),
+         DGP  = fct_recode(DGP, 
+                           "Mean1 Cov1" = "DGP1_shift",
+                           "Mean2 Cov1" = "DGP1_scale",
+                           "Mean3 Cov1" = "DGP1_local",
+                           "Mean1 Cov2" = "DGP2_shift",
+                           "Mean2 Cov2" = "DGP2_scale",
+                           "Mean3 Cov2" = "DGP2_local",
+                           "Mean1 Cov3" = "DGP3_shift",
+                           "Mean2 Cov3" = "DGP3_scale",
+                           "Mean3 Cov3" = "DGP3_local")) %>% 
+  arrange(DGP, band) 
+
+# Size_and_Power_fragm_df %>% print(n=Inf)
+
+
+# Size_and_Power_fragm_df %>% 
+#   filter(DGP=="Mean1 Cov1"|DGP=="Mean1 Cov2"|DGP=="Mean1 Cov3") %>% 
+#   select(DGP,band,`0`) %>% 
+#   spread(band, `0`)
+
+
+Size_and_Power_fragm_df %>% 
+  rowwise() %>% mutate(`Avg.Power` = mean(c(`0.02`, `0.04`, `0.06`, `0.08`, `0.1`))) %>% 
+  ungroup() %>% 
+  filter(grepl("Cov3",.$DGP), grepl("-t",.$band)) %>% 
+  xtable(., digits=c(NA,NA,NA,3,3,3,3,3,3,2)) %>% 
+  print(., include.rownames=FALSE)
+
+
+
+## power plots for fragments
+
+mu_shift   <- cbind(meanf_shift(grid, 0), meanf_shift(grid, .1))
+mu_scale   <- cbind(meanf_scale(grid, 0), meanf_scale(grid, .1))
+mu_local   <- cbind(meanf_rect(grid,  0), meanf_rect(grid,  .1))
+##
+DGP3_shift <- Size_and_Power_fragm_df %>% filter(DGP=="Mean1 Cov3") %>% select(-DGP) %>% filter(band!="KR-z",band!="FF-z")
+DGP3_scale <- Size_and_Power_fragm_df %>% filter(DGP=="Mean2 Cov3") %>% select(-DGP) %>% filter(band!="KR-z",band!="FF-z")
+DGP3_local <- Size_and_Power_fragm_df %>% filter(DGP=="Mean3 Cov3") %>% select(-DGP) %>% filter(band!="KR-z",band!="FF-z")
+##
+AvgPWR_KRt_DGP3_shift   <- mean(as.numeric(DGP3_shift[grepl("KR-t", DGP3_shift$band),-1])) %>% round(.,d=2)
+AvgPWR_FFt_DGP3_shift   <- mean(as.numeric(DGP3_shift[grepl("FF-t", DGP3_shift$band),-1])) %>% round(.,d=2)
+##
+AvgPWR_KRt_DGP3_scale   <- mean(as.numeric(DGP3_scale[grepl("KR-t", DGP3_scale$band),-1])) %>% round(.,d=2)
+AvgPWR_FFt_DGP3_scale   <- mean(as.numeric(DGP3_scale[grepl("FF-",  DGP3_scale$band),-1])) %>% round(.,d=2)
+##
+AvgPWR_KRt_DGP3_local   <- mean(as.numeric(DGP3_local[grepl("KR-t", DGP3_local$band),-1])) %>% round(.,d=2)
+AvgPWR_FFt_DGP3_local   <- mean(as.numeric(DGP3_local[grepl("FF-t", DGP3_local$band),-1])) %>% round(.,d=2)
+
+## Plots
+width     <- 8.5
+height    <- 6
+mar_u     <- c(0.5, 2, 2.5, 0.05)#c(3.5, 2, 2.5, 0.05)
+mar_l     <- c(4.1, 2, 2.5, 0.05)
+##
+ylimu     <- range(mu_shift, mu_scale, mu_local)
+yliml     <- range(DGP3_shift[,-1], DGP3_scale[,-1], DGP3_local[,-1])
+##
+path_plot <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/Manuscript/"
+## 
+pdf(file = paste0(path_plot, "Fig_SIM_PWR_FRGM.pdf"), width = width, height = height)
+layout(mat = matrix(c(1:6), nrow=2, ncol=3),
+       heights = c(1, 2.5),   # Heights of the two rows
+       widths = c(1, 1, 1)) # Widths of the two columns
+
+#layout.show(6)
+par(family = "serif", ps=13, cex.main=1, font.main = 1, cex.axis=1.3, mar=mar_u1)
+matplot(y = mu_shift,  x = grid, col=1, lty=c(1,2), axes=FALSE,
+        ylab="", xlab = "", main="", ylim = ylimu, type="n")
+axis(1, at=seq(0,1,len=6))
+axis(2, at=seq(0,1,len=6)); box()
+matlines(y = mu_shift,  x = grid, col=1, lty=c(1,2))
+legend("topleft", title="Mean functions",legend=c(expression(paste(theta," (",Delta==0.1,")")),expression(paste(theta[0]))), lty=c(2,1), bty="n",cex =1.5)
+mtext(text = "Mean1 (shift)", side = 3, line = .75)
+mtext(text = "t", side = 1, line = 1.75, cex = 1)
+##
+par(mar=mar_l)
+# FFSCB.t ==  4
+# KR.t    ==  3
+# BEc     ==  0
+# Bs      ==  5
+# IWT     ==  6
+matplot(x=delta_Nlarge, y=t(DGP3_shift[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+axis(1,at=as.numeric(delta_Nlarge), labels = c("0","0.02","0.04","0.06","0.08","0.1"))
+axis(2, at=c(0,0.05,0.2,0.4,0.6,0.8,1),labels = c("0",expression(alpha),"0.2","0.4","0.6","0.8","1"));box()
+my_order <- order(c(AvgPWR_FFt_DGP3_shift, 
+                    AvgPWR_KRt_DGP3_shift),decreasing=T)
+legend("topleft", title="Power (avg.)", 
+       legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_shift,")"),
+                  paste0("KR-t (",  AvgPWR_KRt_DGP3_shift,")"))[my_order], 
+       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
+abline(h=0.05); text(x = 0.085, y = 0.02, labels = expression(paste(alpha==0.05)), cex=1.4)
+mtext(text = expression(Delta), side = 1, line = 3)
+##
+par(mar=mar_u)
+matplot(y = mu_scale,  x = grid, col=1, lty=c(1,2), 
+        ylab="", xlab = "t", main="", axes=F, ylim = ylimu, type="n")
+matlines(y = mu_scale,  x = grid, col=1, lty=c(1,2))
+legend("topleft", title="Mean functions",legend=c(expression(paste(theta," (",Delta==0.1,")")),expression(paste(theta[0]))), lty=c(2,1), bty="n",cex =1.5)
+axis(1, at=seq(0,1,len=6)); box()
+mtext(text = "Mean2 (scale)", side = 3, line = .75)
+mtext(text = "t", side = 1, line = 1.75)
+##
+par(mar=mar_l)
+matplot(x=delta_Nlarge, y=t(DGP3_scale[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
+box()
+my_order <- order(c(AvgPWR_FFt_DGP3_scale, 
+                    AvgPWR_KRt_DGP3_scale),decreasing=T)
+legend("topleft", title="Power (avg.)", 
+       legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_scale,")"), 
+                  paste0("KR-t (",  AvgPWR_KRt_DGP3_scale,")"))[my_order], 
+       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
+abline(h=0.05)
+mtext(text = expression(Delta), side = 1, line = 3)
+##
+par(mar=mar_u)
+matplot(y = mu_local,  x = grid, col=1, lty=c(1,2), 
+        ylab="", xlab = "t", main="", axes=F, ylim = ylimu, type="n")
+matlines(y = mu_local,  x = grid, col=1, lty=c(1,2))
+legend("topleft", title="Mean functions", legend=c(expression(paste(theta," (",Delta==0.1,")")),expression(paste(theta[0]))), lty=c(2,1), bty="n",cex =1.5)
+axis(1, at=seq(0,1,len=6)); box()
+mtext(text = "Mean3 (local)", side = 3, line = .75)
+mtext(text = "t", side = 1, line = 1.75)
+##
+par(mar=mar_l)
+matplot(x=delta_Nlarge, y=t(DGP3_local[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
+box()
+my_order <- order(c(AvgPWR_FFt_DGP3_local, 
+                    AvgPWR_KRt_DGP3_local),decreasing=T)
+legend("topleft", title="Power (avg.)", 
+       legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_local,")"),
+                  paste0("KR-t (",  AvgPWR_KRt_DGP3_local,")"))[my_order], 
+       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
+abline(h=0.05)
+mtext(text = expression(Delta), side = 1, line = 3)
+dev.off()
+
+
+
+
+
+###############################################################################
+###############################################################################
+## CHECKING & TESTING 
+
+
+
+t0                <- 0
+TEST_SimResults_df <- NULL
+for(DGP in DGP_seq){
+  for(N in N_seq) {
+    if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
+    for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 15; delta <- 0; t0 <- 1
+      load(file = paste0(my_path, "Simulation_Results_alt_tau/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=",t0, "_Delta=", delta, ".RData"))
+      ##
+      TEST_SimResults_tmp <- sim_df %>% 
+        dplyr::group_by(band) %>% 
+        dplyr::summarise(rfrq_excd    = mean(excd),
+                         avg_width    = mean(wdth),
+                         n_rep        = unique(sim_df$n_rep),
+                         DGP          = unique(sim_df$DGP),
+                         delta        = unique(sim_df$delta),
+                         N            = unique(sim_df$N),
+                         alpha        = alpha.level) 
+      ##
+      ## Row-Binding all 'SimResults_tmp' data frames:
+      TEST_SimResults_df <- TEST_SimResults_tmp %>% 
+        dplyr::select(band, DGP, N, delta, n_rep, alpha, avg_width, rfrq_excd) %>% 
+        dplyr::bind_rows(TEST_SimResults_df, .)
+    }
   }
 }
 
