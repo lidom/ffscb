@@ -26,6 +26,7 @@ grid          <- make_grid(p, rangevals=c(0,1))
 IWT_bool      <- c(FALSE, TRUE)
 ##
 t0            <- 0
+tau           <- 2
 
 ## Wrangling
 for(IWT in IWT_bool){
@@ -33,12 +34,12 @@ for(IWT in IWT_bool){
   for(DGP in DGP_seq){# IWT <- TRUE
     for(N in N_seq) {
       if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
-      for(delta in delta_seq) {# DGP <- "DGP3_local"; N <- 100; delta <- 0.08
+      for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 15; delta <- 0
         ## Load sim_df
         if(IWT){
           load(file = paste0(my_path, "Simulation_Results/IWT_", DGP, "_N=", N, "_Delta=", delta, ".RData"))
         }else{
-          load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=", delta, ".RData"))
+          load(file = paste0(my_path, "Simulation_Results/",     DGP, "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=", delta, ".RData"))
         }
         ##
         SimResults_tmp <- sim_df %>% 
@@ -295,7 +296,7 @@ AvgPWR_IWT_DGP3_local   <- mean(as.numeric(DGP3_local[grepl("IWT",    DGP3_local
 ## Plots
 width     <- 8.5
 height    <- 6
-mar_u     <- c(0.5, 2, 2.5, 0.05)#c(3.5, 2, 2.5, 0.05)
+mar_u     <- c(0.5, 2, 2.5, 0.05)
 mar_l     <- c(4.1, 2, 2.5, 0.05)
 ##
 ylimu     <- range(mu_shift, mu_scale, mu_local)
@@ -309,7 +310,7 @@ layout(mat = matrix(c(1:6), nrow=2, ncol=3),
        widths = c(1, 1, 1)) # Widths of the two columns
 
 #layout.show(6)
-par(family = "serif", ps=13, cex.main=1, font.main = 1, cex.axis=1.3, mar=mar_u1)
+par(family = "serif", ps=13, cex.main=1, font.main = 1, cex.axis=1.3, mar=mar_u)
 matplot(y = mu_shift,  x = grid, col=1, lty=c(1,2), axes=FALSE,
         ylab="", xlab = "", main="", ylim = ylimu, type="n")
 axis(1, at=seq(0,1,len=6))
@@ -325,7 +326,7 @@ par(mar=mar_l)
 # BEc     ==  0
 # Bs      ==  5
 # IWT     ==  6
-matplot(x=delta_Nlarge, y=t(DGP3_shift[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+matplot(x=delta_Nlarge, y=t(DGP3_shift[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3,ylim=c(0,1))
 axis(1,at=as.numeric(delta_Nlarge), labels = c("0","0.02","0.04","0.06","0.08","0.1"))
 axis(2, at=c(0,0.05,0.2,0.4,0.6,0.8,1),labels = c("0",expression(alpha),"0.2","0.4","0.6","0.8","1"));box()
 my_order <- order(c(AvgPWR_FFt_DGP3_shift, 
@@ -333,17 +334,18 @@ my_order <- order(c(AvgPWR_FFt_DGP3_shift,
                     AvgPWR_BEc_DGP3_shift,
                     AvgPWR_Boots_DGP3_shift,
                     AvgPWR_IWT_DGP3_shift),decreasing=T)
-legend("topleft", title="Power (avg.)", 
+legend(x =-.01,y=1.05, title=" Power (avg. Power)", xjust = 0,
        legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_shift,")"),
                   paste0("KR-t (",  AvgPWR_KRt_DGP3_shift,")"), 
-                  eval(substitute( expression(paste(B[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_shift) )),
-                  paste0("Boots* (", AvgPWR_Boots_DGP3_shift,")"), 
+                  eval(substitute( expression(paste(hat(B)[Ec]," (",pw,")")),  list(pw=AvgPWR_BEc_DGP3_shift) )),
+                  eval(substitute( expression(paste(hat(B)[S], " (",pw,")*")), list(pw=AvgPWR_Boots_DGP3_shift) )),
                   paste0("IWT (",   AvgPWR_IWT_DGP3_shift,")"))[my_order], 
-       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
+       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 2)
 abline(h=0.05); text(x = 0.085, y = 0.02, labels = expression(paste(alpha==0.05)), cex=1.4)
 mtext(text = expression(Delta), side = 1, line = 3)
-text(x = .09, y = 0.185, labels = "*Caution:", pos=3, srt = 90, cex=1.5, adj = c(0,0))
-text(x = .1,  y = 0.4, labels = "Inflated type-I error rates", pos=3, srt = 90, cex=1.5, adj = c(0,0))
+#text(x = .09, y = 0.185, labels = "*Caution:", pos=3, srt = 90, cex=1.5, adj = c(0,0))
+#text(x = .1,  y = 0.4, labels = "Inflated type-I error rates", pos=3, srt = 90, cex=1.5, adj = c(0,0))
+text(x = .1,  y = 0.43, labels = "*Caution: Inflated power values", pos=3, srt = 90, cex=1.5, adj = c(0,0))
 ##
 par(mar=mar_u)
 matplot(y = mu_scale,  x = grid, col=1, lty=c(1,2), 
@@ -355,7 +357,7 @@ mtext(text = "Mean2 (scale)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75)
 ##
 par(mar=mar_l)
-matplot(x=delta_Nlarge, y=t(DGP3_scale[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+matplot(x=delta_Nlarge, y=t(DGP3_scale[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3,ylim=c(0,1))
 axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
 box()
 my_order <- order(c(AvgPWR_FFt_DGP3_scale, 
@@ -363,13 +365,13 @@ my_order <- order(c(AvgPWR_FFt_DGP3_scale,
                     AvgPWR_BEc_DGP3_scale,
                     AvgPWR_Boots_DGP3_scale,
                     AvgPWR_IWT_DGP3_scale),decreasing=T)
-legend("topleft", title="Power (avg.)", 
+legend(x =-.01,y=1.05, title=" Power (avg. Power)", 
        legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_scale,")"), 
                   paste0("KR-t (",  AvgPWR_KRt_DGP3_scale,")"), 
-                  eval(substitute( expression(paste(B[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_scale) )),
-                  paste0("Boots* (", AvgPWR_Boots_DGP3_scale,")"),
+                  eval(substitute( expression(paste(hat(B)[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_scale) )),
+                  eval(substitute( expression(paste(hat(B)[S], " (",pw,")*")), list(pw=AvgPWR_Boots_DGP3_scale) )),
                   paste0("IWT (",   AvgPWR_IWT_DGP3_scale,")"))[my_order], 
-       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
+       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 2)
 abline(h=0.05)
 mtext(text = expression(Delta), side = 1, line = 3)
 ##
@@ -383,7 +385,7 @@ mtext(text = "Mean3 (local)", side = 3, line = .75)
 mtext(text = "t", side = 1, line = 1.75)
 ##
 par(mar=mar_l)
-matplot(x=delta_Nlarge, y=t(DGP3_local[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3)
+matplot(x=delta_Nlarge, y=t(DGP3_local[,-1]), type="b", lty = 1, col=1, pch=c(4,3,0,5,6), axes=FALSE,cex=1.5,xlab="",ylab="", cex.axis=1.3,ylim=c(0,1))
 axis(1,at=delta_Nlarge, labels = c("0","0.02","0.04","0.06","0.08","0.1"))
 box()
 my_order <- order(c(AvgPWR_FFt_DGP3_local, 
@@ -391,13 +393,13 @@ my_order <- order(c(AvgPWR_FFt_DGP3_local,
                     AvgPWR_BEc_DGP3_local,
                     AvgPWR_Boots_DGP3_local,
                     AvgPWR_IWT_DGP3_local),decreasing=T)
-legend("topleft", title="Power (avg.)", 
+legend(x =-.01,y=1.05, title=" Power (avg. Power)", 
        legend = c(paste0("FF-t (",  AvgPWR_FFt_DGP3_local,")"),
                   paste0("KR-t (",  AvgPWR_KRt_DGP3_local,")"), 
-                  eval(substitute( expression(paste(B[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_local) )), 
-                  paste0("Boots* (", AvgPWR_Boots_DGP3_local,")"), 
+                  eval(substitute( expression(paste(hat(B)[Ec]," (",pw,")")), list(pw=AvgPWR_BEc_DGP3_local) )), 
+                  eval(substitute( expression(paste(hat(B)[S], " (",pw,")*")), list(pw=AvgPWR_Boots_DGP3_local) )),
                   paste0("IWT (",   AvgPWR_IWT_DGP3_local,")"))[my_order], 
-       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 0.25)
+       pch=c(4,3,0,5,6)[my_order], bty="n", col=c("black"), cex = 1.5, pt.cex = 1.5, title.adj = 2)
 abline(h=0.05)
 mtext(text = expression(Delta), side = 1, line = 3)
 dev.off()
@@ -888,15 +890,18 @@ dev.off()
 ###############################################################################
 ## CHECKING & TESTING 
 
+library("tidyverse")
+## path to simulation results:
+my_path       <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
+t0            <- 0
+alpha.level   <- 0.05
 
-
-t0                <- 0
 TEST_SimResults_df <- NULL
 for(DGP in DGP_seq){
   for(N in N_seq) {
     if ( N==min(N_seq) ) delta_seq <- delta_Nsmall else delta_seq <- delta_Nlarge
-    for(delta in delta_seq) {# DGP <- "DGP3_shift"; N <- 15; delta <- 0; t0 <- 1
-      load(file = paste0(my_path, "Simulation_Results_alt_tau/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=",t0, "_Delta=", delta, ".RData"))
+    for(delta in delta_seq) {# DGP <- "DGP1_shift"; N <- 15; delta <- 0; t0 <- 0
+      load(file = paste0(my_path, "Simulation_Results_alt_tau/", DGP, "_N=", N, "_alpha=0.05", "_t0=",t0, "_Delta=", delta, ".RData"))
       ##
       TEST_SimResults_tmp <- sim_df %>% 
         dplyr::group_by(band) %>% 

@@ -19,7 +19,7 @@ n_int        <- 3
 seq(0,1,len=n_int+1)
 alpha.level  <- 0.05
 type         <- c("Bs", "BEc", "naive.t", "FFSCB.t", "KR.t")
-seed         <- 2
+seed         <- 16
 ##
 ## Smooth
 set.seed(seed)
@@ -83,7 +83,7 @@ ylimu     <- range(sim.dat_s,sim.dat_r,sim.dat_s2r)
 yliml     <- range(b_r - hat_mu_r,b_s - hat_mu_s,b_s2r - hat_mu_s2r)
 path_plot <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/Manuscript/"
 ## 
-pdf(file = paste0(path_plot, "Fig_SIM_DGP.pdf"), width = width, height = height)
+#pdf(file = paste0(path_plot, "Fig_SIM_DGP.pdf"), width = width, height = height)
 layout(mat = matrix(c(1:6), nrow=2, ncol=3),
        heights = c(1, 1.75), # Heights of the two rows
        widths = c(1, 1, 1))  # Widths of the two columns
@@ -97,6 +97,7 @@ legend("bottomright", legend=expression(paste("Estimated mean")), lty=1,bty="n",
 axis(2);box()
 mtext(text = "Smooth (Cov1)", side = 3, line = .95)
 text(x = 0, y=ylimu[2]*0.9, labels = "Sample Paths (n=100)", cex =1.5, pos = 4)
+text(x = 0, y=ylimu[2]*0.7, labels = "(50 plotted)", cex =1.4, pos = 4)
 ##
 par(mar=mar_l)
 matplot( y = 0, x = 0, type="n", ylab="", xlab = "", main="", ylim = yliml, xlim = c(0,1))
@@ -107,9 +108,9 @@ polygon(x=c(grid,rev(grid)), y=c(naive_t_band_s[,1]-hat_mu_s,rev(naive_t_band_s[
 matlines(x=grid, y=FFSCB_t_band_s - hat_mu_s, col=1, lty=1, lwd=.85)
 matlines(x=grid, y=KR_t_band_s    - hat_mu_s, col=1, lty=5, lwd=.85)
 matlines(x=grid, y=BEc_band_s     - hat_mu_s, col=1, lty=3, lwd=.85)
-legend(x = 0,    y=yliml[1]*0.6, legend = c(expression(B[Ec]), "FF-t", "KR-t"), 
+legend(x = 0,    y=yliml[1]*0.52, legend = c(expression(hat(B)[Ec]), "FF-t", "KR-t"), 
        lty=c(3,1,5), bty="n", lwd = c(1), col=c("black"), cex = 1.5)
-legend(x = 0.55, y=yliml[1]*0.6, legend = c("Bootstrap", "naive-t"), pch=22, bty="n",
+legend(x = 0.55, y=yliml[1]*0.52, legend = c(expression(hat(B)[S]), "naive-t"), pch=22, bty="n",
        col=c(gray(.75),gray(.60)), pt.bg = c(gray(.75),gray(.60)), pt.cex = 2.5, cex = 1.5)
 mtext(text = "t", side = 1, line = 2.5)
 text(x = 0, y=yliml[2]*0.9, labels = "Centered Confidence Bands", cex = 1.5, pos = 4)
@@ -151,6 +152,8 @@ matlines(x=grid, y=FFSCB_t_band_s2r - hat_mu_s2r, col=1, lty=1, lwd=.85)
 matlines(x=grid, y=KR_t_band_s2r    - hat_mu_s2r, col=1, lty=5, lwd=.85)
 matlines(x=grid, y=BEc_band_s2r     - hat_mu_s2r, col=1, lty=3, lwd=.85)
 mtext(text = "t", side = 1, line = 2.5)
+
+seed
 dev.off()
 
 
@@ -168,16 +171,16 @@ alpha.level  <- 0.05
 type         <- c("naive.t", "FFSCB.t", "KR.t")
 ##
 
-# N_frag_mat     <- matrix(NA,p,1000)
-# for(r in 1:1000){
-# sim.dat_s      <- make_fragm_sample(mean.v = mu, cov.m = cov.m_s, fragm_len = 40,  N = N, dist = "rnorm")
-# N_frag_mat[,r] <- apply(sim.dat_s$X_frag_mat, 1, function(x) length(c(na.omit(x))))
-# }
-# 
-# range(N_frag_mat)
+N_frag_mat     <- matrix(NA,p,1000)
+for(r in 1:1000){
+sim.dat_s      <- make_fragm_sample(mean.v = mu, cov.m = cov.m_s, fragm_len = 40,  N = N, dist = "rnorm")
+N_frag_mat[,r] <- apply(sim.dat_s$X_frag_mat, 1, function(x) length(c(na.omit(x))))
+}
+
+range(N_frag_mat)
 
 ## Smooth
-seed         <- 2
+seed         <- 16
 set.seed(seed)
 sim.dat_s      <- make_fragm_sample(mean.v = mu, cov.m = cov.m_s, fragm_len = 40,  N = N, dist = "rnorm")
 t0_s           <- grid[1]
@@ -252,7 +255,8 @@ lines(y=hat_mu_s,x=grid)
 legend("bottomright", legend=expression(paste("Estimated mean")), lty=1,bty="n",cex = 1.4)
 axis(2);box()
 mtext(text = "Smooth (Cov1)", side = 3, line = .95)
-text(x = 0, y=ylimu[2]*0.9, labels = "Sample Paths (n=100)", cex =1.5, pos = 4)
+text(x = 0, y=ylimu[2]*0.9, labels = "Sample Paths (n=500)", cex =1.5, pos = 4)
+text(x = 0, y=ylimu[2]*0.7, labels = "(50 plotted)", cex =1.4, pos = 4)
 ##
 par(mar=mar_l)
 matplot( y = 0, x = 0, type="n", ylab="", xlab = "", main="", ylim = yliml, xlim = c(0,1))

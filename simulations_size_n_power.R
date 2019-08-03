@@ -24,7 +24,7 @@ alpha.level  <- 0.05
 n_int        <- 3
 tol          <- .Machine$double.eps^0.5
 ##
-n_reps_H0    <- 10000
+n_reps_H0    <- 50000
 n_reps_H1    <- 10000
 ##
 DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
@@ -37,6 +37,9 @@ delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 N_seq         <- c(15, 100)
 ##
 t0            <- 0
+# tau==1: partial derivatives of standardized covariance function <- use this for fragmentary functional data
+# tau==2: sd of standardized and differentiated sample functions  <- use this for fully observed functional data
+tau           <- 2  
 ## #########################################################
 
 ##
@@ -91,8 +94,9 @@ for(DGP in DGP_seq) {
           hat_mu      <- rowMeans(dat)
           hat.cov     <- crossprod(t(dat - hat_mu)) / (N-1)
           hat.cov.mu  <- hat.cov / N
-          hat.tau     <- cov2tau_fun(hat.cov)
-          #hat.tau     <- tau_fun(dat) # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
+          if(tau == 1){ hat.tau     <- cov2tau_fun(hat.cov) }
+          if(tau == 2){ hat.tau     <- tau_fun(dat) } 
+          # plot(y=hat.tau,x=seq(0,1,len=p),type="l")
           ##
           ## Confidence bands
           b <- try(confidence_band(x=hat_mu, cov=hat.cov.mu, tau=hat.tau, t0=t0, df=N-1, 
@@ -154,7 +158,7 @@ for(DGP in DGP_seq) {
       ## Feedback
       cat(DGP, ", N=", N, ", Delta=", delta, ", Run-Time=", run_time, " (", attr(run_time, "units"),")\n", sep="")
       ##
-      save(sim_df, file = paste0(my_path, "Simulation_Results_alt_tau/", DGP, "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=", delta,".RData"))
+      save(sim_df, file = paste0(my_path, "Simulation_Results/", DGP, "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=", delta,".RData"))
     }# delta-loop
   }# N-loop
 }# DGP-loop
@@ -168,9 +172,9 @@ for(i in 1:3){
   for(dgp in c(paste0("DGP",i,"_scale"), paste0("DGP",i,"_local"))) {
     for(N in N_seq) {
       ##
-      load(file = paste0(my_path, "Simulation_Results_alt_tau/DGP",i,"_shift", "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=0.RData"))
+      load(file = paste0(my_path, "Simulation_Results/DGP",i,"_shift", "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=0.RData"))
       sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
-      save(sim_df, file = paste0(my_path, "Simulation_Results_alt_tau/", dgp, "_N=", N, "_alpha=", alpha.level, "_t0=", t0, "_Delta=0.RData"))
+      save(sim_df, file = paste0(my_path, "Simulation_Results/", dgp, "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=0.RData"))
       rm(sim_df)
     }
   }
