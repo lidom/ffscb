@@ -278,7 +278,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
           ##
           if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}# c_v_sum == u'(t) for 0 <= t < (j-1)th interval
           ##
-          ufun_j <- function(t,cj){ufun(t=t,c_v=c(c_v[1:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
+          ufun_j <- function(t,cj){ufun(t=t,c_v=c(rep(0,times=(const_int-1)),c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
           ##
           fn1    <- function(t,cj){(tau_f(t)/(2*pi)) * exp(-ufun_j(t,cj)^2/2) * exp(-sum(c(c_v_sum,cj))^2/(2*tau_f(t)^2))}
           fn3    <- function(t,cj){sum(c(c_v_sum,cj))/sqrt(2*pi) * exp(-ufun_j(t,cj)^2/2) * stats::pnorm(-sum(c(c_v_sum, cj))/tau_f(t))}
@@ -295,7 +295,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     ## 
     u_star_f  <- function(t){return(ufun(t=t,c_v=c_v,knots=knots))}
     up_star_f <- function(t){
-      kn   <- knots[-length(knots)]; cp <- c_v; cp[1] <- 0
+      kn   <- knots[-length(knots)]; cp <- c_v; cp[const_int] <- 0
       kn_m <- matrix(kn,                     nrow=length(kn), ncol=length(t))
       cp_m <- matrix(cp,                     nrow=length(kn), ncol=length(t))
       t_m  <- matrix(rep(t,each=length(kn)), nrow=length(kn), ncol=length(t))
@@ -467,7 +467,8 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
           ##
           if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}# c_v_sum == u'(t) for 0 <= t < (j-1)th interval
           ##
-          ufun_j <- function(t,cj){ufun(t=t,c_v=c(c_v[1:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
+          #ufun_j <- function(t,cj){ufun(t=t,c_v=c(c_v[1:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
+          ufun_j <- function(t,cj){ufun(t=t,c_v=c(rep(0,times=(const_int-1)),c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
           afun_j <- function(t,cj){sqrt(nu*tau_f(t)^2*(1+ufun_j(t,cj)^2/nu)/nup)}
           ##
           fn1 <- function(t,cj){tau_f(t) * (1 + ufun_j(t,cj)^2/nu + sum(c(c_v_sum,cj))^2/(nu*tau_f(t)^2))^(-nu/2) / (2*pi)}
@@ -488,7 +489,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     ## 
     u_star_f  <- function(t){return(ufun(t=t,c_v=c_v,knots=knots))}
     up_star_f <- function(t){
-      kn   <- knots[-length(knots)]; cp <- c_v; cp[1] <- 0
+      kn   <- knots[-length(knots)]; cp <- c_v; cp[const_int] <- 0
       kn_m <- matrix(kn,                     nrow=length(kn), ncol=length(t))
       cp_m <- matrix(cp,                     nrow=length(kn), ncol=length(t))
       t_m  <- matrix(rep(t,each=length(kn)), nrow=length(kn), ncol=length(t))
@@ -505,7 +506,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     fn3_star <- function(t){
       (up_star_f(t)/(2*pi*tau_f(t))) * (1+u_star_f(t)^2/nu)^(-nu/2 -1)  *
         (gamma(nup/2) * sqrt(nup*pi) * a_star_f(t) / gamma((nup+1)/2) ) *
-        stats::pt(q = -(up_star_f(t) / a_star_f(t) ), df=nup) 
+        stats::pt(q = -(up_star_f(t) / a_star_f(t) ), df=nup)
     }
     ##
     intgr1_star <- sum(fn1_star(t=tt)) * diff(tt)[1]
