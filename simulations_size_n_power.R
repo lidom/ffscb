@@ -36,7 +36,7 @@ delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
 N_seq         <- c(15, 100)
 ##
-t0            <- 0
+t0            <- 1
 # tau==1: partial derivatives of standardized covariance function <- use this for fragmentary functional data
 # tau==2: sd of standardized and differentiated sample functions  <- use this for fully observed functional data
 tau           <- 2  
@@ -117,10 +117,15 @@ for(DGP in DGP_seq) {
         ##
         if(n_int != 3){stop("The following code is written for n_int==3.")}
         ## saving exceedances events per interval int1=[0,1/3] and int1=[1,2/3]
-        exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
-        exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
-        #exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 2/3]==TRUE)}))
-        #exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3]==TRUE)}))
+        #exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
+        #exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        ##
+        exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 2/3]==TRUE)}))
+        exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3]==TRUE)}))
+        ##
+        #exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        #exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3 & grid <= 2/3]==TRUE)}))
+        #exceedances_int3  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3]==TRUE)}))
         ##      
         ## saving exceedances at t0:
         tmp_t0_up       <- upper_Bands[which(t0==grid),] < mu0[which(t0==grid)]      
@@ -137,6 +142,7 @@ for(DGP in DGP_seq) {
                                 excd      = exceedances,         # was there an exceedance event at all?
                                 excd_i1   = exceedances_int1,    # was there an exceedance event in int1=[0,1/3]?
                                 excd_i2   = exceedances_int2,    # was there an exceedance event in int1=[0,2/3]?
+                                #excd_i3   = exceedances_int3,    # was there an exceedance event in int1=[0,2/3]?
                                 excd_t0   = exceedances_t0,      # was there an exceedance event at t0?
                                 wdth      = avg_width)           # width of the bands 
         ## glimpse(sim_df)

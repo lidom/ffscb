@@ -9,7 +9,7 @@ library("fdatest")
 my_path <- "/home/dom/Dropbox/Forschung/PRJ_OPEN/PRJ_Inference4_FDA_using_RFT/"
 ##
 detectCores()
-nworkers <- 6
+nworkers <- 8
 
 
 Error_Checker <- function(x){
@@ -23,7 +23,6 @@ Error_Checker <- function(x){
 p            <- 101
 grid         <- make_grid(p, rangevals=c(0,1))
 alpha.level  <- 0.05
-n_int        <- 8
 ##
 n_reps_H0    <- 5000
 n_reps_H1    <- 5000
@@ -62,15 +61,15 @@ for(DGP in DGP_seq) {
       names(mu0) <- grid
       ##
       if(grepl("DGP1", DGP)) {# stationary: smooth 
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1/4))
         t0        <- 0
       }
       if(grepl("DGP2", DGP)) {# stationary: rough
-        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/4, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(1/2, 1/4))
         t0        <- 0
       }
       if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
+        cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(3/2, 1/2, 1/4))
         t0        <- 0
       }
       ## check plot:
