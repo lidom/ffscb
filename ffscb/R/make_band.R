@@ -222,7 +222,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   if(is.null(tol)){
     tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
   }
-  if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0,tt)]}
+  if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0, tt, rightmost.closed = TRUE)]}
   ##
   if(n_int == 1){# Case n_int=1 == constant band == Kac-Rice Band
     tau01      <- sum(tau_v)*diff(tt)[1] # int_0^1 tau(t) dt
@@ -233,7 +233,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   }
   ## Define piecewise linear (pwl) function 'ufun' with derivative=0 at t0.
   c_v         <- numeric(n_int) # coeficients of the pwl-function
-  const_int   <- min(findInterval(t0, knots), n_int)
+  const_int   <- min(findInterval(t0, knots, rightmost.closed = TRUE), n_int)
   fct_body    <- paste0("c_v[",const_int,"]")
   if(const_int >     1){for(j in (const_int-1):1    ){fct_body <- paste0("c_v[",j,"]*pmin(t - knots[",j,"],0) +", fct_body)}}
   if(const_int < n_int){for(j in (const_int+1):n_int){fct_body <- paste0(fct_body, "+ c_v[",j,"]*pmax(t - knots[",j,"],0)")}}
@@ -256,7 +256,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
       for(j in (const_int-1):1){
         myfunj <- function(cj){
           ##
-          if(j==(const_int-1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int-1):(j+1)]}# c_v_sum == u' of the preceeding interval
+          if(j==(const_int-1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int-1):(j+1)]}# sum(c_v_sum) == u' of the preceeding interval
           ##
           ufun_j <- function(t,cj){ufun(t=t,c_v=c(rep(0,times=(j-1)),cj,c_v[(j+1):const_int],rep(0, times=(n_int-const_int))), knots=knots)}
           ##
@@ -276,7 +276,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
       for(j in (const_int+1):n_int){# j <- (const_int+1)
         myfunj <- function(cj){
           ##
-          if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}# c_v_sum == u'(t) for 0 <= t < (j-1)th interval
+          if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}# sum(c_v_sum) == u'(t) for 0 <= t < (j-1)th interval
           ##
           ufun_j <- function(t,cj){ufun(t=t,c_v=c(rep(0,times=(const_int-1)),c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
           ##
@@ -295,12 +295,20 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     ## 
     u_star_f  <- function(t){return(ufun(t=t,c_v=c_v,knots=knots))}
     up_star_f <- function(t){
-      kn   <- knots[-length(knots)]; cp <- c_v; cp[const_int] <- 0
-      kn_m <- matrix(kn,                     nrow=length(kn), ncol=length(t))
-      cp_m <- matrix(cp,                     nrow=length(kn), ncol=length(t))
-      t_m  <- matrix(rep(t,each=length(kn)), nrow=length(kn), ncol=length(t))
-      return(colSums(cp_m * (kn_m<t_m)))
+      cp <- c_v; cp[const_int] <- 0
+      ##
+      if(const_int < n_int){ cp[(const_int+1):n_int] <- cumsum(cp[(const_int+1):n_int]) }
+      if(const_int > 1    ){ cp[(const_int-1):1]     <- cumsum(cp[(const_int-1):1])     }
+      ##
+      return(cp[findInterval(t, knots, rightmost.closed = TRUE)])
     }
+    # up_star_f <- function(t){
+    #   kn   <- knots[-length(knots)]; cp <- c_v; cp[const_int] <- 0
+    #   kn_m <- matrix(kn,                     nrow=length(kn), ncol=length(t))
+    #   cp_m <- matrix(cp,                     nrow=length(kn), ncol=length(t))
+    #   t_m  <- matrix(rep(t,each=length(kn)), nrow=length(kn), ncol=length(t))
+    #   return(colSums(cp_m * (kn_m<t_m)))
+    # }
     ##
     fn1_star <- function(t){(tau_f(t)/(2*pi)) * exp(-u_star_f(t)^2/2) * exp(-up_star_f(t)^2/(2*tau_f(t)^2))}
     fn2_star <- function(t){up_star_f(t)/sqrt(2*pi) * exp(-u_star_f(t)^2/2) * stats::pnorm( up_star_f(t)/tau_f(t))}
@@ -408,7 +416,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   }
   nu          <- df
   nup         <- nu+1
-  if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0,tt)]}
+  if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0, tt, rightmost.closed = TRUE)]}
   ##
   if(n_int == 1){# Case n_int=1 == constant band == Kac-Rice Band
     tau01      <- sum(tau_v)*diff(tt)[1] # int_0^1 tau(t) dt
@@ -419,7 +427,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   }
   ## Define piecewise linear (pwl) function 'ufun' with derivative=0 at t0.
   c_v         <- numeric(n_int) # coeficients of the pwl-function
-  const_int   <- min(findInterval(t0, knots), n_int)
+  const_int   <- min(findInterval(t0, knots, rightmost.closed = TRUE), n_int)
   fct_body    <- paste0("c_v[",const_int,"]")
   if(const_int >     1){for(j in (const_int-1):1    ){fct_body <- paste0("c_v[",j,"]*pmin(t - knots[",j,"],0) +", fct_body)}}
   if(const_int < n_int){for(j in (const_int+1):n_int){fct_body <- paste0(fct_body, "+ c_v[",j,"]*pmax(t - knots[",j,"],0)")}}
@@ -442,7 +450,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
       for(j in (const_int-1):1){
         myfunj <- function(cj){
           ##
-          if(j==(const_int-1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int-1):(j+1)]}# c_v_sum == u' of the preceeding interval
+          if(j==(const_int-1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int-1):(j+1)]}# sum(c_v_sum) == u' of the preceeding interval
           ##
           ufun_j <- function(t,cj){ufun(t=t,c_v=c(rep(0,times=(j-1)),cj,c_v[(j+1):const_int],rep(0, times=(n_int-const_int))), knots=knots)}
           afun_j <- function(t,cj){sqrt(nu*tau_f(t)^2*(1+ufun_j(t,cj)^2/nu)/nup)}
@@ -465,7 +473,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
       for(j in (const_int+1):n_int){
         myfunj <- function(cj){
           ##
-          if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}# c_v_sum == u'(t) for 0 <= t < (j-1)th interval
+          if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}# sum(c_v_sum) == u'(t) for 0 <= t < (j-1)th interval
           ##
           #ufun_j <- function(t,cj){ufun(t=t,c_v=c(c_v[1:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
           ufun_j <- function(t,cj){ufun(t=t,c_v=c(rep(0,times=(const_int-1)),c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))), knots=knots)}
@@ -489,11 +497,12 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     ## 
     u_star_f  <- function(t){return(ufun(t=t,c_v=c_v,knots=knots))}
     up_star_f <- function(t){
-      kn   <- knots[-length(knots)]; cp <- c_v; cp[const_int] <- 0
-      kn_m <- matrix(kn,                     nrow=length(kn), ncol=length(t))
-      cp_m <- matrix(cp,                     nrow=length(kn), ncol=length(t))
-      t_m  <- matrix(rep(t,each=length(kn)), nrow=length(kn), ncol=length(t))
-      return(colSums(cp_m * (kn_m<t_m)))
+      cp <- c_v; cp[const_int] <- 0
+      ##
+      if(const_int < n_int){ cp[(const_int+1):n_int] <- cumsum(cp[(const_int+1):n_int]) }
+      if(const_int > 1    ){ cp[(const_int-1):1]     <- cumsum(cp[(const_int-1):1])     }
+      ##
+      return(cp[findInterval(t, knots, rightmost.closed = TRUE)])
     }
     a_star_f <- function(t){sqrt(nu*tau_f(t)^2*(1+u_star_f(t)^2/nu)/nup)}
     ##
