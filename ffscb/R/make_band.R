@@ -216,8 +216,8 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
-  tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
-  tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
+  tau_v       <- tau
+  tau_f       <- stats::approxfun(x = seq(0,1,len=length(tau)), y = tau)
   knots       <- seq(0,1,len=(n_int + 1))
   if(is.null(tol)){
     tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
@@ -408,8 +408,10 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
-  tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
-  tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
+  #tau_v       <- stats::spline(   x = seq(0,1,len=length(tau)), y = tau, method = "natural", xout = tt)$y
+  #tau_f       <- stats::splinefun(x = seq(0,1,len=length(tau)), y = tau, method = "natural")
+  tau_v       <- tau
+  tau_f       <- stats::approxfun(x = seq(0,1,len=length(tau)), y = tau)
   knots       <- seq(0,1,len=(n_int + 1))
   if(is.null(tol)){
     tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
