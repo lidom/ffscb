@@ -4,10 +4,12 @@
 \alias{cov2tau_fun}
 \title{This function computes the estimate of the roughness parameter function tau(t) using the covariance function (given as a matrix) of the functional data.}
 \usage{
-cov2tau_fun(cov_mat)
+cov2tau_fun(cov_mat, warn = FALSE)
 }
 \arguments{
 \item{cov_mat}{Matrix (pxp) of evaluated covariance function (p=number of discretization point). Caution: It is assumed that the evaluation grid is within [0,1].}
+
+\item{warn}{Option for printing warnings}
 }
 \value{
 tau_t Estimate of the roughness parameter function tau(t)

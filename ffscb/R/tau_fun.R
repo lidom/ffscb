@@ -90,6 +90,7 @@ tau_fragments <- function(X_mat, grid_mat){
 #' This function computes the estimate of the roughness parameter function tau(t) using the covariance function (given as a matrix) of the functional data.
 #' 
 #' @param cov_mat Matrix (pxp) of evaluated covariance function (p=number of discretization point). Caution: It is assumed that the evaluation grid is within [0,1]. 
+#' @param warn Option for printing warnings
 #' @return tau_t Estimate of the roughness parameter function tau(t)
 #' @examples  
 #' p         <- 200 
@@ -158,8 +159,8 @@ cov2tau_fun <- function(cov_mat, warn = FALSE){
              We use only the positive values and fill the \n
              missing tau-values by approximations using linear interpolations.")
     }
-    if(is.na(tau[1]  )){tau[1]   <- head(c(na.omit(tau)),n = 1)}
-    if(is.na(tau[p-1])){tau[p-1] <- tail(c(na.omit(tau)),n = 1)}
+    if(is.na(tau[1]  )){tau[1]   <- utils::head(c(stats::na.omit(tau)),n = 1)}
+    if(is.na(tau[p-1])){tau[p-1] <- utils::tail(c(stats::na.omit(tau)),n = 1)}
     tau <- stats::approx(x=c(1:(p-1))[!is.na(tau)], y=tau[!is.na(tau)], xout = c(1:(p-1)))$y
   }
   ## tau has length p-1, so we interpolate to get length p
