@@ -1,7 +1,7 @@
 Package: ffscb
 Type: Package
 Title: Fast 'n' Fair Simultaneous Confidence Bands for Functional Parameters
-Version: 0.0.9
+Version: 0.0.10
 Authors@R: c(person("Dominik",  "Liebl",    email = "r.packages.mail@gmail.com", role = c("aut", "cre")),
              person("Matthew",  "Reimherr", email = "mreimherr@psu.edu",         role = "aut"))
 Description: This package provides simultaneous inferential tools for functional parameters when elliptically distributed estimators are in place.

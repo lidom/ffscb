@@ -235,7 +235,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   c_v         <- numeric(n_int) # coeficients of the pwl-function
   const_int   <- min(findInterval(t0, knots, rightmost.closed = TRUE), n_int)
   fct_body    <- paste0("c_v[",const_int,"]")
-  if(const_int >     1){for(j in (const_int-1):1    ){fct_body <- paste0("c_v[",j,"]*pmin(t - knots[",j,"],0) +", fct_body)}}
+  if(const_int >     1){for(j in (const_int-1):1    ){fct_body <- paste0("c_v[",j,"]*pmin(t - knots[",j+1,"],0) +", fct_body)}}
   if(const_int < n_int){for(j in (const_int+1):n_int){fct_body <- paste0(fct_body, "+ c_v[",j,"]*pmax(t - knots[",j,"],0)")}}
   ufun        <- function(t, c_v, knots){}
   body(ufun)  <- parse(text=fct_body)
@@ -320,7 +320,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
     if(t0<1){intgr3_star <- sum(fn3_star(t=tt[t0 <  tt])) * diff(tt)[1]}else{intgr3_star <- 0}
     ##
     optim_target <- c( (stats::pnorm(q=u_star_f(t0), lower.tail=FALSE) + intgr1_star + intgr2_star - intgr3_star) - alpha.level/2)
-    band.eval    <- u_star_f(t=seq(0,1,len=length(tau)))
+    band.eval    <- u_star_f(t=tt)
     ##
     return(list("optim_target"     = optim_target,
                 "band.eval"        = band.eval, 
@@ -431,7 +431,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   c_v         <- numeric(n_int) # coeficients of the pwl-function
   const_int   <- min(findInterval(t0, knots, rightmost.closed = TRUE), n_int)
   fct_body    <- paste0("c_v[",const_int,"]")
-  if(const_int >     1){for(j in (const_int-1):1    ){fct_body <- paste0("c_v[",j,"]*pmin(t - knots[",j,"],0) +", fct_body)}}
+  if(const_int >     1){for(j in (const_int-1):1    ){fct_body <- paste0("c_v[",j,"]*pmin(t - knots[",j+1,"],0) +", fct_body)}}
   if(const_int < n_int){for(j in (const_int+1):n_int){fct_body <- paste0(fct_body, "+ c_v[",j,"]*pmax(t - knots[",j,"],0)")}}
   ufun        <- function(t, c_v, knots){}
   body(ufun)  <- parse(text=fct_body)
@@ -526,7 +526,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
     if(t0<1){intgr3_star <- sum(fn3_star(t=tt[t0 <  tt])) * diff(tt)[1]}else{intgr3_star <- 0}
     ##
     optim_target <- c( (stats::pt(q=u_star_f(t0), lower.tail=FALSE, df = nu) + (intgr1_star + intgr2_star - intgr3_star)) - alpha.level/2 )
-    band.eval    <- u_star_f(t=seq(0,1,len=length(tau)))
+    band.eval    <- u_star_f(t=tt)
     ##
     return(list("optim_target"     = optim_target,
                 "band.eval"        = band.eval, 
