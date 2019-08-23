@@ -34,15 +34,16 @@ DGP_seq      <- c("DGP1_shift","DGP1_scale","DGP1_local",
 delta_Nsmall  <- c(0, seq(from = 0.05, to = 0.45, len = 5))
 delta_Nlarge  <- c(0, seq(from = 0.02, to = 0.1,  len = 5))
 ##
-N_seq         <- c(15, 100)
+N_seq         <- c(20, 100)
 ##
-t0            <- 1
+t0_seq        <- c(0,1)
 # tau==1: partial derivatives of standardized covariance function <- use this for fragmentary functional data
 # tau==2: sd of standardized and differentiated sample functions  <- use this for fully observed functional data
 tau           <- 2  
 ## #########################################################
 
 ##
+for(t0 in t0_seq){
 for(DGP in DGP_seq) {
   ##
   set.seed(123)
@@ -117,11 +118,15 @@ for(DGP in DGP_seq) {
         ##
         if(n_int != 3){stop("The following code is written for n_int==3.")}
         ## saving exceedances events per interval int1=[0,1/3] and int1=[1,2/3]
-        #exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
-        #exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        if(t0 == 0){
+          exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 1/3]==TRUE)}))
+          exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
+        }
         ##
-        exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 2/3]==TRUE)}))
-        exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3]==TRUE)}))
+        if(t0 == 1){
+          exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 2/3]==TRUE)}))
+          exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3]==TRUE)}))
+        }
         ##
         #exceedances_int1  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid <= 2/3]==TRUE)}))
         #exceedances_int2  <- as.numeric(apply(exceed_loc, 2, function(x){any(x[grid >= 1/3 & grid <= 2/3]==TRUE)}))
@@ -168,6 +173,7 @@ for(DGP in DGP_seq) {
     }# delta-loop
   }# N-loop
 }# DGP-loop
+}# t0 loop
 
 
 ## Under H0 (mu0 == mu <=> delta == 0) are DGP*i*_scale and DGP*i*_local equivalent for all i=1,2,3. 
@@ -177,11 +183,13 @@ for(DGP in DGP_seq) {
 for(i in 1:3){
   for(dgp in c(paste0("DGP",i,"_scale"), paste0("DGP",i,"_local"))) {
     for(N in N_seq) {
-      ##
-      load(file = paste0(my_path, "Simulation_Results/DGP",i,"_shift", "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=0.RData"))
-      sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
-      save(sim_df, file = paste0(my_path, "Simulation_Results/", dgp, "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=0.RData"))
-      rm(sim_df)
+      for(t0 in t0_seq) {
+        ##
+        load(file = paste0(my_path, "Simulation_Results/DGP",i,"_shift", "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=0.RData"))
+        sim_df <- sim_df %>% mutate(DGP = dgp) # Replace name of DGP
+        save(sim_df, file = paste0(my_path, "Simulation_Results/", dgp, "_N=", N, "_t0=", t0, "_tau_", tau, "_Delta=0.RData"))
+        rm(sim_df)
+      }
     }
   }
 }
