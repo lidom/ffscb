@@ -193,7 +193,7 @@ make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
 #' matplot(y=b$band[,2:3], x=grid, lty=2)
 #' lines(x=grid, y=b$band[,1], lty=1)
 #' @export
-make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_int=4, tol=NULL){
+make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=0, conf.level=0.95, n_int=4, tol=NULL){
   ##
   if(any(tau < 0.005)){warning("This method may not work if tau(t) is too small.")}
   ##
@@ -205,24 +205,32 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   if(is.null(t0)){t0 <- tt[which.max(tau)]}
   ##
   return(list("band"    = band_m,
-              "t0"      = t0,
+              "t0"      = result_tmp$t0,
               "prob_t0" = result_tmp$prob_t0 * 2, # multipled by two, since two-sided SCB
               "a_star"  = result_tmp$a_star  * 2  # multipled by two, since two-sided SCB
               ))
 }
 
 
-.make_band_FFSCB_z <- function(tau, t0=NULL, diag.cov, conf.level=0.95, n_int=4, tol=NULL){
+.make_band_FFSCB_z <- function(tau, t0=0, diag.cov, conf.level=0.95, n_int=4, tol=NULL){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
   tau_v       <- tau
   tau_f       <- stats::approxfun(x = seq(0,1,len=length(tau)), y = tau)
   knots       <- seq(0,1,len=(n_int + 1))
+  ##
   if(is.null(tol)){
     tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
   }
-  if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0, tt, rightmost.closed = TRUE)]}
+  if(!is.numeric(t0)){
+    warning("t0 is not given and set to the default `t0=0`.")
+    t0 <- 0
+  }
+  if(!any(t0==knots) ){ 
+    warning("t0 does not equal one of the grid points of the threshold u.\nWe set t0 to the closest grid point.")
+    t0 <- knots[which.min(abs(t0-knots))]
+  }
   ##
   if(n_int == 1){# Case n_int=1 == constant band == Kac-Rice Band
     tau01      <- sum(tau_v)*diff(tt)[1] # int_0^1 tau(t) dt
@@ -342,6 +350,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
   }
   ##
   return(list("band"    = band,
+              "t0"      = t0,
               "prob_t0" = prob_t0,
               "a_star"  = a_star))
 }
@@ -381,7 +390,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, t0=NULL, conf.level=0.95, n_in
 #' matplot(y=b$band[,2:3], x=grid, lty=2)
 #' lines(x=grid, y=b$band[,1], lty=1)
 #' @export
-make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, n_int=4, tol=NULL){
+make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=0, df, conf.level=0.95, n_int=4, tol=NULL){
   ##
   if(any(tau < 0.005)){warning("This method may not work if tau(t) is too small.")}
   ##
@@ -397,14 +406,14 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   if(is.null(t0)){t0 <- tt[which.max(tau)]}
   ##
   return(list("band"    = band_m,
-              "t0"      = t0,
+              "t0"      = result_tmp$t0,
               "prob_t0" = result_tmp$prob_t0 *2, # multipled by two, since two-sided SCB
               "a_star"  = result_tmp$a_star  *2  # multipled by two, since two-sided SCB
               ))
 }
 
 
-.make_band_FFSCB_t <- function(tau, t0=NULL, diag.cov, df, conf.level=0.95, n_int=4, tol=NULL){
+.make_band_FFSCB_t <- function(tau, t0=0, diag.cov, df, conf.level=0.95, n_int=4, tol=NULL){
   ##
   alpha.level <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
@@ -413,12 +422,20 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   tau_v       <- tau
   tau_f       <- stats::approxfun(x = seq(0,1,len=length(tau)), y = tau)
   knots       <- seq(0,1,len=(n_int + 1))
+  if(!is.numeric(t0)){
+    warning("t0 is not given and set to the default `t0=0`.")
+    t0 <- 0
+  }
+  if(!any(t0==knots) ){ 
+    warning("t0 does not equal one of the grid points of the threshold u.\nWe set t0 to the closest grid point.")
+    t0 <- knots[which.min(abs(t0-knots))]
+  }
   if(is.null(tol)){
     tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
   }
   nu          <- df
   nup         <- nu+1
-  if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0, tt, rightmost.closed = TRUE)]}
+  #if(is.null(t0)){t0 <- tt[which.max(tau_v)]}else{t0 <- tt[findInterval(t0, tt, rightmost.closed = TRUE)]}
   ##
   if(n_int == 1){# Case n_int=1 == constant band == Kac-Rice Band
     tau01      <- sum(tau_v)*diff(tt)[1] # int_0^1 tau(t) dt
@@ -548,6 +565,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, t0=NULL, df, conf.level=0.95, 
   }
   ##
   return(list("band"    = band,
+              "t0"      = t0,
               "prob_t0" = prob_t0,
               "a_star"  = a_star))
 }

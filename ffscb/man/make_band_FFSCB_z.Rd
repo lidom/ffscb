@@ -4,7 +4,7 @@
 \alias{make_band_FFSCB_z}
 \title{Fast 'n' fair simultaneous confidence band (Gaussian)}
 \usage{
-make_band_FFSCB_z(x, diag.cov.x, tau, t0 = NULL, conf.level = 0.95,
+make_band_FFSCB_z(x, diag.cov.x, tau, t0 = 0, conf.level = 0.95,
   n_int = 4, tol = NULL)
 }
 \arguments{
