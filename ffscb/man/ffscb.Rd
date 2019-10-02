@@ -6,7 +6,7 @@
 \alias{ffscb-package}
 \title{ffscb}
 \description{
-This package contains example codes for inferential tools suggested in Liebl and Reimherr (2019), titled 'Fast and Fair Simultaneous Confidence Bands'.
+This package contains example codes for inferential tools suggested in Liebl and Reimherr (2019), titled 'Fast and Fair Simultaneous Confidence Bands for Functional Parameters'.
 The top level functions allow to construct simultaneous confidence bands and pvalue functions.
 The inputs can be either vector/matrix or \link{fd}/\link{bifd} object from \link{fda} package.
 }
@@ -38,5 +38,5 @@ plot(b)
 lines(x=grid, y=mu0, lty=2)
 }
 \references{
-Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands for functional parameters.
 }

@@ -3,7 +3,7 @@ The R-package `ffscb` contains the fast 'n' fair simultaneous confidence bands f
 
 ## Installation 
 ```r
-devtools::install_github("lidom/ffscb")
+devtools::install_github("lidom/ffscb/ffscb")
 ```
 
 ## Getting Started
