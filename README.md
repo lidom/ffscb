@@ -38,7 +38,7 @@ hat.tau    <- tau_fun(sample)
 # Make and plot confidence bands
 b <- confidence_band(x = hat.mu, cov.x = hat.cov.mu, tau = hat.tau, df = N-1,
                      n_int = 5, t0 = 1, conf.level  = 0.95,
-                     type=c("FFSCB.t", "Bs","BEc","naive.t"))
+                     type = c("FFSCB.t", "Bs", "BEc", "naive.t"))
 plot(b)
 ```
 
