@@ -40,3 +40,11 @@ b <- confidence_band(x = hat.mu, cov.x = hat.cov.mu, tau = hat.tau, df = N-1,
 plot(b)
 ```
 
+Legend
+
+|Argument   | Description
+|-----------|--------------
+|`FFSCB.t`  | Our fast 'n' fair simultaneous confidence band
+|`Bs`       | Bootstrap based simultaneous confidence band similar to [Degras (2011)](http://www3.stat.sinica.edu.tw/statistica/j21n4/j21n412/j21n412.html)
+|`BEc`      | Simultaneous confidence band of [Choi and Reimherr (2018)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssb.12239)
+|`naive.t`  | Naive pointwise confidence band
