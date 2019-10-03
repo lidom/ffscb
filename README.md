@@ -1,7 +1,7 @@
 # R-package: ffscb
 The R-package `ffscb` contains the fast 'n' fair simultaneous confidence bands for functional parameters as introduced in the paper [**Fast and Fair Simultaneous Confidence Bands for Functional Parameters** (arXiv:1910.00131)](http://arxiv.org/abs/1910.00131) by [Dominik Liebl](www.dliebl.com) and [Matthew Reimherr](http://www.personal.psu.edu/mlr36/).
 
-The folder `Applications` contains the `r-scripts` to reproduce the applications in Section 4 of the manuscript.
+The folders `Simulations` and `Applications` contain `r-scripts` to reproduce the results in Section 3 and Section 4 of the manuscript.
 
 ## Installation 
 ```r
