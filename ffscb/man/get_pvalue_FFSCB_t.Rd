@@ -4,8 +4,16 @@
 \alias{get_pvalue_FFSCB_t}
 \title{FFSCB p-value (t-distr)}
 \usage{
-get_pvalue_FFSCB_t(x, x0 = NULL, tau, t0 = NULL, diag.cov, df,
-  eval.points = NULL, n_int = 5)
+get_pvalue_FFSCB_t(
+  x,
+  x0 = NULL,
+  tau,
+  t0 = NULL,
+  diag.cov,
+  df,
+  eval.points = NULL,
+  n_int = 5
+)
 }
 \arguments{
 \item{x}{Functional parameter estimate (for instance, the empirical mean function).}

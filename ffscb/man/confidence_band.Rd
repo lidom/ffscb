@@ -4,10 +4,19 @@
 \alias{confidence_band}
 \title{Makes confidence bands}
 \usage{
-confidence_band(x, cov.x, tau = NULL, t0 = NULL, df = NULL,
+confidence_band(
+  x,
+  cov.x,
+  tau = NULL,
+  t0 = NULL,
+  df = NULL,
   type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"),
-  conf.level = 0.95, grid.size = 200, Bs.sim.size = 10000,
-  n_int = 10, tol = NULL)
+  conf.level = 0.95,
+  grid.size = 200,
+  Bs.sim.size = 10000,
+  n_int = 10,
+  tol = NULL
+)
 }
 \arguments{
 \item{x}{Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.}

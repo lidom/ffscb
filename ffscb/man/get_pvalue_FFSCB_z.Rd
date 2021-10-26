@@ -4,8 +4,15 @@
 \alias{get_pvalue_FFSCB_z}
 \title{FFSCB p-value (Gaussian)}
 \usage{
-get_pvalue_FFSCB_z(x, x0 = NULL, tau, t0 = NULL, diag.cov,
-  eval.points = NULL, n_int = 5)
+get_pvalue_FFSCB_z(
+  x,
+  x0 = NULL,
+  tau,
+  t0 = NULL,
+  diag.cov,
+  eval.points = NULL,
+  n_int = 5
+)
 }
 \arguments{
 \item{x}{Functional parameter estimate (for instance, the empirical mean function).}

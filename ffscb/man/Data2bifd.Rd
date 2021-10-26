@@ -4,9 +4,17 @@
 \alias{Data2bifd}
 \title{Creates a bifd object from a matrix.}
 \usage{
-Data2bifd(sargvals = NULL, targvals = NULL, y = NULL,
-  sbasisobj = NULL, tbasisobj = NULL, Lfdobjs = NULL,
-  Lfdobjt = NULL, lambdas = NULL, lambdat = NULL)
+Data2bifd(
+  sargvals = NULL,
+  targvals = NULL,
+  y = NULL,
+  sbasisobj = NULL,
+  tbasisobj = NULL,
+  Lfdobjs = NULL,
+  Lfdobjt = NULL,
+  lambdas = NULL,
+  lambdat = NULL
+)
 }
 \arguments{
 \item{sargvals}{Argument values for `s' in the matrix input y(s,t).}

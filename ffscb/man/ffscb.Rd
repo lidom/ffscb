@@ -3,7 +3,6 @@
 \docType{package}
 \name{ffscb}
 \alias{ffscb}
-\alias{ffscb-package}
 \title{ffscb}
 \description{
 This package contains example codes for inferential tools suggested in Liebl and Reimherr (2019), titled 'Fast and Fair Simultaneous Confidence Bands for Functional Parameters'.

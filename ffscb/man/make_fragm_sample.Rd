@@ -4,8 +4,15 @@
 \alias{make_fragm_sample}
 \title{Make sample (for simulation)}
 \usage{
-make_fragm_sample(mean.v, cov.m, N, fragm_len, grid = NULL,
-  dist = "rnorm", ...)
+make_fragm_sample(
+  mean.v,
+  cov.m,
+  N,
+  fragm_len,
+  grid = NULL,
+  dist = "rnorm",
+  ...
+)
 }
 \arguments{
 \item{mean.v}{Mean-Vector (discretized mean function)}

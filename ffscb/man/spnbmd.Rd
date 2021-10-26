@@ -4,13 +4,15 @@
 \name{spnbmd}
 \alias{spnbmd}
 \title{Spinal bone mineral density measurements (spnbmd)}
-\format{Variables:
+\format{
+Variables:
 \describe{
   \item{idnum}{identifies the child, and hence the repeat measurements}
   \item{age}{average age of child when measurements were taken}
   \item{gender}{male or female}
   \item{spnbmd}{Relative Spinal bone mineral density measurement}
-}}
+}
+}
 \source{
 \url{http://web.stanford.edu/~hastie/ElemStatLearn/}
 }

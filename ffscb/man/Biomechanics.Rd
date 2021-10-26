@@ -4,12 +4,14 @@
 \name{Biomechanics}
 \alias{Biomechanics}
 \title{Biomechanics Data (Biomechanics_Data)}
-\format{Variables:
+\format{
+Variables:
 \describe{
   \item{Stance_Phase}{in percent}
   \item{Extra_Cushioned_1:Extra_Cushioned_11}{Torque curves (N m / kg) when running with extra cushioned running shoes.}
   \item{Normal_Cushioned_1:Normal_Cushioned_11}{Torque curves (N m / kg) when running with normal cushioned running shoes.}
-}}
+}
+}
 \usage{
 Biomechanics
 }
@@ -19,7 +21,7 @@ Paired sample of n=11 subjects.
 \details{
 Each subject performed one running stride with an extra cushioned 
 running shoe and one running stride with a normally cushioned 
-running shoe.
+running shoe. 
 
 Measured outcome: 
 Torque (N m / kg) at ankle joint in sagittal pane during the stance phase

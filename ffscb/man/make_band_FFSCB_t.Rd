@@ -4,8 +4,16 @@
 \alias{make_band_FFSCB_t}
 \title{Fast 'n' fair simultaneous confidence band (t-distr)}
 \usage{
-make_band_FFSCB_t(x, diag.cov.x, tau, t0 = 0, df, conf.level = 0.95,
-  n_int = 4, tol = NULL)
+make_band_FFSCB_t(
+  x,
+  diag.cov.x,
+  tau,
+  t0 = 0,
+  df,
+  conf.level = 0.95,
+  n_int = 4,
+  tol = NULL
+)
 }
 \arguments{
 \item{x}{Functional parameter estimate.}
