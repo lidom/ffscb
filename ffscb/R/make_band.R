@@ -356,29 +356,29 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4, tol=
 ## }
 
 
-## p          <- 200 
-## N          <- 80 
-## grid       <- make_grid(p, rangevals=c(0,1))
-## mu0        <- meanf_poly(grid,c(0,1))   
-## names(mu0) <- grid
-## mu         <- meanf_poly(grid,c(0,1.1)) 
-## names(mu)  <- grid
-## cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1))
-## sample     <- make_sample(mu,cov.m,N)
+p          <- 200
+N          <- 80
+grid       <- make_grid(p, rangevals=c(0,1))
+mu0        <- meanf_poly(grid,c(0,1))
+names(mu0) <- grid
+mu         <- meanf_poly(grid,c(0,1.1))
+names(mu)  <- grid
+cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2,1/4))
+sample     <- make_sample(mu,cov.m,N)
 
-##                                         # Compute the estimate and its covariance
-## hat.mu     <- rowMeans(sample)
-## hat.cov    <- crossprod(t(sample - hat.mu)) / N
-## hat.cov.mu <- hat.cov / N
+                                        # Compute the estimate and its covariance
+hat.mu     <- rowMeans(sample)
+hat.cov    <- crossprod(t(sample - hat.mu)) / N
+hat.cov.mu <- hat.cov / N
 
-##                                         # Compute the tau-parameter (for the KR- and FFSCB-bands)
-## hat.tau    <- tau_fun(sample)
-## tau = hat.tau; diag.cov=diag(hat.cov.mu); conf.level=0.95; n_int=4; tol=NULL
+                                        # Compute the tau-parameter (for the KR- and FFSCB-bands)
+hat.tau    <- tau_fun(sample)
+tau = hat.tau; diag.cov=diag(hat.cov.mu); conf.level=0.95; n_int=10; tol=NULL
 
 
 .make_band_FFSCB_z_v2 <- function(tau, diag.cov, conf.level=0.95, n_int=4, tol=NULL){
   ##
-  t0          <- 0 # not used anymore
+  t0          <- 0 # user has no possibility to choose t0 anymore
   ##
   alpha       <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
@@ -389,16 +389,16 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4, tol=
   ##
   if(is.null(tol)){
     ## increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
-    tol         <- .Machine$double.eps^0.32 
+    tol         <- .Machine$double.eps^0.35 
   }
-  if(!is.numeric(t0)){
-    warning("t0 is not given and set to the default `t0=0`.")
-    t0 <- 0
-  }
-  if(!any(t0==knots) ){ 
-    warning("t0 does not equal one of the grid points of the threshold u.\nWe set t0 to the closest grid point.")
-    t0 <- knots[which.min(abs(t0-knots))]
-  }
+  # if(!is.numeric(t0)){
+  #   warning("t0 is not given and set to the default `t0=0`.")
+  #   t0 <- 0
+  # }
+  # if(!any(t0==knots) ){ 
+  #   warning("t0 does not equal one of the grid points of the threshold u.\nWe set t0 to the closest grid point.")
+  #   t0 <- knots[which.min(abs(t0-knots))]
+  # }
   ##
   if(n_int == 1){# Case n_int=1 == constant band == Kac-Rice Band
     tau01      <- sum(tau_v)*diff(tt)[1] # int_0^1 tau(t) dt
@@ -423,41 +423,43 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4, tol=
       c(exp(-c1^2/2) * tau_init / (2*pi) - (alpha/2)/n_int)
   }
   ## curve(myfun1, 0,5); abline(h=0)
+  ##
   c_v[const_int] <- stats::uniroot(f = myfun1, interval = c(0,10), extendInt = "downX", tol = tol)$root
-    ##
-    if(const_int > 1){
-      for(j in (const_int-1):1){
-        myfunj <- function(cj){
-          ##
-          ## sum(c_v_sum) == u' of the preceeding interval
-          if(j==(const_int-1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int-1):(j+1)]}
-          ## threshold function u over the jth interval
-          ufun_j <- function(t,cj){
-            ufun(t=t,
-                 c_v=c(rep(0,times=(j-1)),cj,c_v[(j+1):const_int],rep(0, times=(n_int-const_int))),
-                 knots=knots)
-          }
-          ##
-          fn1    <- function(t,cj){
-            (tau_f(t)/(2*pi)) *
-              exp(-ufun_j(t,cj)^2/2) *
-              exp(-sum(c(c_v_sum,cj))^2/(2*tau_f(t)^2))
-          }
-          fn2    <- function(t,cj){
-            sum(c(c_v_sum,cj))/sqrt(2*pi) *
-              exp(-ufun_j(t,cj)^2/2) *
-              stats::pnorm( sum(c(c_v_sum, cj))/tau_f(t))
-          }
-          intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
-          intgr2 <- sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
-          ##
-          res    <- c(stats::pnorm(-cj)/n_int + intgr1 + intgr2 - (alpha/2)/n_int)
-          return(res)
-        }
-        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
-        c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "upX", tol = tol)$root
-      }
-    }
+  ##
+    # ##
+    # if(const_int > 1){
+    #   for(j in (const_int-1):1){
+    #     myfunj <- function(cj){
+    #       ##
+    #       ## sum(c_v_sum) == u' of the preceeding interval
+    #       if(j==(const_int-1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int-1):(j+1)]}
+    #       ## threshold function u over the jth interval
+    #       ufun_j <- function(t,cj){
+    #         ufun(t=t,
+    #              c_v=c(rep(0,times=(j-1)),cj,c_v[(j+1):const_int],rep(0, times=(n_int-const_int))),
+    #              knots=knots)
+    #       }
+    #       ##
+    #       fn1    <- function(t,cj){
+    #         (tau_f(t)/(2*pi)) *
+    #           exp(-ufun_j(t,cj)^2/2) *
+    #           exp(-sum(c(c_v_sum,cj))^2/(2*tau_f(t)^2))
+    #       }
+    #       fn2    <- function(t,cj){
+    #         sum(c(c_v_sum,cj))/sqrt(2*pi) *
+    #           exp(-ufun_j(t,cj)^2/2) *
+    #           stats::pnorm( sum(c(c_v_sum, cj))/tau_f(t))
+    #       }
+    #       intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
+    #       intgr2 <- sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
+    #       ##
+    #       res    <- c(stats::pnorm(-cj)/n_int + intgr1 + intgr2 - (alpha/2)/n_int)
+    #       return(res)
+    #     }
+    #     # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+    #     c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "upX", tol = tol)$root
+    #   }
+    # }
     if(const_int < n_int){
       for(j in (const_int+1):n_int){# j <- (const_int+1)
         myfunj <- function(cj){
@@ -483,16 +485,16 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4, tol=
           intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
           intgr3 <- sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
           ##
-          res    <- c(stats::pnorm(-cj)/n_int + intgr1 - intgr3 - (alpha/2)/n_int)
+          res    <- c(stats::pnorm(-c_v[1])/n_int + intgr1 - intgr3 - (alpha/2)/n_int)
           return(res)
         }
-        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+        # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0); myfunj(c_v[j])
         c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "downX", tol = tol)$root
       }
     }
   ##
   band.eval <- ufun(t=tt, c_v=c_v, knots=knots)
-
+  ##  plot(x=tt,y=band.eval, type="l")
 
   ## #################################################
   ## check precision
@@ -512,7 +514,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4, tol=
   intgr1 <- sum(fn1(t=tt)) * diff(tt)[1]
   if(t0>0){intgr2 <- sum(fn2(t=tt[tt <= t0])) * diff(tt)[1]}else{intgr2 <- 0}
   if(t0<1){intgr3 <- sum(fn3(t=tt[t0 <  tt])) * diff(tt)[1]}else{intgr3 <- 0}
-  ##
+  ## stats::pnorm(q=-u_f(t0)) + intgr1 + intgr2 - intgr3 - alpha/2
   if(abs(stats::pnorm(q=-u_f(t0)) + intgr1 + intgr2 - intgr3 - alpha/2) > ((alpha/2) / 25)){
     stop("Numeric equation solvers 'uniroot()' give too imprecise results. \nPlease, set the 'tol' argument smaller than the default value (<.Machine$double.eps^0.32).")
   }
