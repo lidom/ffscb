@@ -14,8 +14,7 @@ confidence_band(
   conf.level = 0.95,
   grid.size = 200,
   Bs.sim.size = 10000,
-  n_int = 10,
-  tol = NULL
+  n_int = 10
 )
 }
 \arguments{
@@ -47,8 +46,6 @@ confidence_band(
 \item{Bs.sim.size}{This determines bootstrap sample size for Bs}
 
 \item{n_int}{Number of intervals for the piecewise linear confidence bounds.}
-
-\item{tol}{tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().}
 }
 \value{
 confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.

@@ -8,7 +8,6 @@ get_pvalue_FFSCB_t(
   x,
   x0 = NULL,
   tau,
-  t0 = NULL,
   diag.cov,
   df,
   eval.points = NULL,
@@ -21,8 +20,6 @@ get_pvalue_FFSCB_t(
 \item{x0}{Functional parameter under the null hypothesis. Default: zero.}
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
-
-\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands.}
 
 \item{diag.cov}{The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.}
 
@@ -58,5 +55,5 @@ pval <- get_pvalue_FFSCB_t(x=hat.mu, x0=mu0, tau=hat.tau,
 pval
 }
 \references{
-Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 }

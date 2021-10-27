@@ -8,12 +8,10 @@ confidence_band_fragm(
   x,
   diag.cov.x,
   tau = NULL,
-  t0 = NULL,
   df = NULL,
   type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "naive.t"),
   conf.level = 0.95,
-  n_int = 10,
-  tol = NULL
+  n_int = 10
 )
 }
 \arguments{
@@ -22,8 +20,6 @@ confidence_band_fragm(
 \item{diag.cov.x}{diag(Cov(x)), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.}
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
-
-\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands.}
 
 \item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
 
@@ -38,8 +34,6 @@ confidence_band_fragm(
 \item{conf.level}{A vector of confidence levels for the bands to achieve.}
 
 \item{n_int}{Number of intervals for the piecewise linear confidence bounds.}
-
-\item{tol}{tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().}
 }
 \value{
 confidence_band_fragm

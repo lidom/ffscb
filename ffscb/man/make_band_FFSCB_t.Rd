@@ -4,15 +4,7 @@
 \alias{make_band_FFSCB_t}
 \title{Fast 'n' fair simultaneous confidence band (t-distr)}
 \usage{
-make_band_FFSCB_t(
-  x,
-  diag.cov.x,
-  tau,
-  df,
-  conf.level = 0.95,
-  n_int = 4,
-  tol = NULL
-)
+make_band_FFSCB_t(x, diag.cov.x, tau, df, conf.level = 0.95, n_int = 4)
 }
 \arguments{
 \item{x}{Functional parameter estimate.}
@@ -26,10 +18,6 @@ make_band_FFSCB_t(
 \item{conf.level}{confidence level (default: 0.95)}
 
 \item{n_int}{Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.}
-
-\item{tol}{tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().}
-
-\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.}
 }
 \description{
 Fast 'n' fair simultaneous confidence band (t-distr)
@@ -53,11 +41,11 @@ hat.cov.mu <- hat.cov / N
 hat.tau    <- tau_fun(sample)
 
 # Make and plot confidence bands
-b <- make_band_FFSCB_t(x=hat.mu, diag.cov.x=diag(hat.cov.mu), tau=hat.tau,
+band <- make_band_FFSCB_t(x=hat.mu, diag.cov.x=diag(hat.cov.mu), tau=hat.tau,
                        df = N-1, conf.level  = 0.95)
-matplot(y=b$band[,2:3], x=grid, lty=2)
-lines(x=grid, y=b$band[,1], lty=1)
+matplot(y=band[,2:3], x=grid, lty=2)
+lines(x=grid, y=band[,1], lty=1)
 }
 \references{
-Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 }

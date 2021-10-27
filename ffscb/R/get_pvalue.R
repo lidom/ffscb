@@ -62,11 +62,10 @@ get_pval_Ec <- function(x, x0=NULL, eigen, fpc.cut=NULL, prec=NULL){
 #' @param x Functional parameter estimate (for instance, the empirical mean function).
 #' @param x0 Functional parameter under the null hypothesis. Default: zero.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
 #' @param diag.cov The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.  
 #' @param eval.points Evaluation points (in [0,1]) at which the pvalues should be computed.
 #' @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
-#' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#' @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
 #' p <- 200 
@@ -89,7 +88,7 @@ get_pval_Ec <- function(x, x0=NULL, eigen, fpc.cut=NULL, prec=NULL){
 #'                            eval.points=c(.25,.75))
 #' pval
 #' @export
-get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, eval.points=NULL, n_int=5){
+get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, diag.cov, eval.points=NULL, n_int=5){
   ##
   if (is.null(x0))          {x0 <- rep(0,times=length(x))}
   if (is.null(eval.points)) {stop("Please specify 'eval.points' (in [0,1]) at which the pvalue should be computed.")}
@@ -101,7 +100,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, eval.points=N
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag.cov, conf.level=(1-p), n_int=n_int)$band
+    b    <- .make_band_FFSCB_z(tau=tau, diag.cov=diag.cov, conf.level=(1-p), n_int=n_int)
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     sgn  <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - sgn * b_f(t) 
@@ -122,12 +121,11 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, eval.points=N
 #' @param x Functional parameter estimate (for instance, the empirical mean function).
 #' @param x0 Functional parameter under the null hypothesis. Default: zero.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
 #' @param diag.cov The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.  
 #' @param df Degrees of freedom parameter for the t-distribution based band 'FFSCB.t'. (Typically, df=N-1)
 #' @param eval.points Evaluation points (in [0,1]) at which the pvalues should be computed.
 #' @param n_int Number of intervals parameter used by the function make_band_FFSCB_t()
-#' @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#' @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
 #' p <- 200 
@@ -150,7 +148,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, t0=NULL, diag.cov, eval.points=N
 #'                            eval.points=c(0.25, 0.75))
 #' pval
 #' @export
-get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, df, eval.points=NULL, n_int=5){
+get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, diag.cov, df, eval.points=NULL, n_int=5){
   ##
   if (is.null(x0))          {x0 <- rep(0,times=length(x))}
   if (is.null(eval.points)) {stop("Please specify 'eval.points' (in [0,1]) at which the pvalue should be computed.")}
@@ -162,7 +160,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, df, eval.poin
   diag.cov_f    <- stats::splinefun(x = seq(0,1,len=length(tau)), y = diag.cov, method = "natural")
   ##
   myfun <- function(p, t){
-    b    <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)$band
+    b    <- .make_band_FFSCB_t(tau=tau, diag.cov=diag.cov, df=df, conf.level=(1-p), n_int=n_int)
     b_f  <- stats::splinefun(x = seq(0,1,len=length(tau)), y = b, method = "natural")
     sgn  <- sign(x_f(t) - x0_f(t))
     tmp  <- x_f(t) - sgn * b_f(t) 
@@ -187,7 +185,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, df, eval.poin
 # @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 # @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
 # @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
-# @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+# @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 # @examples 
 # # Generate a sample
 # p <- 200 ; N <- 80 ; rangeval = c(0,1)
@@ -245,7 +243,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, t0=NULL, diag.cov, df, eval.poin
 # @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 # @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
 # @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
-# @references Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+# @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 # @example 
 # # Generate a sample
 # p <- 200 ; N <- 80 ; rangeval = c(0,1)
