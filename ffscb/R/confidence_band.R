@@ -158,7 +158,7 @@ confidence_band <- function(x,
     
     if ("FFSCB.z" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.z.u.",level), paste0("FFSCB.z.l.",level))
-      FFSCB.z          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m), conf.level=level, n_int=n_int, tol=tol)
+      FFSCB.z          <- .make_band_FFSCB_z_v2(tau=tau, diag.cov=diag(cov.m), conf.level=level, n_int=n_int, tol=tol)
       result           <- cbind(result, x.v + FFSCB.z$band, x.v - FFSCB.z$band)
       colnames(result) <- tmp.colnames
     }
@@ -166,9 +166,9 @@ confidence_band <- function(x,
     if ("FFSCB.t" %in% type){
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
       if(df <= 100){
-        FFSCB.t          <- .make_band_FFSCB_t(tau=tau, t0=t0, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int, tol=tol)
+        FFSCB.t          <- .make_band_FFSCB_t_v2(tau=tau, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int, tol=tol)
       }else{
-        FFSCB.t          <- .make_band_FFSCB_z(tau=tau, t0=t0, diag.cov=diag(cov.m),        conf.level=level, n_int=n_int, tol=tol)
+        FFSCB.t          <- .make_band_FFSCB_z_v2(tau=tau, diag.cov=diag(cov.m), conf.level=level, n_int=n_int, tol=tol)
       }
       result           <- cbind(result, x.v + FFSCB.t$band, x.v - FFSCB.t$band)
       colnames(result) <- tmp.colnames

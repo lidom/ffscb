@@ -8,7 +8,6 @@ make_band_FFSCB_t(
   x,
   diag.cov.x,
   tau,
-  t0 = 0,
   df,
   conf.level = 0.95,
   n_int = 4,
@@ -22,8 +21,6 @@ make_band_FFSCB_t(
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
 
-\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.}
-
 \item{df}{Degrees of freedom}
 
 \item{conf.level}{confidence level (default: 0.95)}
@@ -31,6 +28,8 @@ make_band_FFSCB_t(
 \item{n_int}{Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.}
 
 \item{tol}{tolerance 'tol' parameter used by stats::uniroot(). If tol=NULL, we use tol=.Machine$double.eps^0.32 which increases the default accuracy used by uniroot().}
+
+\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands. If left unspecified (default t0=NULL), t0 is set to the location which maximizes tau.}
 }
 \description{
 Fast 'n' fair simultaneous confidence band (t-distr)
