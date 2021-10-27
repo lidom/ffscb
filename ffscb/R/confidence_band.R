@@ -3,7 +3,6 @@
 #' @param x Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.
 #' @param cov.x Cov(x), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param t0 Parameter t0 of the fast and fair simultaneous confidence bands.
 #' @param df Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.
 #' @param type The band(s) to be constructed.
 #' \itemize{
@@ -22,7 +21,7 @@
 #' @return confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.
 #' @references 
 #' \itemize{
-#'    \item Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#'    \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 #'    \item  Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239-260.
 #' }
 #' @examples
@@ -55,7 +54,6 @@
 confidence_band <- function(x, 
                             cov.x, 
                             tau         = NULL, 
-                            t0          = NULL, 
                             df          = NULL, 
                             type        = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"), 
                             conf.level  = 0.95, 
@@ -200,7 +198,7 @@ confidence_band <- function(x,
 #' @return confidence_band_fragm
 #' @references 
 #' \itemize{
-#'    \item Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+#'    \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 #' }
 confidence_band_fragm <- function(x, 
                                   diag.cov.x, 

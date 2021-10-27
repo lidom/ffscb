@@ -43,6 +43,6 @@ Makes confidence bands for fragmentary functional data
 }
 \references{
 \itemize{
-   \item Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+   \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
 }
 }

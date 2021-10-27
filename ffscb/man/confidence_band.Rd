@@ -8,7 +8,6 @@ confidence_band(
   x,
   cov.x,
   tau = NULL,
-  t0 = NULL,
   df = NULL,
   type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"),
   conf.level = 0.95,
@@ -23,8 +22,6 @@ confidence_band(
 \item{cov.x}{Cov(x), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.}
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
-
-\item{t0}{Parameter t0 of the fast and fair simultaneous confidence bands.}
 
 \item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
 
@@ -82,7 +79,7 @@ lines(x=grid, y=mu0, lty=2)
 }
 \references{
 \itemize{
-   \item Liebl, D. and Reimherr, M. (2019). Fast and fair simultaneous confidence bands.
+   \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
    \item  Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239-260.
 }
 }
