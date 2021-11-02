@@ -17,7 +17,7 @@ confidence_band(
 )
 }
 \arguments{
-\item{x}{Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.}
+\item{x}{Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from the \link{fda} package.}
 
 \item{cov.x}{Cov(x), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.}
 
