@@ -13,7 +13,7 @@ confidence_band(
   conf.level = 0.95,
   grid.size = 200,
   Bs.sim.size = 10000,
-  n_int = 10
+  n_int = 4
 )
 }
 \arguments{
@@ -73,7 +73,7 @@ hat.tau    <- tau_fun(sample)
 # Make and plot confidence bands
 b <- confidence_band(x=hat.mu, cov.x=hat.cov.mu, tau=hat.tau, df=N-1,
                      type=c("FFSCB.t", "Bs","BEc","naive.t"),
-                     conf.level  = 0.95)
+                     conf.level  = 0.95, n_int=4)
 plot(b)
 lines(x=grid, y=mu0, lty=2)
 }

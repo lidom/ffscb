@@ -1,6 +1,6 @@
 #' Makes confidence bands
 #'
-#' @param x Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.
+#' @param x Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from the \link{fda} package.
 #' @param cov.x Cov(x), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
 #' @param df Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.
@@ -47,7 +47,7 @@
 #' # Make and plot confidence bands
 #' b <- confidence_band(x=hat.mu, cov.x=hat.cov.mu, tau=hat.tau, df=N-1,
 #'                      type=c("FFSCB.t", "Bs","BEc","naive.t"),
-#'                      conf.level  = 0.95)
+#'                      conf.level  = 0.95, n_int=4)
 #' plot(b)
 #' lines(x=grid, y=mu0, lty=2)
 #' @export 
@@ -59,7 +59,7 @@ confidence_band <- function(x,
                             conf.level  = 0.95, 
                             grid.size   = 200,
                             Bs.sim.size = 10000, 
-                            n_int       = 10){
+                            n_int       = 4){
   ### Check the data type ###
   if (inherits(x,"fd") & (inherits(cov.x,"bifd") | inherits(cov.x,"pca.fd") | inherits(cov.x,"eigen.fd"))) datatype="fd" else if
   ((inherits(x,"numeric") | inherits(x,"matrix"))  & (inherits(cov.x,"matrix") | inherits(cov.x,"list") | inherits(cov.x,"eigen") )) datatype="vector" else stop ("The format of data is unknown")
@@ -81,7 +81,9 @@ confidence_band <- function(x,
       J     <- sum(cov.x$values > 0)
       cov.m <- cov.x$vectors[,c(1:J)] %*% diag(cov.x$values[c(1:J)]) %*% t(cov.x$vectors[,c(1:J)])
     } else cov.m <- cov.x;
+    ##
     x.v <- x
+    ##
   }
   p <- dim(cov.m)[1]
   if (!isSymmetric(cov.m)) cov.m <- (cov.m + t(cov.m))/2  # force cov.m to be symmetric
@@ -159,6 +161,7 @@ confidence_band <- function(x,
       tmp.colnames     <- c(colnames(result), paste0("FFSCB.t.u.",level), paste0("FFSCB.t.l.",level))
       if(df <= 100){
         FFSCB.t          <- .make_band_FFSCB_t(tau=tau, diag.cov=diag(cov.m), df=df, conf.level=level, n_int=n_int)
+        # matplot(cbind(x.v + FFSCB.t, x.v - FFSCB.t,x.v),type="l",lty=1,col=c(2,2,1))
       }else{
         FFSCB.t          <- .make_band_FFSCB_z(tau=tau, diag.cov=diag(cov.m), conf.level=level, n_int=n_int)
       }

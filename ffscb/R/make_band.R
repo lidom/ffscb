@@ -349,14 +349,14 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
 .make_band_FFSCB_z <- function(tau, diag.cov, conf.level=0.95, n_int=4){
   ##
   ## location to check whether process started uncrossed
-  t0          <- 0 
-  ## increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
+  ##t0          <- 0 
+  ## increase the default accuracy for uniroot() (.Machine$double.eps^0.25)
   tol         <- .Machine$double.eps^0.35 
   ##
   alpha       <- 1-conf.level
   tt          <- seq(0,1,len=length(tau))
   tau_v       <- tau
-  #tau_f       <- stats::approxfun(x = seq(0,1,len=length(tau)), y = tau)
+  ## linear interpolation of all tau values for easy integration
   tau_f       <- function(t){stats::approx(x = seq(0,1,len=length(tau)), y = tau, xout=t)$y}
   knots       <- seq(0,1,len=(n_int + 1))
   ##
@@ -391,7 +391,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
   ## Determine the initial value of u
   tau_init <- sum(tau_v[knots[const_int] <= tt & tt <= knots[const_int+1]])*diff(tt)[1]
   myfun1   <- function(c1){
-    stats::pnorm(-c1)/n_int +
+    stats::pnorm(-c1) +
       c(exp(-c1^2/2) * tau_init / (2*pi) - (alpha/2)/n_int)
   }
   ## curve(myfun1, 0,5); abline(h=0)
@@ -400,19 +400,25 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
   ##
   for(j in (const_int+1):n_int){# j <- (const_int+1)
     myfunj <- function(cj){
-      ## sum(c_v_sum) == u'(t) for 0 <= t < (j-1)th interval
+      ## sum(c_v_sum) == u'(t) for all t in the (j-1)th interval
+      ## sum(c(c_v_sum,c_j)) == u'(t) for all t in the jth interval
       if(j==(const_int+1)){c_v_sum <- 0}else{c_v_sum <- c_v[(const_int+1):(j-1)]}
       ##
       ufun_j <- function(t,cj){
         ufun(t=t,
-             c_v=c(rep(0,times=(const_int-1)),c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))),
+             c_v=c(#rep(0,times=(const_int-1)),
+                   c_v[const_int:(j-1)], cj, rep(0, times=(n_int-j))),
              knots=knots)
       }
-      ##
       fn1    <- function(t,cj){
         (tau_f(t)/(2*pi)) *
           exp(-ufun_j(t,cj)^2/2) *
           exp(-sum(c(c_v_sum,cj))^2/(2*tau_f(t)^2))
+      }
+      fn2    <- function(t,cj){
+        sum(c(c_v_sum,cj))/sqrt(2*pi) * 
+          exp(-ufun_j(t,cj)^2/2) * 
+          stats::pnorm( sum(c(c_v_sum, cj))/tau_f(t))
       }
       fn3    <- function(t,cj){
         sum(c(c_v_sum,cj))/sqrt(2*pi) *
@@ -420,38 +426,30 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
           stats::pnorm(-sum(c(c_v_sum, cj))/tau_f(t))
       }
       intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
-      intgr3 <- sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
+      if(j %% 2 != 0){# odd j
+        intgr2 <- sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
+      }else{intgr2 <- 0}
+      if(j %% 2 == 0){# even j
+        intgr3 <- sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]], cj=cj)) * diff(tt)[1]
+      }else{intgr3 <- 0}
       ##
-      res    <- c(stats::pnorm(-c_v[1])/n_int + intgr1 - intgr3 - (alpha/2)/n_int)
+      ## res    <- c(stats::pnorm(-c_v[1])/n_int + intgr1 - intgr3 - (alpha/2)/n_int)
+      if(j %% 2 == 0){# even j
+        res <- c(stats::pnorm(-ufun(knots[j], c_v = c_v, knots = knots)) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+      }
+      if(j %% 2 != 0){# odd j
+        res <- c(stats::pnorm(-ufun_j(t=knots[j+1], cj))                 + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+      }
+      ##
       return(res)
     }
-    # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0); myfunj(c_v[j])
+    # myfunj <- Vectorize(myfunj); curve(myfunj, -50,50); abline(h=0); myfunj(c_v[j])
     c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "downX", tol = tol)$root
   }
   ##
-  band.eval <- ufun(t=tt, c_v=c_v, knots=knots)
-  ##  plot(x=tt,y=band.eval, type="l")
-
-  ## #################################################
-  ## check precision
-  # u_f  <- function(t){return(ufun(t=t,c_v=c_v,knots=knots))}
-  # up_f <- function(t){
-  #   cp <- c_v; cp[const_int] <- 0
-  #   cp[(const_int+1):n_int]  <- cumsum(cp[(const_int+1):n_int])
-  #   ##
-  #   return(cp[findInterval(t, knots, rightmost.closed = TRUE)])
-  # }
-  # fn1 <- function(t){(tau_f(t)/(2*pi))  * exp(-u_f(t)^2/2) * exp(-up_f(t)^2/(2*tau_f(t)^2))}
-  # fn3 <- function(t){up_f(t)/sqrt(2*pi) * exp(-u_f(t)^2/2) * stats::pnorm(-up_f(t)/tau_f(t))}
-  # ##
-  # intgr1 <- sum(fn1(t=tt)) * diff(tt)[1]
-  # intgr3 <- sum(fn3(t=tt)) * diff(tt)[1]
-  # ## stats::pnorm(q=-u_f(t0)) + intgr1 + intgr2 - intgr3 - alpha/2
-  # if(abs(stats::pnorm(q=-u_f(t0)) + intgr1 - intgr3 - alpha/2) > ((alpha/2) / 25)){
-  #   stop("Numeric equation solvers 'uniroot()' give too imprecise results. \nPlease, set the 'tol' argument smaller than the default value (<.Machine$double.eps^0.32).")
-  # }
-  ## #################################################
-  band <- band.eval * sqrt(diag.cov)
+  band.eval <- ufun(t=tt, c_v=c_v, knots=knots) # plot(x=tt,y=band.eval, type="l", main="z")
+  band      <- band.eval * sqrt(diag.cov) # 
+  plot(x=tt,y=band, type="l", main="z")
   ##
   return(band)
 }
@@ -495,7 +493,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
   ##
   if(any(tau < 0.005)){warning("This method may not work if tau(t) is too small.")}
   ##
-  if(df <= 100){
+  if(df <= 101){
     band       <- .make_band_FFSCB_t(tau=tau, diag.cov=diag.cov.x, df=df, conf.level=conf.level, n_int=n_int)
   }else{
     band       <- .make_band_FFSCB_z(tau=tau, diag.cov=diag.cov.x,        conf.level=conf.level, n_int=n_int)
@@ -668,7 +666,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
 .make_band_FFSCB_t <- function(tau, diag.cov, df, conf.level=0.95, n_int=4){
   ##
   ## location to check whether process started uncrossed
-  t0          <- 0 
+  #t0          <- 0 
   ## increases the default accuracy for uniroot() (.Machine$double.eps^0.25)
   tol         <- .Machine$double.eps^0.35 
   ##
@@ -711,14 +709,14 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
   ## Determine the initial value of u
   tau_init <- sum(tau_v[knots[const_int] <= tt & tt <= knots[const_int+1]])*diff(tt)[1]
   myfun1         <- function(c1){
-    stats::pt(q=-c1, df = nu)/n_int +
+    stats::pt(q=-c1, df = nu) +
       c((tau_init/(2*pi)) * (1+c1^2/nu)^(-nu/2) - (alpha/2)/n_int)
   }
   ## curve(myfun1, 0,1); abline(h=0)
   ##
   c_v[const_int] <- stats::uniroot(f = myfun1, interval = c(0,10), extendInt = "downX", tol = tol)$root
   ##
-  for(j in (const_int+1):n_int){
+  for(j in (const_int+1):n_int){# j <- const_int+1
     myfunj <- function(cj){
       ##
       ## sum(c_v_sum) == u'(t) for 0 <= t < (j-1)th interval
@@ -726,7 +724,8 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
       ##
       ufun_j <- function(t,cj){
         ufun(t=t,
-             c_v=c(rep(0,times=(const_int-1)),c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))),
+             c_v=c(rep(0,times=(const_int-1)),
+                   c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))),
              knots=knots)
       }
       afun_j <- function(t,cj){sqrt(nu*tau_f(t)^2*(1+ufun_j(t,cj)^2/nu)/nup)}
@@ -735,6 +734,11 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
         tau_f(t) * (1 + ufun_j(t,cj)^2/nu +
                       sum(c(c_v_sum,cj))^2/(nu*tau_f(t)^2))^(-nu/2) / (2*pi)
       }
+      fn2 <- function(t,cj){
+                   (sum(c(c_v_sum,cj))/(2*pi*tau_f(t))) * (1+ufun_j(t,cj)^2/nu)^(-nu/2 -1)  *
+                     (gamma(nup/2) * sqrt(nup*pi) * afun_j(t,cj) / gamma((nup+1)/2) ) *
+                     stats::pt(q = (sum(c(c_v_sum,cj)) / afun_j(t,cj) ), df=nup) 
+      }
       fn3    <- function(t,cj){
         (sum(c(c_v_sum,cj))/(2*pi*tau_f(t))) * 
           (1+ufun_j(t,cj)^2/nu)^(-nu/2 -1)  *
@@ -742,43 +746,30 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
           stats::pt(q = (-sum(c(c_v_sum,cj)) / afun_j(t,cj) ), df=nup) 
       }
       intgr1 <- sum(fn1(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]
+      if(j %% 2 != 0){# odd j
+      intgr2 <- sum(fn2(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]
+      }else{intgr2 <- 0}
+      if(j %% 2 == 0){# even j
       intgr3 <- sum(fn3(t=tt[knots[j] < tt & tt <= knots[j+1]],cj=cj)) * diff(tt)[1]
+      }else{intgr3 <- 0}
       ##
-      res    <- c(stats::pt(q=-c_v[1], df = nu)/n_int + intgr1 - intgr3 - (alpha/2)/n_int)
+      #res    <- c(stats::pt(q=-c_v[1], df = nu) + intgr1 - intgr3 - (alpha/2)/n_int)
+      if(j %% 2 == 0){# even j
+        res    <- c(stats::pnorm(-ufun(knots[j], c_v = c_v, knots = knots)) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+      }
+      if(j %% 2 != 0){# odd j
+        res <- c(stats::pnorm(-ufun_j(t=knots[j+1], cj))                    + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+      }
       return(res)
     } 
     # myfunj <- Vectorize(myfunj); curve(myfunj, -10,10); abline(h=0)
+    # 2.7206646  0.5871968  0.8107724 -0.7136544
     c_v[j] <- stats::uniroot(f = myfunj, interval = c(-10,10), extendInt = "downX", tol = tol)$root
   }
   ##
-  band.eval <- ufun(t=tt, c_v=c_v, knots=knots)
-
-  ## #################################################
-  ## check precision
-  # u_f  <- function(t){return(ufun(t=t,c_v=c_v,knots=knots))}
-  # up_f <- function(t){
-  #   cp <- c_v; cp[const_int] <- 0
-  #   cp[(const_int+1):n_int] <- cumsum(cp[(const_int+1):n_int]) 
-  #   ##
-  #   return(cp[findInterval(t, knots, rightmost.closed = TRUE)])
-  # }
-  # a_f <- function(t){sqrt(nu*tau_f(t)^2*(1+u_f(t)^2/nu)/nup)}
-  # ##
-  # fn1 <- function(t){tau_f(t) * (1 + u_f(t)^2/nu + up_f(t)^2/(nu*tau_f(t)^2))^(-nu/2)/(2*pi)}
-  # fn3 <- function(t){
-  #   (up_f(t)/(2*pi*tau_f(t))) * (1+u_f(t)^2/nu)^(-nu/2 -1)  *
-  #     (gamma(nup/2) * sqrt(nup*pi) * a_f(t) / gamma((nup+1)/2) ) *
-  #     stats::pt(q = -(up_f(t) / a_f(t) ), df=nup)
-  # }
-  # ##
-  # intgr1 <- sum(fn1(t=tt)) * diff(tt)[1]
-  # intgr3 <- sum(fn3(t=tt)) * diff(tt)[1]
-  # ##
-  # if(abs(stats::pt(q=-u_f(t0), df = nu) + intgr1 - intgr3 - alpha/2 ) > ((alpha/2) / 25)){
-  #   stop("Numeric equation solvers 'uniroot()' give too imprecise results. \nPlease, set the 'tol' argument smaller than the default value (<.Machine$double.eps^0.32).")
-  # }
-  ## #################################################
-  band <- band.eval * sqrt(diag.cov)
+  band.eval <- ufun(t=tt, c_v=c_v, knots=knots) # plot(y=band.eval,x=tt, type="l")
+  band      <- band.eval * sqrt(diag.cov)# 
+  #plot(y=band,x=tt, type="l", main="t")
   ##
   return(band)
 }
