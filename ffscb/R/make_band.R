@@ -448,8 +448,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
   }
   ##
   band.eval <- ufun(t=tt, c_v=c_v, knots=knots) # plot(x=tt,y=band.eval, type="l", main="z")
-  band      <- band.eval * sqrt(diag.cov) # 
-  plot(x=tt,y=band, type="l", main="z")
+  band      <- band.eval * sqrt(diag.cov) # plot(x=tt,y=band, type="l", main="z")
   ##
   return(band)
 }
@@ -768,8 +767,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
   }
   ##
   band.eval <- ufun(t=tt, c_v=c_v, knots=knots) # plot(y=band.eval,x=tt, type="l")
-  band      <- band.eval * sqrt(diag.cov)# 
-  #plot(y=band,x=tt, type="l", main="t")
+  band      <- band.eval * sqrt(diag.cov) # plot(y=band,x=tt, type="l", main="t")
   ##
   return(band)
 }
