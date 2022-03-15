@@ -223,10 +223,6 @@ confidence_band_fragm <- function(x,
   result           <- as.matrix(x, ncol=1) 
   colnames(result) <- c("x")
   
-  if(is.null(tol)){
-    tol         <- .Machine$double.eps^0.32 # increases the default accuracy for uniroot() (.Machine$double.eps^0.25) used by the FFSCB functions
-  }
-  
   ## Take loop for conf.level
   for (i in c(1:length(conf.level))){
     level <- conf.level[i]
