@@ -49,7 +49,7 @@ tau = hat.tau; diag.cov = diag(hat.cov.mu);  conf.level=0.95; n_int=3; df=N-1
 x = hat.mu; cov.x = hat.cov.mu; tau = hat.tau; df=N-1; conf.level  = 0.95; 
 
 
-FFSCB_t1 <- make_band_FFSCB_t(x = hat.mu, diag.cov.x = diag(hat.cov.mu), tau = hat.tau, df = N-1, conf.level = 0.95, n_int = 3)
+FFSCB_t1 <- make_band_FFSCB_t(x = hat.mu, diag.cov.x = diag(hat.cov.mu), tau = hat.tau, df = N-1, conf.level = 0.95, n_int = 5)
 matplot(FFSCB_t1[,-1], type="l", lty=1, col=1)
 
 FFSCB_z1 <- make_band_FFSCB_z(x = hat.mu, diag.cov.x = diag(hat.cov.mu), tau = hat.tau, conf.level = 0.95, n_int = 3)
