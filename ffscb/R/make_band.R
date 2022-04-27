@@ -740,8 +740,7 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
       ##
       ufun_j <- function(t,cj){
         ufun(t=t,
-             c_v=c(rep(0,times=(const_int-1)),
-                   c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))),
+             c_v=c(c_v[const_int:(j-1)],cj,rep(0, times=(n_int-j))),
              knots=knots)
       }
       afun_j <- function(t,cj){sqrt(nu*tau_f(t)^2*(1+ufun_j(t,cj)^2/nu)/nup)}
