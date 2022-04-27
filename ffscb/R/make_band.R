@@ -452,10 +452,10 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
       ##
       ## res    <- c(stats::pnorm(-c_v[1])/n_int + intgr1 - intgr3 - (alpha/2)/n_int)
       if(j %% 2 == 0){# even j
-        res <- c(stats::pnorm(-ufun(knots[j], c_v = c_v, knots = knots)) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+        res <- c(stats::pnorm(-ufun(knots[j], c_v = c_v, knots = knots)) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int) # '-ufun' since we need upper-tail and can use symmetriy of normal
       }
       if(j %% 2 != 0){# odd j
-        res <- c(stats::pnorm(-ufun_j(t=knots[j+1], cj))                 + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+        res <- c(stats::pnorm(-ufun_j(t=knots[j+1], cj))                 + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int) # '-ufun' since we need upper-tail and can use symmetriy of normal
       }
       ##
       return(res)
@@ -770,10 +770,11 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
       ##
       #res    <- c(stats::pt(q=-c_v[1], df = nu) + intgr1 - intgr3 - (alpha/2)/n_int)
       if(j %% 2 == 0){# even j
-        res    <- c(stats::pnorm(-ufun(knots[j], c_v = c_v, knots = knots)) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+        #res <- c(stats::pnorm(-ufun(knots[j], c_v = c_v, knots = knots)) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+        res <- c(stats::pt(-ufun(knots[j], c_v = c_v, knots = knots), df=df) + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int) # '-ufun' since we need upper-tail and can use symmetriy of normal
       }
       if(j %% 2 != 0){# odd j
-        res <- c(stats::pnorm(-ufun_j(t=knots[j+1], cj))                    + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int)
+        res <- c(stats::pt(-ufun_j(t=knots[j+1], cj), df=df)                 + intgr1 + intgr2 - intgr3 - (alpha/2)/n_int) # '-ufun' since we need upper-tail and can use symmetriy of normal
       }
       return(res)
     } 
@@ -783,15 +784,10 @@ make_band_FFSCB_t <- function(x, diag.cov.x, tau, df, conf.level=0.95, n_int=4){
   }
   ##
   band.eval <- ufun(t=tt, c_v=c_v, knots=knots) # plot(y=band.eval,x=tt, type="l")
-  band      <- band.eval * sqrt(diag.cov) # plot(y=band,x=tt, type="l", main="t")
+  band      <- band.eval * sqrt(diag.cov)       # plot(y=band,x=tt, type="l", main="t")
   ##
   return(band)
 }
-
-
-
-
-
 
 
 
