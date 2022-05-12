@@ -68,6 +68,9 @@ confidence_band <- function(x,
   # evaluate x and cov.x if datatype is "fd".
   # Since all functions for generating bands evaluate fd object inside, we do this here and just use vector/matrix version
   if (datatype=="fd") {
+    if (length(tau) != grid.size) {
+      stop("The lengths of tau and grid.size are different. This can be alleviated by changing the number of grid points when estimating tau to match the length of grid.size.")
+    }
     if (!inherits(cov.x,"bifd")) {
       J    <- min(sum(cov.x$values > 0),dim(cov.x$harmonics$coefs)[2])
       coef <- cov.x$harmonics$coefs[,c(1:J)] %*% diag(cov.x$values[c(1:J)]) %*% t(cov.x$harmonics$coefs[,c(1:J)])
