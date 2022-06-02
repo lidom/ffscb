@@ -147,17 +147,17 @@ make_band_KR_z <- function(tau, diag.cov, conf.level=0.95){
 # }
 
 
-## Confidence band
-make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
-  alpha.level <- 1-conf.level
-  tt          <- seq(0,1,len=length(tau))
-  tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
-  myfun       <- function(c){stats::pt(c, lower.tail = FALSE, df=df) + tau_01*(1+c^2/df)^(-df/2)/(2*pi) - alpha.level/2}
-  cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
-  band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov)
-  ##
-  return(band)
-}
+# ## Confidence band
+# make_band_KR_t <- function(tau, diag.cov, df, conf.level=0.95){
+#   alpha.level <- 1-conf.level
+#   tt          <- seq(0,1,len=length(tau))
+#   tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
+#   myfun       <- function(c){stats::pt(c, lower.tail = FALSE, df=df) + tau_01*(1+c^2/df)^(-df/2)/(2*pi) - alpha.level/2}
+#   cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
+#   band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov)
+#   ##
+#   return(band)
+# }
 
 
 ## Prediction band
