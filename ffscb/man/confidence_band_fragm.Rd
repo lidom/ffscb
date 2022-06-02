@@ -9,9 +9,9 @@ confidence_band_fragm(
   diag.cov.x,
   tau = NULL,
   df = NULL,
-  type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "naive.t"),
+  type = c("FFSCB.z", "FFSCB.t", "naive.t"),
   conf.level = 0.95,
-  n_int = 10
+  n_int = 2
 )
 }
 \arguments{
@@ -21,14 +21,12 @@ confidence_band_fragm(
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
 
-\item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
+\item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t' and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
 
 \item{type}{The band(s) to be constructed.
 \itemize{
   \item FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.
   \item FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.
-  \item KR.z : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for Gaussian random functions.
-  \item KR.t : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for t-distributed random functions.
 }}
 
 \item{conf.level}{A vector of confidence levels for the bands to achieve.}

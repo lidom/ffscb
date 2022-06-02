@@ -9,7 +9,7 @@ confidence_band(
   cov.x,
   tau = NULL,
   df = NULL,
-  type = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"),
+  type = c("FFSCB.z", "FFSCB.t", "BEc", "Bs", "naive.t"),
   conf.level = 0.95,
   grid.size = 200,
   Bs.sim.size = 10000,
@@ -23,14 +23,12 @@ confidence_band(
 
 \item{tau}{Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().}
 
-\item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
+\item{df}{Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t' and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.}
 
 \item{type}{The band(s) to be constructed.
 \itemize{
   \item FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.
   \item FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.
-  \item KR.z : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for Gaussian random functions.
-  \item KR.t : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for t-distributed random functions.
   \item BEc : The suggested modified Scheffe style band from hyper-ellipsoie Ec, which uses up to the very last dimension.
   \item Bs : Parametric bootstrap simultaneous confidence band, similar to the one appeard in Degras(2011) (for comparision purpose)
   \item naive.t : A collection of point-wise t-intervals. (for comparision purpose)
@@ -67,7 +65,7 @@ hat.mu     <- rowMeans(sample)
 hat.cov    <- crossprod(t(sample - hat.mu)) / N
 hat.cov.mu <- hat.cov / N
 
-# Compute the tau-parameter (for the KR- and FFSCB-bands)
+# Compute the tau-parameter 
 hat.tau    <- tau_fun(sample)
 
 # Make and plot confidence bands

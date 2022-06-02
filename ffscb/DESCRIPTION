@@ -9,7 +9,6 @@ License: GPL-3
 Imports:
      CompQuadForm,
      fda,
-     splines,
      pracma,
      rmutil
 LazyData: TRUE

@@ -37,7 +37,7 @@ hat.mu     <- rowMeans(sample)
 hat.cov    <- crossprod(t(sample - hat.mu)) / N
 hat.cov.mu <- hat.cov / N
 
-# Compute the tau-parameter (for the KR- and FFSCB-bands)
+# Compute the tau-parameter 
 hat.tau    <- tau_fun(sample)
 
 # Make and plot confidence bands

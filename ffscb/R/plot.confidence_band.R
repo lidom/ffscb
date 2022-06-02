@@ -46,6 +46,7 @@ plot.confidence_band <- function(x, center=TRUE, legendx="topleft", legendy=NULL
   if (type=="vector") {
     gp$x <- rownames(band) ; gp$y <- band[,-1] ; gp$type <- "l" ;
     do.call(graphics::matplot,gp)
+    # if(length(grep(pattern = "FFSCB", x = bandnames)) > 0){}
   } else {
     gp$x <- band[-1]
     do.call(fda::plot.fd,gp)
