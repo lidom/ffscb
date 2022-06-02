@@ -51,100 +51,18 @@ make_band_naive_t_fragm <- function(diag.cov, conf.level, df){
 }
 
 
-# Kac-Rice simultaneous confidence band (Gaussian)
-# 
-# @param x Functional parameter estimate.
-# @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-# @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator.
-# @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
-# @param conf.level confidence level (default: 0.95)
-# @example
-# # Generate a sample
-# p <- 200 ; N <- 80 ; rangeval = c(0,1)
-# grid  <- make_grid(p, rangevals=rangeval)
-# mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
-# mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
-# cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-# dat   <- make_sample(mu,cov.m,N)
-# 
-# # Find the estimate and covariance
-# hat.mu       <- rowMeans(dat)
-# hat.cov.m    <- crossprod(t(dat - hat.mu)) / (N-1)
-# hat.tau.v    <- tau_fun(dat)
-# 
-# # Result
-# band <- make_band_KR_z(x=hat.mu, tau=hat.tau.v, diag.cov=diag(hat.cov.m),N=N)
-# matplot(y=band, x=grid, type="l", lty=c(2,1,2), col=1, main="KR-band (Gaussian)")
-# @export
-# make_band_KR_z <- function(x, tau, diag.cov, N, conf.level=0.95){
+
+# make_band_KR_z <- function(tau, diag.cov, conf.level=0.95){
 #   alpha.level <- 1-conf.level
 #   tt          <- seq(0,1,len=length(tau))
 #   tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
-#   myfun       <- function(c){stats::pnorm(c,lower.tail = FALSE)+tau_01*exp(-c^2/2)/(2*pi)-alpha.level/2}
+#   myfun       <- function(c){stats::pnorm(c,lower.tail = FALSE) + tau_01*exp(-c^2/2)/(2*pi)-alpha.level/2}
 #   cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
-#   band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov) / sqrt(N)
-#   band_upper  <- x + band
-#   band_lower  <- x - band
+#   band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov) 
 #   ##
-#   result           <- cbind(band_lower,x,band_upper)
-#   colnames(result) <- c("KR_z_band_lower","x","KR_z_band_upper")
-#   ##
-#   return(result)
+#   return(band)
 # }
 
-make_band_KR_z <- function(tau, diag.cov, conf.level=0.95){
-  alpha.level <- 1-conf.level
-  tt          <- seq(0,1,len=length(tau))
-  tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
-  myfun       <- function(c){stats::pnorm(c,lower.tail = FALSE) + tau_01*exp(-c^2/2)/(2*pi)-alpha.level/2}
-  cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
-  band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov) 
-  ##
-  return(band)
-}
-
-
-# Kac-Rice simultaneous confidence band (t-distr)
-#
-# @param x Functional parameter estimate. 
-# @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-# @param diag.cov The diagonal of N * Cov(X), in which X is the functional estimator. 
-# @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
-# @param conf.level confidence level (default: 0.95)
-# @example 
-# # Generate a sample
-# p <- 200 ; N <- 80 ; rangeval = c(0,1)
-# grid  <- make_grid(p, rangevals=rangeval)
-# mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
-# mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
-# cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
-# dat   <- make_sample(mu,cov.m,N)
-#
-# # Find the estimate and covariance
-# hat.mu       <- rowMeans(dat)
-# hat.cov.m    <- crossprod(t(dat - hat.mu)) / (N-1)
-# hat.tau.v    <- tau_fun(dat)
-# 
-# # Result
-# band <- make_band_KR_t(x=hat.mu, tau=hat.tau.v, diag.cov=diag(hat.cov.m),N=N)
-# matplot(y=band, x=grid, type="l", lty=c(2,1,2), col=1, main="KR-band (t-distr)")
-# @export
-# make_band_KR_t <- function(x, tau, diag.cov, N, conf.level=0.95){
-#   alpha.level <- 1-conf.level
-#   nu          <- N-1
-#   tt          <- seq(0,1,len=length(tau))
-#   tau_01      <- sum(tau)*diff(tt)[1] # int_0^1 tau(t) dt
-#   myfun       <- function(c){stats::pt(c, lower.tail = FALSE, df=nu)+tau_01*(1+c^2/nu)^(-nu/2)/(2*pi) - alpha.level/2}
-#   cstar       <- stats::uniroot(f = myfun,interval = c(.5,8))$root
-#   band        <- rep(cstar, times=length(tau)) * sqrt(diag.cov) / sqrt(N)
-#   band_upper  <- x + band
-#   band_lower  <- x - band
-#   ##
-#   result           <- cbind(band_lower,x,band_upper)
-#   colnames(result) <- c("KR_z_band_lower","x","KR_z_band_upper")
-#   ##
-#   return(result)
-# }
 
 
 # ## Confidence band
