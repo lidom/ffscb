@@ -117,7 +117,7 @@ make_band_naive_t_fragm <- function(diag.cov, conf.level, df){
 #' hat.cov    <- crossprod(t(sample - hat.mu)) / N
 #' hat.cov.mu <- hat.cov / N
 #' 
-#' # Compute the tau-parameter (for the KR- and FFSCB-bands)
+#' # Compute the tau-parameter
 #' hat.tau    <- tau_fun(sample)
 #'
 #' # Make and plot confidence bands
@@ -271,7 +271,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
 #' hat.cov    <- crossprod(t(sample - hat.mu)) / N
 #' hat.cov.mu <- hat.cov / N
 #' 
-#' # Compute the tau-parameter (for the KR- and FFSCB-bands)
+#' # Compute the tau-parameter 
 #' hat.tau    <- tau_fun(sample)
 #'
 #' # Make and plot confidence bands

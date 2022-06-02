@@ -191,7 +191,7 @@ confidence_band_fragm <- function(x,
                                   df          = NULL, 
                                   type        = c("FFSCB.z", "FFSCB.t", "naive.t"), 
                                   conf.level  = 0.95, 
-                                  n_int       = 10){
+                                  n_int       = 2){
   ##
   
   if( sum(c("FFSCB.z", "FFSCB.t") %in% type) > 0 & is.null(tau)) {
