@@ -3,13 +3,11 @@
 #' @param x Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from the \link{fda} package.
 #' @param cov.x Cov(x), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param df Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.
+#' @param df Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t' and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.
 #' @param type The band(s) to be constructed.
 #' \itemize{
 #'   \item FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.
 #'   \item FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.
-#'   \item KR.z : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for Gaussian random functions.
-#'   \item KR.t : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for t-distributed random functions.
 #'   \item BEc : The suggested modified Scheffe style band from hyper-ellipsoie Ec, which uses up to the very last dimension.
 #'   \item Bs : Parametric bootstrap simultaneous confidence band, similar to the one appeard in Degras(2011) (for comparision purpose)
 #'   \item naive.t : A collection of point-wise t-intervals. (for comparision purpose)
@@ -41,7 +39,7 @@
 #' hat.cov    <- crossprod(t(sample - hat.mu)) / N
 #' hat.cov.mu <- hat.cov / N
 #' 
-#' # Compute the tau-parameter (for the KR- and FFSCB-bands)
+#' # Compute the tau-parameter 
 #' hat.tau    <- tau_fun(sample)
 #'
 #' # Make and plot confidence bands
@@ -55,7 +53,7 @@ confidence_band <- function(x,
                             cov.x, 
                             tau         = NULL, 
                             df          = NULL, 
-                            type        = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "BEc", "Bs", "naive.t"), 
+                            type        = c("FFSCB.z", "FFSCB.t", "BEc", "Bs", "naive.t"), 
                             conf.level  = 0.95, 
                             grid.size   = 200,
                             Bs.sim.size = 10000, 
@@ -95,11 +93,11 @@ confidence_band <- function(x,
     eigen.cor.m <- eigen(cor.m) ; eigen.cor.m$values[ eigen.cor.m$values < 0 ] <- 0 # trim negative eigenvalues.
   }
   
-  if( sum(c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t") %in% type) > 0 & is.null(tau)) {
-    stop("The procedures FFSCB.z, FFSCB.t, KR.z, and KR.t need a tau parameter.")
+  if( sum(c("FFSCB.z", "FFSCB.t") %in% type) > 0 & is.null(tau)) {
+    stop("The procedures FFSCB.z and FFSCB.t need a tau parameter.")
   }
-  if( sum(c("FFSCB.t", "KR.t", "naive.t") %in% type) > 0 & is.null(df)) {
-    stop("The procedures FFSCB.t, KR.t, and naive.t need a df parameter.")
+  if( sum(c("FFSCB.t", "naive.t") %in% type) > 0 & is.null(df)) {
+    stop("The procedures FFSCB.t and naive.t need a df parameter.")
   }
   
   ## Parameter estimate in first column
@@ -133,20 +131,6 @@ confidence_band <- function(x,
       tmp.colnames     <- c(colnames(result), paste0("naive.t.u.",level), paste0("naive.t.l.",level))
       naive.t          <- make_band_naive_t(cov=cov.m, conf.level=level, df=df)
       result           <- cbind(result, x.v + naive.t, x.v - naive.t)
-      colnames(result) <- tmp.colnames
-    }
-    
-    if ("KR.z" %in% type){
-      tmp.colnames     <- c(colnames(result), paste0("KR.z.u.",level), paste0("KR.z.l.",level))
-      KR.z             <- make_band_KR_z(tau=tau, diag.cov=diag(cov.m), conf.level=level)
-      result           <- cbind(result, x.v + KR.z, x.v - KR.z)
-      colnames(result) <- tmp.colnames
-    }
-    
-    if ("KR.t" %in% type){
-      tmp.colnames     <- c(colnames(result), paste0("KR.t.u.",level), paste0("KR.t.l.",level))
-      KR.t             <- make_band_KR_t(tau=tau, diag.cov=diag(cov.m), df=df, conf.level=level)
-      result           <- cbind(result, x.v + KR.t, x.v - KR.t)
       colnames(result) <- tmp.colnames
     }
     
@@ -188,13 +172,11 @@ confidence_band <- function(x,
 #' @param x Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or \link{fd} object from \link{fda}.
 #' @param diag.cov.x diag(Cov(x)), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or \link{bifd} object from \link{fda}. The eigen decomposition of Cov(X) can be used instead.
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
-#' @param df Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t', 'KR.t', and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.
+#' @param df Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t' and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.
 #' @param type The band(s) to be constructed.
 #' \itemize{
 #'   \item FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.
 #'   \item FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.
-#'   \item KR.z : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for Gaussian random functions.
-#'   \item KR.t : The constant simultaneous confidence band based on the classical Kac-Rice (KR) formula for t-distributed random functions.
 #' }
 #' @param conf.level A vector of confidence levels for the bands to achieve.
 #' @param n_int Number of intervals for the piecewise linear confidence bounds.
@@ -207,16 +189,16 @@ confidence_band_fragm <- function(x,
                                   diag.cov.x, 
                                   tau         = NULL, 
                                   df          = NULL, 
-                                  type        = c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t", "naive.t"), 
+                                  type        = c("FFSCB.z", "FFSCB.t", "naive.t"), 
                                   conf.level  = 0.95, 
                                   n_int       = 10){
   ##
   
-  if( sum(c("FFSCB.z", "FFSCB.t", "KR.z", "KR.t") %in% type) > 0 & is.null(tau)) {
-    stop("The procedures FFSCB.z, FFSCB.t, KR.z, and KR.t need a tau parameter.")
+  if( sum(c("FFSCB.z", "FFSCB.t") %in% type) > 0 & is.null(tau)) {
+    stop("The procedures FFSCB.z and FFSCB.t need a tau parameter.")
   }
-  if( sum(c("FFSCB.t", "KR.t", "naive.t") %in% type) > 0 & is.null(df)) {
-    stop("The procedures FFSCB.t, KR.t, and naive.t need a df parameter.")
+  if( sum(c("FFSCB.t", "naive.t") %in% type) > 0 & is.null(df)) {
+    stop("The procedures FFSCB.t and naive.t need a df parameter.")
   }
   
   ## Parameter estimate in first column
@@ -236,20 +218,6 @@ confidence_band_fragm <- function(x,
       tmp.colnames     <- c(colnames(result), paste0("naive.t.u.",level), paste0("naive.t.l.",level))
       naive.t          <- make_band_naive_t_fragm(diag.cov=diag.cov.x, conf.level=level, df=df)
       result           <- cbind(result, x + naive.t, x - naive.t)
-      colnames(result) <- tmp.colnames
-    }
-    
-    if ("KR.z" %in% type){
-      tmp.colnames     <- c(colnames(result), paste0("KR.z.u.",level), paste0("KR.z.l.",level))
-      KR.z             <- make_band_KR_z(tau=tau, diag.cov=diag.cov.x, conf.level=level)
-      result           <- cbind(result, x + KR.z, x - KR.z)
-      colnames(result) <- tmp.colnames
-    }
-    
-    if ("KR.t" %in% type){
-      tmp.colnames     <- c(colnames(result), paste0("KR.t.u.",level), paste0("KR.t.l.",level))
-      KR.t             <- make_band_KR_t(tau=tau, diag.cov=diag.cov.x, df=df, conf.level=level)
-      result           <- cbind(result, x + KR.t, x - KR.t)
       colnames(result) <- tmp.colnames
     }
     
