@@ -11,10 +11,10 @@
 
 ## Description
 
-The R-package `ffscb` contains the fast ‘n’ fair simultaneous confidence
-bands for functional parameters as introduced in the paper [**Fast and
-Fair Simultaneous Confidence Bands for Functional Parameters**
-(arXiv:1910.00131)](http://arxiv.org/abs/1910.00131) by [Dominik
+Fast ‘n’ fair simultaneous confidence bands for functional parameters as
+introduced in the paper [**Fast and Fair Simultaneous Confidence Bands
+for Functional Parameters**
+(arXiv:1910.00131)](https://arxiv.org/abs/1910.00131) by [Dominik
 Liebl](www.dliebl.com) and [Matthew
 Reimherr](http://www.personal.psu.edu/mlr36/).
 
