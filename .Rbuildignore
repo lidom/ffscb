@@ -7,8 +7,8 @@
 ^LICENSE\.md$
 ^LICENSE$
 ^Make_package\.R$
-^Applications
-^Simulations
+^Applications$
+^Simulations$
 ^\.github$
 ^_pkgdown\.yml$
 ^docs$
