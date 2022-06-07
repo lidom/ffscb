@@ -4,10 +4,6 @@
 ##
 ## ################################
 
-getwd()
-
-usethis::use_mit_license()
-
 ## Remove pkg 
 remove.packages("ffscb")
 
@@ -15,19 +11,30 @@ remove.packages("ffscb")
 devtools::document()
 
 ## CRAN-check pkg
-devtools::check(path = "../ffscb", remote = TRUE)  
-devtools::check_built(path = "../ffscb", remote = TRUE)  
+#devtools::check(path = "../ffscb", remote = TRUE)  
+#devtools::check_built(path = "../ffscb", remote = TRUE)  
 
 ## Install
 devtools::install_local(force = TRUE)
 ##
 library("ffscb")
+citation("ffscb")
+
 help("ffscb")
 
 
 ## Terminal command search and replace in all files (incl subdirectories)
 ## find . -type f -exec sed -i 's/old-word/new-word/g' {} +
 ## #################################
+
+
+getwd()
+
+usethis::use_mit_license()
+
+usethis::use_citation()
+
+
 
 
 

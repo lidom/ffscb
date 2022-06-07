@@ -2,13 +2,21 @@ Package: ffscb
 Type: Package
 Title: Fast 'n' Fair Simultaneous Confidence Bands for Functional Parameters
 Version: 0.0.11
-Authors@R: c(person("Dominik",  "Liebl",    email = "r.packages.mail@gmail.com", role = c("aut", "cre")),
-             person("Matthew",  "Reimherr", email = "mreimherr@psu.edu",         role = "aut"))
+Authors@R: c(person(given  = "Dominik",  
+                    family = "Liebl",    
+                    email  = "r.packages.mail@gmail.com", 
+                    role   = c("aut", "cre")),
+             person(given  = "Matthew",  
+                    family = "Reimherr", 
+                    email  = "mreimherr@psu.edu",         
+                    role   = "aut"))
 Description: Simultaneous confidence bands for functional parameters.
 License: GPL (>= 3)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 3.5.0)
 Imports:
      CompQuadForm,
      fda,

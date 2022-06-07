@@ -1,0 +1,19 @@
+citHeader("To cite ffscb in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "Fast and fair simultaneous confidence bands for functional parameters",
+  author   = c(person(given  = "Dominik",  
+                    family = "Liebl"),
+             person(given  = "Matthew",  
+                    family = "Reimherr")),
+  journal  = "arXiv preprint arXiv:1910.00131",
+  year     = "2022{+}",
+  volume   = "",
+  number   = "",
+  pages    = "1-57",
+  url      = "https://arxiv.org/abs/1910.00131",
+  textVersion = paste(
+  "Liebl, D. & Reimherr, M. (2022+). Fast and fair simultaneous confidence bands for functional parameters. arXiv preprint arXiv:1910.00131."
+  )
+)
