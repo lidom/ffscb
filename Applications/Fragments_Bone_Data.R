@@ -6,7 +6,7 @@ fragm_df <- spnbmd        %>%
   group_by(idnum)         %>% 
   filter(length(idnum)>1) %>% 
   ungroup()
-source(file = "Fragments_Data_Preparation.R")
+source(file = "Applications/Fragments_Data_Preparation.R")
 Y_Wf_mat <- Y_W_mat[,apply(rbind(Y_W_mat,X_W_mat),2,function(x){!all(is.na(x))})]
 X_Wf_mat <- X_W_mat[,apply(rbind(Y_W_mat,X_W_mat),2,function(x){!all(is.na(x))})]
 N_Wf     <- N_W
@@ -25,7 +25,7 @@ fragm_df <- spnbmd        %>%
   group_by(idnum)         %>% 
   filter(length(idnum)>1) %>% 
   ungroup()
-source(file = "Fragments_Data_Preparation.R")
+source(file = "Applications/Fragments_Data_Preparation.R")
 Y_Wm_mat <- Y_W_mat[,apply(rbind(Y_W_mat,X_W_mat),2,function(x){!all(is.na(x))})]
 X_Wm_mat <- X_W_mat[,apply(rbind(Y_W_mat,X_W_mat),2,function(x){!all(is.na(x))})]
 N_Wm     <- N_W
@@ -44,12 +44,12 @@ N_Bm     <- N_B
 (N_m <- sum(c(N_Wm, N_Am, N_Hm, N_Bm)))
 
 round(
-cbind(c(N_Wf, N_Af, N_Hf, N_Bf)/N_f,
-      c(N_Wm, N_Am, N_Hm, N_Bm)/N_m)
-, d=2)
+  cbind(c(N_Wf, N_Af, N_Hf, N_Bf)/N_f,
+        c(N_Wm, N_Am, N_Hm, N_Bm)/N_m)
+  , d=2)
 
 
-## Function for cumputing the local numbers of observations
+## Function for computing the local numbers of observations
 n_ts <- function(X_mat) 
 {
   p           <- nrow(X_mat)
@@ -106,28 +106,19 @@ tau        <- ffscb:::cov2tau_fun(cov_mat)
 b    <- ffscb:::confidence_band_fragm(x          = c(hat_mu_f - hat_mu_m), 
                                       diag.cov.x = diag_cov_x, 
                                       tau        = tau, 
-                                      t0         = 0, 
                                       df         = min(c(n_f,n_m)) - 1, 
-                                      type       = c("KR.t","FFSCB.t"), 
+                                      type       = c("FFSCB.t"), 
                                       conf.level = (1-0.05), 
-                                      n_int      = 9, 
-                                      tol        = .Machine$double.eps^0.5)
+                                      n_int      = 2)
 
-
-slct_KR_t    <- grepl(pattern = "KR.t",    colnames(b))
 slct_FFSCB_t <- grepl(pattern = "FFSCB.t", colnames(b))
 
 hat_mu_diff  <- b[,1]
-KR_t_band    <- b[,slct_KR_t] 
 FFSCB_t_band <- b[,slct_FFSCB_t] #FFSCB_res$band[,-1]
 
 
 grid[FFSCB_t_band[,2]>0] %>% range
 
-
-## ####### ##
-## Plots   ##
-## ####### ##
 
 width     <- 7
 height    <- 3.8
@@ -150,20 +141,19 @@ legend("bottomright", legend = c("Estimated mean (female)",
 mtext(text = "Spinal BMD", 3, line = 0.4, adj = 0, cex=cex)
 mtext(text = "Age", 1, line = 2.25, cex=cexs)
 ##
-matplot(y=cbind(KR_t_band, FFSCB_t_band),  x=grid, type="n", xlab="", ylab="")
+matplot(y=FFSCB_t_band,  x=grid, type="n", xlab="", ylab="")
 polygon(x=c(grid,rev(grid)), 
         y=c(FFSCB_t_band[,2],rev(FFSCB_t_band[,1])), col = gray(.75), border = gray(.75))
 abline(  h = 0, lwd=0.7)
 lines(   y = hat_mu_diff,  x = grid, col=1, lty=1)
 axis(4, at = 0, labels = expression(H[0]:~theta[f]-theta[m]==0))
-legend("bottomleft", legend = c(expression(paste("Estimated mean diff.")), expression(FF[t])), 
-       lty=c(1,1), bty="n", lwd = c(1.5,10), col=c("black", gray(.75)), cex =cexs, seg.len=2)#x=10.5,y=-0.11
+legend(x=9.5, y=-0.075, legend = c(expression(paste("Estimated mean diff.")), expression(FF["frag,t"]^"2,2S")), 
+       lty=c(1,1), bty="n", lwd = c(1.5,10), col=c("black", gray(.75)), cex =cexs, seg.len=2)
 mtext(text = "Differences in mean functions", 3, line = 0.4, adj = 0, cex=cex)
 mtext(text = "Age", 1, line = 2.25, cex=cexs)
 dev.off()
 
 
-## Covariance functions
 width     <- 7.1
 height    <- 3.7
 par(mfrow=c(1,2), family = "serif", ps=13, cex.main=.99, font.main = 1, mar=c(4.1, 4.1, 2.1, 2.1))
