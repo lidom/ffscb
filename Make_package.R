@@ -11,7 +11,7 @@ remove.packages("ffscb")
 devtools::document()
 
 ## CRAN-check pkg
-#devtools::check(path = "../ffscb", remote = TRUE)  
+#devtools::check(remote = TRUE)  
 #devtools::check_built(path = "../ffscb", remote = TRUE)  
 
 ## Install
