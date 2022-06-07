@@ -18,6 +18,10 @@ devtools::install_local("ffscb", force = TRUE)
 ##
 library("ffscb")
 help("ffscb")
+
+
+## Terminal command search and replace in all files (incl subdirectories)
+## find . -type f -exec sed -i 's/old-word/new-word/g' {} +
 ## #################################
 
 
