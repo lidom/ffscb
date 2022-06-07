@@ -22,10 +22,10 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 
-## Description
+## Description 
 Fast 'n' fair simultaneous confidence bands for functional parameters as introduced in the paper [**Fast and Fair Simultaneous Confidence Bands for Functional Parameters** (arXiv:1910.00131)](https://arxiv.org/abs/1910.00131) by [Dominik Liebl](www.dliebl.com) and [Matthew Reimherr](http://www.personal.psu.edu/mlr36/).
 
-The folders `Simulations` and `Applications` contain `r-scripts` reproducing the simulations and real-data applications of the manuscript.
+The folders `Simulations` and `Applications` contain the `r-scripts` for reproducing the simulations and real-data applications of the manuscript.
 
 ## Installation 
 ```r

@@ -18,7 +18,7 @@ for Functional Parameters**
 Liebl](www.dliebl.com) and [Matthew
 Reimherr](http://www.personal.psu.edu/mlr36/).
 
-The folders `Simulations` and `Applications` contain `r-scripts`
+The folders `Simulations` and `Applications` contain the `r-scripts` for
 reproducing the simulations and real-data applications of the
 manuscript.
 
