@@ -4,7 +4,7 @@
 \alias{make_cov_m}
 \title{Make discretized covariance function}
 \usage{
-make_cov_m(cov.f = covf.st.matern, grid, cov.f.params = NULL)
+make_cov_m(cov.f = covf_st_matern, grid, cov.f.params = NULL)
 }
 \arguments{
 \item{cov.f}{Covariance function}

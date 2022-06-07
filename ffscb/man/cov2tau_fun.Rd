@@ -27,13 +27,13 @@ mu        <- meanf_poly(grid, params = c(0,0))
 
 # Generate random functions using a stationary 
 # covariance function (homogeneous roughness (HR))
-cov.m = make_cov_m(cov.f = covf.st.matern, grid=grid, 
+cov.m = make_cov_m(cov.f = covf_st_matern, grid=grid, 
 cov.f.params=c(2,2,2))
 X_HR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 
 # Generate random functions using non-stationary 
 # covariance function (increasing roughness (IR))
-cov.m = make_cov_m(cov.f = covf.nonst.matern, grid=grid, 
+cov.m = make_cov_m(cov.f = covf_nonst_matern, grid=grid, 
 cov.f.params=c(3/2, 1/2, 2))
 X_IR  <-  make_sample(mean.v = mu, cov.m = cov.m, N = N, dist = "rnorm")
 

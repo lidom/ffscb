@@ -12,7 +12,7 @@ make_grid <- function(p=100,rangevals=c(0,1)){seq(rangevals[1],rangevals[2],len=
 #' @param grid Evaluation-grid 
 #' @param cov.f.params Parameters of the covariance function
 #' @export
-make_cov_m <- function(cov.f=covf.st.matern, grid, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
+make_cov_m <- function(cov.f=covf_st_matern, grid, cov.f.params=NULL){  ### Make cov. matrix from cov. function.
   grid.size <- length(grid)
   cov.m     <- matrix(0,nrow=grid.size,ncol=grid.size)
   if (is.null(cov.f.params)) {
@@ -144,13 +144,13 @@ cov_partial_fd <- function(X_mat){
 
 qt2 <- function(p,df){-stats::qt((1-p)/2,df)}
 
-get.req.n.pc <- function(proportion, lambdas){ # Finds how many pcs are required to achieve desired variance proportion(prop. as 1-10^(-x))
+get_req_n_pc <- function(proportion, lambdas){ # Finds how many pcs are required to achieve desired variance proportion(prop. as 1-10^(-x))
   satisfied  <- (proportion <= cumsum(lambdas) / sum(lambdas))
   min(c(1:length(lambdas))[satisfied])
 }
 
 
-get.schisq.q.gamma <- function(weights,prob){  # prob as 1-alpha
+get_chisq_q_gamma <- function(weights,prob){  # prob as 1-alpha
   meanvalue  <- sum(weights)
   varvalue   <- sum(2*weights^2)
   gammascale <- varvalue / meanvalue   # 's'
@@ -159,7 +159,7 @@ get.schisq.q.gamma <- function(weights,prob){  # prob as 1-alpha
 }
 
 
-get.crit.supnorm.simple <- function(cov.m,n.sim,prob){ ### Finding Maximum of Normal - Supnorm criteria ----
+get_crit_supnorm_simple <- function(cov.m,n.sim,prob){ ### Finding Maximum of Normal - Supnorm criteria ----
   J <- length(diag(cov.m)) # number of points to estimate  ### Simple Maximum Simulation (Degras) ----
   X <- array(0,dim=c(J,n.sim))
   sd.v <- sqrt(diag(cov.m))

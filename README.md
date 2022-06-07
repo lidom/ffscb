@@ -23,7 +23,7 @@ N          <- 80
 grid       <- make_grid(p, rangevals=c(0,1))
 mu         <- meanf_poly(grid,c(0,.25)) 
 names(mu)  <- grid
-cov.m      <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
+cov.m      <- make_cov_m(cov.f = covf_nonst_matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
 sample     <- make_sample(mu,cov.m,N)
 
 # Compute the estimate, hat.mu, and its covariance, hat.cov.mu

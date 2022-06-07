@@ -30,8 +30,8 @@ mu0        <- meanf_poly(grid,c(0,0))
 names(mu0) <- grid
 mu         <- meanf_poly(grid,c(0,0)) 
 names(mu)  <- grid
-# cov.m      <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
-cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(3/2, 1/4))
+# cov.m      <- make_cov_m(cov.f = covf_nonst_matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
+cov.m      <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(3/2, 1/4))
 
 
 sample     <- make_sample(mu,cov.m,N)

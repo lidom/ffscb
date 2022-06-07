@@ -1,6 +1,6 @@
 #' Takes eigen decomposition of bifd covariance object.
 #'
-#' @param cov.fd Covariance operator as a bifd object. Use \link{Data2bifd} to convert covariance matrix into a bifd object.
+#' @param cov.fd Covariance operator as a bifd object (fda package). Use \link{Data2bifd} to convert covariance matrix into a bifd object.
 #' @export
 eigen.fd <- function(cov.fd){
   BtB       <- fda::inprod(cov.fd$sbasis,cov.fd$tbasis) ## sbisis and tbasis should be the same.

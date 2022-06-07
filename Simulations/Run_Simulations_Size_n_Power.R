@@ -52,13 +52,13 @@ for(t0 in t0_seq){
         names(mu0) <- grid
         ##
         if(grepl("DGP1", DGP)) {# stationary: smooth 
-          cov.m     <- make_cov_m(cov.f = covf.st.matern,    grid=grid, cov.f.params=c(3/2, 1/4))
+          cov.m     <- make_cov_m(cov.f = covf_st_matern,    grid=grid, cov.f.params=c(3/2, 1/4))
         }
         if(grepl("DGP2", DGP)) {# stationary: rough
-          cov.m     <- make_cov_m(cov.f = covf.st.matern,    grid=grid, cov.f.params=c(1/2, 1/4))
+          cov.m     <- make_cov_m(cov.f = covf_st_matern,    grid=grid, cov.f.params=c(1/2, 1/4))
         }
         if(grepl("DGP3", DGP)) {# non-stationary: from smooth to rough
-          cov.m     <- make_cov_m(cov.f = covf.nonst.matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
+          cov.m     <- make_cov_m(cov.f = covf_nonst_matern, grid=grid, cov.f.params=c(2, 1/4, 1/4))
         }
         ## 
         ## Number of Monte-Carlo repetitions

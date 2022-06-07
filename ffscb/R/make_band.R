@@ -3,7 +3,7 @@ make_band_Ec <- function(eigen, conf.level, fd.eval.grid.size=200){
   pc.to.use   <- sum(eigen$values > .Machine$double.eps)
   c.square    <- sqrt(eigen$values[1:pc.to.use])
   weights     <- eigen$values[1:pc.to.use]/c.square
-  xi          <- get.schisq.q.gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
+  xi          <- get_chisq_q_gamma(weights,conf.level) ## Approximate Quantile of Weighted Sum of Chi-square by Gamma
   if (inherits(eigen,"pca.fd") | inherits(eigen,"eigen.fd")) {
     evalgrid      <- ffscb::make_grid(p=fd.eval.grid.size, rangevals=eigen$harmonics$basis$rangeval)
     eigen$vectors <- fda::eval.fd(evalgrid,eigen$harmonics)
@@ -22,7 +22,7 @@ make_band_Bs <- function(cov, conf.level, sim.size=10000, fd.eval.grid.size=200)
   } else {
     cov.m <- cov
   }
-  crit.Bs    <- get.crit.supnorm.simple(cov.m = cov.m, n.sim = sim.size, prob = conf.level)
+  crit.Bs    <- get_crit_supnorm_simple(cov.m = cov.m, n.sim = sim.size, prob = conf.level)
   band.eval  <- sqrt(diag(cov.m)) * crit.Bs
   if (inherits(cov,"bifd")) {
     return(fda::Data2fd(evalgrid,band.eval,basisobj=cov$sbasis))
@@ -109,7 +109,7 @@ make_band_naive_t_fragm <- function(diag.cov, conf.level, df){
 #' grid       <- make_grid(p, rangevals=c(0,1))
 #' mu         <- meanf_poly(grid,c(0,1.1)) 
 #' names(mu)  <- grid
-#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m      <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample     <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -263,7 +263,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
 #' grid       <- make_grid(p, rangevals=c(0,1))
 #' mu         <- meanf_poly(grid,c(0,1.1)) 
 #' names(mu)  <- grid
-#' cov.m      <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m      <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample     <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance

@@ -13,7 +13,7 @@
 #' grid   <- make_grid(p, rangevals=c(0,1))
 #' mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
 #' mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
-#' cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m  <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -73,7 +73,7 @@ get_pval_Ec <- function(x, x0=NULL, eigen, fpc.cut=NULL, prec=NULL){
 #' grid   <- make_grid(p, rangevals=c(0,1))
 #' mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
 #' mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
-#' cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m  <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -133,7 +133,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, diag.cov, eval.points=NULL, n_in
 #' grid   <- make_grid(p, rangevals=c(0,1))
 #' mu0    <- meanf_poly(grid,c(0,1))   ; names(mu0) <- grid
 #' mu     <- meanf_poly(grid,c(0,1.1)) ; names(mu)  <- grid
-#' cov.m  <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+#' cov.m  <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 #' sample <- make_sample(mu,cov.m,N)
 #'
 #' # Compute the estimate and its covariance
@@ -192,7 +192,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, diag.cov, df, eval.points=NULL, 
 # grid  <- make_grid(p, rangevals=rangeval)
 # mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
 # mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
-# cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+# cov.m <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 # dat   <- make_sample(mu,cov.m,N)
 #
 # # Find the estimate and covariance
@@ -250,7 +250,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, diag.cov, df, eval.points=NULL, 
 # grid  <- make_grid(p, rangevals=rangeval)
 # mu0   <- meanf_poly(grid,c(0,1)) ; names(mu0) = grid
 # mu    <- meanf_poly(grid,c(0,1.1)) ; names(mu) = grid
-# cov.m <- make_cov_m(cov.f = covf.st.matern, grid=grid, cov.f.params=c(2/2,1,1))
+# cov.m <- make_cov_m(cov.f = covf_st_matern, grid=grid, cov.f.params=c(2/2,1,1))
 # dat   <- make_sample(mu,cov.m,N)
 #
 # # Find the estimate and covariance
