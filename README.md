@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/lidom/ffscb/workflows/R-CMD-check/badge.svg)](https://github.com/lidom/ffscb/actions)
+
 <!-- badges: end -->
 
 ## Description
@@ -17,8 +18,9 @@ Fair Simultaneous Confidence Bands for Functional Parameters**
 Liebl](www.dliebl.com) and [Matthew
 Reimherr](http://www.personal.psu.edu/mlr36/).
 
-The folders `Simulations` and `Applications` contain `r-scripts` to
-reproduce the simulations and real-data applications of the manuscript.
+The folders `Simulations` and `Applications` contain `r-scripts`
+reproducing the simulations and real-data applications of the
+manuscript.
 
 ## Installation
 
