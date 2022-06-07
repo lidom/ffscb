@@ -18,7 +18,7 @@ devtools::document()
 # devtools::check()  
 
 ## Install
-devtools::install_local("ffscb", force = TRUE)
+devtools::install_local(force = TRUE)
 ##
 library("ffscb")
 help("ffscb")
