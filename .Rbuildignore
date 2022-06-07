@@ -1,0 +1,11 @@
+^PRJ_ffscb_pkg\.Rproj$
+^\.Rproj\.user$
+^\.github
+^\.pre-commit-config\.yaml$
+^codecov.yml
+^README\.Rmd$
+^LICENSE\.md$
+^LICENSE$
+^Make_package\.R$
+^Applications
+^Simulations

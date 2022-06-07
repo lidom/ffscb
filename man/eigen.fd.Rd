@@ -7,7 +7,7 @@
 eigen.fd(cov.fd)
 }
 \arguments{
-\item{cov.fd}{Covariance operator as a bifd object. Use \link{Data2bifd} to convert covariance matrix into a bifd object.}
+\item{cov.fd}{Covariance operator as a bifd object (fda package). Use \link{Data2bifd} to convert covariance matrix into a bifd object.}
 }
 \description{
 Takes eigen decomposition of bifd covariance object.

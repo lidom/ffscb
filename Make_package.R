@@ -4,14 +4,18 @@
 ##
 ## ################################
 
+getwd()
+
+usethis::use_mit_license()
+
 ## Remove pkg 
 remove.packages("ffscb")
 
 ## Create/update documentation and (re-)write NAMESPACE
-devtools::document("ffscb")
+devtools::document()
 
 ## CRAN-check pkg
-# devtools::check("ffscb")       # check the package
+# devtools::check()  
 
 ## Install
 devtools::install_local("ffscb", force = TRUE)
