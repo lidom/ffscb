@@ -18,12 +18,12 @@ Liebl](www.dliebl.com) and [Matthew
 Reimherr](http://www.personal.psu.edu/mlr36/).
 
 The folders `Simulations` and `Applications` contain `r-scripts` to
-reproduce the results in Section 3 and Section 4 of the manuscript.
+reproduce the simulations and real-data applications of the manuscript.
 
 ## Installation
 
 ``` r
-devtools::install_github("lidom/ffscb/ffscb")
+devtools::install_github("lidom/ffscb")
 ```
 
 ## Getting Started
