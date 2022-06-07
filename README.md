@@ -1,17 +1,14 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# project
+# R-package: ffscb
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/timmens/project-dominik-tim/workflows/R-CMD-check/badge.svg)](https://github.com/timmens/project-dominik-tim/actions)
-[![Codecov test
-coverage](https://codecov.io/gh/timmens/project-dominik-tim/branch/main/graph/badge.svg)](https://codecov.io/gh/timmens/project-dominik-tim?branch=main)
 [![R-CMD-check](https://github.com/lidom/ffscb/workflows/R-CMD-check/badge.svg)](https://github.com/lidom/ffscb/actions)
 <!-- badges: end -->
 
-# R-package: ffscb
+## Description
 
 The R-package `ffscb` contains the fast ‘n’ fair simultaneous confidence
 bands for functional parameters as introduced in the paper [**Fast and
