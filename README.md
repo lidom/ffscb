@@ -1,22 +1,44 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# project
+
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/timmens/project-dominik-tim/workflows/R-CMD-check/badge.svg)](https://github.com/timmens/project-dominik-tim/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/timmens/project-dominik-tim/branch/main/graph/badge.svg)](https://codecov.io/gh/timmens/project-dominik-tim?branch=main)
+[![R-CMD-check](https://github.com/lidom/ffscb/workflows/R-CMD-check/badge.svg)](https://github.com/lidom/ffscb/actions)
+<!-- badges: end -->
+
 # R-package: ffscb
-The R-package `ffscb` contains the fast 'n' fair simultaneous confidence bands for functional parameters as introduced in the paper [**Fast and Fair Simultaneous Confidence Bands for Functional Parameters** (arXiv:1910.00131)](http://arxiv.org/abs/1910.00131) by [Dominik Liebl](www.dliebl.com) and [Matthew Reimherr](http://www.personal.psu.edu/mlr36/).
 
-The folders `Simulations` and `Applications` contain `r-scripts` to reproduce the results in Section 3 and Section 4 of the manuscript.
+The R-package `ffscb` contains the fast ‘n’ fair simultaneous confidence
+bands for functional parameters as introduced in the paper [**Fast and
+Fair Simultaneous Confidence Bands for Functional Parameters**
+(arXiv:1910.00131)](http://arxiv.org/abs/1910.00131) by [Dominik
+Liebl](www.dliebl.com) and [Matthew
+Reimherr](http://www.personal.psu.edu/mlr36/).
 
-## Installation 
-```r
+The folders `Simulations` and `Applications` contain `r-scripts` to
+reproduce the results in Section 3 and Section 4 of the manuscript.
+
+## Installation
+
+``` r
 devtools::install_github("lidom/ffscb/ffscb")
 ```
 
 ## Getting Started
-```r
+
+``` r
 library("ffscb")
 help("ffscb")
 ```
 
 ## Example Codes
 
-```r
+``` r
 # Generate a sample
 p          <- 200 
 N          <- 80 
@@ -44,9 +66,9 @@ plot(b)
 
 Legend for band-`type`:
 
-|Argument   | Description
-|:-----------|:--------------
-|`FFSCB.t`  | Our fast 'n' fair simultaneous confidence band
-|`Bs`       | Bootstrap based simultaneous confidence band similar to [Degras (2011)](http://www3.stat.sinica.edu.tw/statistica/j21n4/j21n412/j21n412.html)
-|`BEc`      | Simultaneous confidence band of [Choi and Reimherr (2018)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssb.12239)
-|`naive.t`  | Naive pointwise confidence band
+| Argument  | Description                                                                                                                                   |
+|:----------|:----------------------------------------------------------------------------------------------------------------------------------------------|
+| `FFSCB.t` | Our fast ‘n’ fair simultaneous confidence band                                                                                                |
+| `Bs`      | Bootstrap based simultaneous confidence band similar to [Degras (2011)](http://www3.stat.sinica.edu.tw/statistica/j21n4/j21n412/j21n412.html) |
+| `BEc`     | Simultaneous confidence band of [Choi and Reimherr (2018)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssb.12239)                   |
+| `naive.t` | Naive pointwise confidence band                                                                                                               |
