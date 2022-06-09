@@ -1,6 +1,8 @@
 ## Load packages 
 library("tidyverse")
-library("parallel") 
+## Need to be installed and loaded 
+## Here commented out since they lead to errors at windows-OS
+# library("parallel") 
 library("ffscb")
 ## -----------------------
 ## R packages of Fabian Telschow
