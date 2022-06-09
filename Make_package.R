@@ -40,7 +40,6 @@ help("ffscb")
 
 
 
-
 ## Generate a sample
 p          <- 200 
 N          <- 15

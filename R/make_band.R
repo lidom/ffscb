@@ -101,7 +101,7 @@ make_band_naive_t_fragm <- function(diag.cov, conf.level, df){
 #' @param tau Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().
 #' @param conf.level confidence level (default: 0.95)
 #' @param n_int Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.
-#' @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+#' @references Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
 #' p          <- 200 
@@ -255,7 +255,7 @@ make_band_FFSCB_z <- function(x, diag.cov.x, tau, conf.level=0.95, n_int=4){
 #' @param df Degrees of freedom 
 #' @param conf.level confidence level (default: 0.95)
 #' @param n_int Number of equidistant intervals over which the multiple testing component of the type-I error rate (1-conf.level) is distributed uniformly.
-#' @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+#' @references Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
 #' p          <- 200 

@@ -293,8 +293,8 @@
 <span class="va">hat_mu_f</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">Y_f_mat</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">hat_mu_m</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">Y_m_mat</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">##</span>
-<span class="va">hat_cov_f</span>      <span class="op">&lt;-</span> <span class="fu">ffscb</span><span class="fu">:::</span><span class="fu">cov_partial_fd</span><span class="op">(</span><span class="va">Y_f_mat</span><span class="op">)</span>
-<span class="va">hat_cov_m</span>      <span class="op">&lt;-</span> <span class="fu">ffscb</span><span class="fu">:::</span><span class="fu">cov_partial_fd</span><span class="op">(</span><span class="va">Y_m_mat</span><span class="op">)</span>
+<span class="va">hat_cov_f</span>      <span class="op">&lt;-</span> <span class="fu">ffscb</span><span class="fu">:::</span><span class="fu">cov_fragments</span><span class="op">(</span><span class="va">Y_f_mat</span><span class="op">)</span>
+<span class="va">hat_cov_m</span>      <span class="op">&lt;-</span> <span class="fu">ffscb</span><span class="fu">:::</span><span class="fu">cov_fragments</span><span class="op">(</span><span class="va">Y_m_mat</span><span class="op">)</span>
 <span class="co">##</span>
 <span class="va">width</span>     <span class="op">&lt;-</span> <span class="fl">7.1</span>
 <span class="va">height</span>    <span class="op">&lt;-</span> <span class="fl">3.7</span>

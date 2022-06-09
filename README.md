@@ -277,12 +277,11 @@ estimate the covariance functions at a band along the diagonal of the
 covarianc functions.
 
 ``` r
+hat_mu_f   <- rowMeans(Y_f_mat, na.rm = TRUE) # mean function estimate (female)
+hat_mu_m   <- rowMeans(Y_m_mat, na.rm = TRUE) # mean function estimate (male)
 ##
-hat_mu_f   <- rowMeans(Y_f_mat, na.rm = TRUE)
-hat_mu_m   <- rowMeans(Y_m_mat, na.rm = TRUE)
-##
-hat_cov_f      <- ffscb:::cov_partial_fd(Y_f_mat)
-hat_cov_m      <- ffscb:::cov_partial_fd(Y_m_mat)
+hat_cov_f  <- cov_fragments(Y_f_mat) # covariance function estimate (female)
+hat_cov_m  <- cov_fragments(Y_m_mat) # covariance function estimate (male)
 ##
 width     <- 7.1
 height    <- 3.7
@@ -302,43 +301,21 @@ roughness parameter `hat.tau`; even though, `hat_cov_mat` can only be
 computed along a band around the diagonal.
 
 ``` r
-## Function for computing the local numbers of observations
-n_ts <- function(X_mat) 
-{
-  p           <- nrow(X_mat)
-  n           <- ncol(X_mat)
-  n_ts_mat    <- matrix(NA, ncol = p, nrow = p)
-  for (s in seq(1, p)) {
-    for (t in seq(s, p)) {
-      X_s <- X_mat[s, ]
-      X_t <- X_mat[t, ]
-      n_na <- sum(is.na(c(X_s * X_t)))
-      if (n - n_na == 0) {
-        n_ts_mat[s, t] <- 0
-      }
-      else {
-        n_ts_mat[s, t] <- length(c(na.omit(X_s * X_t)))
-      }
-      n_ts_mat[t, s] <- n_ts_mat[s, t]
-    }
-  }
-  return(n_ts_mat)
-}
-
+N_f          <- ncol(X_f_mat) # Number of female subjects
+N_m          <- ncol(X_m_mat) # Number of male subjects
 ##
-N_f          <- ncol(X_f_mat)
-N_m          <- ncol(X_m_mat)
-##
-n_f_ts       <- n_ts(Y_f_mat);  n_f <- diag(n_f_ts)
-n_m_ts       <- n_ts(Y_m_mat);  n_m <- diag(n_m_ts)
+# number of observations X_i(t)*X_i(s), i=1,...,N_f, for each (t,s) grid point
+n_f_ts       <- n_ts(Y_f_mat);  n_f <- diag(n_f_ts) 
+# number of observations X_i(t)*X_i(s), i=1,...,N_m, for each (t,s) grid point
+n_m_ts       <- n_ts(Y_m_mat);  n_m <- diag(n_m_ts) 
 ##
 hat_cov_mat  <- ( (n_f_ts - 1) * hat_cov_f + (n_m_ts - 1) * hat_cov_m ) / (n_f_ts + n_m_ts -2)
 diag_cov     <- diag(hat_cov_mat)
 diag_cov_x   <- diag_cov / (n_f + n_m)
 ##
-tau          <- ffscb:::cov2tau_fun(hat_cov_mat)
+tau          <- cov2tau_fun(hat_cov_mat)
 ##
-b            <- ffscb:::confidence_band_fragm(x  = c(hat_mu_f - hat_mu_m), 
+b            <- confidence_band_fragm(x  = c(hat_mu_f - hat_mu_m), 
                                       diag.cov.x = diag_cov_x, 
                                       tau        = tau, 
                                       df         = min(c(n_f,n_m)) - 1, 

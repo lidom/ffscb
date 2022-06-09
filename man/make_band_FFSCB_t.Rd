@@ -47,5 +47,5 @@ matplot(y=band[,2:3], x=grid, lty=2)
 lines(x=grid, y=band[,1], lty=1)
 }
 \references{
-Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 }

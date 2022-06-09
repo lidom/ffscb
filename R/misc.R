@@ -118,7 +118,11 @@ locate_crossings <- function(x_vec, threshold, type=c("up", "down")){
 }
 
 
-cov_partial_fd <- function(X_mat){
+#' Estimate covariance function from fragmentary functional data
+#'
+#' @param X_mat nxp Matrix with fragmentary observed functional data of subjects i=1,...,p stored column-wise. Missing data are assumed to be set to NA.
+#' @export
+cov_fragments <- function(X_mat){
   p <- nrow(X_mat)
   n <- ncol(X_mat)
   ##
@@ -139,6 +143,33 @@ cov_partial_fd <- function(X_mat){
     }
   }
   return(cov_mat)
+}
+
+
+#' Count number of observations in X_i(t)*X_i(s), i=1...,n, with fragmentary functional data X_i
+#'
+#' @param X_mat nxp Matrix with fragmentary observed functional data of subjects i=1,...,p stored column-wise. Missing data are assumed to be set to NA.
+#' @export
+n_ts <- function(X_mat) 
+{
+  p           <- nrow(X_mat)
+  n           <- ncol(X_mat)
+  n_ts_mat    <- matrix(NA, ncol = p, nrow = p)
+  for (s in seq(1, p)) {
+    for (t in seq(s, p)) {
+      X_s <- X_mat[s, ]
+      X_t <- X_mat[t, ]
+      n_na <- sum(is.na(c(X_s * X_t)))
+      if (n - n_na == 0) {
+        n_ts_mat[s, t] <- 0
+      }
+      else {
+        n_ts_mat[s, t] <- length(c(na.omit(X_s * X_t)))
+      }
+      n_ts_mat[t, s] <- n_ts_mat[s, t]
+    }
+  }
+  return(n_ts_mat)
 }
 
 

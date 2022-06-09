@@ -77,7 +77,7 @@ lines(x=grid, y=mu0, lty=2)
 }
 \references{
 \itemize{
-   \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+   \item Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
    \item  Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239-260.
 }
 }

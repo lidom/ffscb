@@ -19,7 +19,7 @@
 #' @return confidence_band Either a collection of vector valued bands or `fd' object whose objectname is changed to confidence_band.
 #' @references 
 #' \itemize{
-#'    \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+#'    \item Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 #'    \item  Choi, H. and Reimherr, M. (2018). A geometric approach to confidence regions and bands for functional parameters. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 80 239-260.
 #' }
 #' @examples
@@ -183,8 +183,9 @@ confidence_band <- function(x,
 #' @return confidence_band_fragm
 #' @references 
 #' \itemize{
-#'    \item Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+#'    \item Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 #' }
+#' @export 
 confidence_band_fragm <- function(x, 
                                   diag.cov.x, 
                                   tau         = NULL, 

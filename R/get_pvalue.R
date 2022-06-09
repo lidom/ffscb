@@ -65,7 +65,7 @@ get_pval_Ec <- function(x, x0=NULL, eigen, fpc.cut=NULL, prec=NULL){
 #' @param diag.cov The diagonal of Cov(x), in which x is the functional estimator. For instance, the diagonal of the discretized covariance function of the empirical mean function x.  
 #' @param eval.points Evaluation points (in [0,1]) at which the pvalues should be computed.
 #' @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
-#' @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+#' @references Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
 #' p <- 200 
@@ -125,7 +125,7 @@ get_pvalue_FFSCB_z <- function(x, x0=NULL, tau, diag.cov, eval.points=NULL, n_in
 #' @param df Degrees of freedom parameter for the t-distribution based band 'FFSCB.t'. (Typically, df=N-1)
 #' @param eval.points Evaluation points (in [0,1]) at which the pvalues should be computed.
 #' @param n_int Number of intervals parameter used by the function make_band_FFSCB_t()
-#' @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+#' @references Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 #' @examples 
 #' # Generate a sample
 #' p <- 200 
@@ -185,7 +185,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, diag.cov, df, eval.points=NULL, 
 # @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 # @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
 # @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
-# @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+# @references Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 # @examples 
 # # Generate a sample
 # p <- 200 ; N <- 80 ; rangeval = c(0,1)
@@ -243,7 +243,7 @@ get_pvalue_FFSCB_t <- function(x, x0=NULL, tau, diag.cov, df, eval.points=NULL, 
 # @param N It should be '1' if 'cov' is the covariance operator for X itself, which is the default value.
 # @param n.eval.points Number of evaluation points for the p-value function. Large values (>10) lead to slow computations.
 # @param n_int Number of intervals parameter used by the function make_band_FFSCB_z()
-# @references Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+# @references Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 # @example 
 # # Generate a sample
 # p <- 200 ; N <- 80 ; rangeval = c(0,1)

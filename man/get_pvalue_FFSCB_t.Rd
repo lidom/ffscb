@@ -55,5 +55,5 @@ pval <- get_pvalue_FFSCB_t(x=hat.mu, x0=mu0, tau=hat.tau,
 pval
 }
 \references{
-Liebl, D. and Reimherr, M. (2021+). Fast and fair simultaneous confidence bands.
+Liebl, D. and Reimherr, M. (2022+). Fast and fair simultaneous confidence bands.
 }
