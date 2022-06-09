@@ -2,7 +2,18 @@
 ##
 ## Make Package Codes
 ##
-## ################################
+##
+################################
+
+usethis::use_mit_license()
+#usethis::use_citation()
+
+# Run once to configure package to use pkgdown
+# usethis::use_pkgdown()
+# Run to build the website
+pkgdown::build_site()
+#usethis::use_pkgdown_github_pages()
+
 
 ## Remove pkg 
 remove.packages("ffscb")
@@ -27,17 +38,6 @@ help("ffscb")
 ## find . -type f -exec sed -i 's/old-word/new-word/g' {} +
 ## #################################
 
-
-getwd()
-
-usethis::use_mit_license()
-#usethis::use_citation()
-
-# Run once to configure package to use pkgdown
-# usethis::use_pkgdown()
-# Run to build the website
-pkgdown::build_site()
-#usethis::use_pkgdown_github_pages()
 
 
 

@@ -270,7 +270,7 @@ mtext(text = "Male", 3, line = 0.4, adj = 0, cex=cex)
 
 Based on `hat_cov_f` and `hat_cov_f`, we can compute the covariance estimate `hat_cov_mat` of the two-sample mean difference  `hat_mu_f - hat_mu_m`. Based on `hat_cov_mat`, we can compute the roughness parameter `hat.tau`; even though `hat_cov_mat` can only be computed along a band around the diagonal. 
 
-```{r}
+```{r, echo=TRUE, fig.height=3.5}
 ## Function for computing the local numbers of observations
 n_ts <- function(X_mat) 
 {
