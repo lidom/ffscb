@@ -34,6 +34,9 @@
     <loc>/reference/cov2tau_fun.html</loc>
   </url>
   <url>
+    <loc>/reference/cov_fragments.html</loc>
+  </url>
+  <url>
     <loc>/reference/covf_nonst_matern.html</loc>
   </url>
   <url>
@@ -101,6 +104,9 @@
   </url>
   <url>
     <loc>/reference/meanf_shift.html</loc>
+  </url>
+  <url>
+    <loc>/reference/n_ts.html</loc>
   </url>
   <url>
     <loc>/reference/plot.confidence_band.html</loc>

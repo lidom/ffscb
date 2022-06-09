@@ -164,7 +164,7 @@ n_ts <- function(X_mat)
         n_ts_mat[s, t] <- 0
       }
       else {
-        n_ts_mat[s, t] <- length(c(na.omit(X_s * X_t)))
+        n_ts_mat[s, t] <- length(c(stats::na.omit(X_s * X_t)))
       }
       n_ts_mat[t, s] <- n_ts_mat[s, t]
     }
