@@ -298,7 +298,7 @@ mtext(text = "Male", 3, line = 0.4, adj = 0, cex=cex)
 Based on `hat_cov_f` and `hat_cov_f`, we can compute the covariance
 estimate `hat_cov_mat` of the two-sample mean difference
 `hat_mu_f - hat_mu_m`. Based on `hat_cov_mat`, we can compute the
-roughness parameter `hat.tau`; even though `hat_cov_mat` can only be
+roughness parameter `hat.tau`; even though, `hat_cov_mat` can only be
 computed along a band around the diagonal.
 
 ``` r
@@ -365,7 +365,7 @@ polygon(x=c(grid,rev(grid)),
 abline(  h = 0, lwd=0.7)
 lines(   y = hat_mu_diff,  x = grid, col=1, lty=1)
 axis(4, at = 0, labels = expression(H[0]:~theta[f]-theta[m]==0))
-legend(x=9.5, y=-0.075, legend = c(expression(paste("Estimated mean diff.")), expression(FF["frag,t"]^"2,2S")), 
+legend(x=11, y=-0.01, legend = c(expression(paste("Estimated mean diff.")), expression(FF["frag,t"]^"2,2S")), 
        lty=c(1,1), bty="n", lwd = c(1.5,10), col=c("black", gray(.75)), cex =cexs, seg.len=2)#x=10.5,y=-0.11
 mtext(text = "Differences in mean functions", 3, line = 0.4, adj = 0, cex=cex)
 mtext(text = "Age", 1, line = 2.25, cex=cexs)
