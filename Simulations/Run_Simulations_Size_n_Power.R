@@ -1,15 +1,9 @@
-## install.packages("tidyverse")
-## install.packages("parallel")
-## install.packages("ffscb")
-## devtools::install_local("Telschow_R_packages/SIRF-master.zip")
-## devtools::install_github("ftelschow/SampleFields/SampleFields")
-## devtools::install_github("ftelschow/RFT/RFT", force=TRUE)
-
 ## Load packages 
 library("tidyverse")
 library("parallel") 
 library("ffscb")
 ## -----------------------
+## R packages of Fabian Telschow
 library("SIRF")
 library("RFT")
 library("SampleFields")
