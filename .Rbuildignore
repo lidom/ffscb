@@ -7,7 +7,6 @@
 ^LICENSE\.md$
 ^LICENSE$
 ^Make_package\.R$
-^Applications$
 ^Simulations$
 ^\.github$
 ^_pkgdown\.yml$
