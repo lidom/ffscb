@@ -4,9 +4,11 @@ library("parallel")
 library("ffscb")
 ## -----------------------
 ## R packages of Fabian Telschow
-library("SIRF")
-library("RFT")
-library("SampleFields")
+## Need to be installed and loaded 
+## Here commented out since they lead to errors at windows-OS
+#library("SIRF")
+#library("RFT")
+#library("SampleFields")
 ## -----------------------
 
 ##
