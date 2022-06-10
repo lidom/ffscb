@@ -1,16 +1,12 @@
 ## Load packages 
 library("tidyverse")
-## Need to be installed and loaded 
-## Here commented out since they lead to errors at windows-OS
-# library("parallel") 
+library("parallel") 
 library("ffscb")
 ## -----------------------
 ## R packages of Fabian Telschow
-## Need to be installed and loaded 
-## Here commented out since they lead to errors at windows-OS
-#library("SIRF")
-#library("RFT")
-#library("SampleFields")
+library("SIRF")
+library("RFT")
+library("SampleFields")
 ## -----------------------
 
 ##
