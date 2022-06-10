@@ -5,6 +5,10 @@
 ##
 ################################
 
+
+usethis::use_github_action_check_release()
+usethis::use_github_action("pkgdown")
+
 usethis::use_mit_license()
 #usethis::use_citation()
 
