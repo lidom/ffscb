@@ -5,7 +5,10 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/lidom/ffscb/workflows/R-CMD-check/badge.svg)](https://github.com/lidom/ffscb/actions)
+[![R-CMD-check](https://github.com/lidom/ffscb/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lidom/ffscb/actions/workflows/R-CMD-check.yaml)
+[![pages-build-deployment](https://github.com/lidom/ffscb/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/lidom/ffscb/actions/workflows/pages/pages-build-deployment)
+[![pkgdown](https://github.com/lidom/ffscb/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/lidom/ffscb/actions/workflows/pkgdown.yaml)
+[![test-coverage](https://github.com/lidom/ffscb/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/lidom/ffscb/actions/workflows/test-coverage.yaml)
 
 <!-- badges: end -->
 
