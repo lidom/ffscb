@@ -9,14 +9,13 @@
 usethis::use_github_action_check_release()
 usethis::use_github_action("test-coverage")
 usethis::use_github_action("pkgdown")
-
-usethis::use_mit_license()
+#usethis::use_mit_license()
 #usethis::use_citation()
 
 # Run once to configure package to use pkgdown
 # usethis::use_pkgdown()
-# Run to build the website
-pkgdown::build_site()
+# Run to build the website (not required if use_github_action("pkgdown") is used)
+# pkgdown::build_site()
 #usethis::use_pkgdown_github_pages()
 
 
