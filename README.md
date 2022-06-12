@@ -356,5 +356,8 @@ mtext(text = "Age", 1, line = 2.25, cex=cexs)
 More detailes about this real-ata application can be found in our paper
 [Liebl and Reimherr (2022+)](https://arxiv.org/abs/1910.00131).
 
+<script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"dliebl",utcoffset:"2"}))};sessionStorage.setItem("_swa","1");
+</script>
+
 [^1]: Using a standardized function domain \[0,1\] is, for course,
     without loss of generality.
