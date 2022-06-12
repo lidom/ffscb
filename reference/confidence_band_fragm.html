@@ -57,24 +57,39 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>x</dt>
 <dd><p>Functional parameter estimate (for instance, the empirical mean function). It can be either a vector or fd object from fda.</p></dd>
+
+
 <dt>diag.cov.x</dt>
 <dd><p>diag(Cov(x)), in which x is the functional estimator (for instance, the covariance function of the empirical mean function). It can be either matrix or bifd object from fda. The eigen decomposition of Cov(X) can be used instead.</p></dd>
+
+
 <dt>tau</dt>
 <dd><p>Pointwise standard deviation of the standardized and differentiated sample functions. Can be estimated by tau_fun().</p></dd>
+
+
 <dt>df</dt>
 <dd><p>Degrees of freedom parameter for the t-distribution based bands 'FFSCB.t' and 'naive.t'. If x is the empirical mean function, set df=n-1, where n denotes the sample size.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>The band(s) to be constructed.</p><ul><li><p>FFSCB.z : Fast'n'Fair (adaptive) simultaneous confidence band based for a Gaussian functional parameter estimate.</p></li>
 <li><p>FFSCB.t : Fast'n'Fair (adaptive) simultaneous confidence band based for a t-distributed functional parameter estimate.</p></li>
 </ul></dd>
+
+
 <dt>conf.level</dt>
 <dd><p>A vector of confidence levels for the bands to achieve.</p></dd>
+
+
 <dt>n_int</dt>
 <dd><p>Number of intervals for the piecewise linear confidence bounds.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>confidence_band_fragm</p>
+    
+
+<p>confidence_band_fragm</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -91,7 +106,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>
